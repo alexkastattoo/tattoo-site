@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alex Kas Tattoo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Montserrat', sans-serif; }
+  </style>
+</head>
+<body class="bg-neutral-900 text-white">
+
+  <!-- Логотип по центру -->
+<header class="w-full flex justify-center items-center pt-4 pb-2">
+  <img src="img/logo.png" alt="Логотип Alex Kas Tattoo" class="h-24" />
+</header>
+
+ <!-- Главный блок с фоном -->
+<section class="h-screen bg-cover bg-center relative" style="background-image: url('img/alex_work.jpg');">
+  <div class="absolute inset-0 bg-black/70"></div> <!-- затемнение -->
+  <div class="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
+    <h1 class="text-4xl md:text-6xl font-bold tracking-wide text-white drop-shadow-lg">
+      Black & Grey Realism Tattoos
+    </h1>
+    <p class="mt-4 text-lg md:text-xl text-gray-200 max-w-xl drop-shadow-md">
+      Timeless tattoos crafted with detail, depth and meaning. Based in Canada. Book your next piece with Alex Kas.
+    </p>
+    <a href="#contact" class="mt-6 inline-block bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition">
+      Book Now
+    </a>
+  </div>
+</section>
+
+  <!-- О Алексее -->
+  <section class="py-16 px-6 max-w-6xl mx-auto text-center">
+    <h2 class="text-3xl font-semibold mb-4">About Alex</h2>
+    <p class="text-gray-300 text-lg mb-8">
+      With over 10 years of experience in black &amp; grey realism, I specialize in high-contrast, storytelling tattoos. From mythological figures to wildlife, each piece is crafted with precision and emotion.
+    </p>
+  </section>
+
+  <!-- Портфолио -->
+  <section class="bg-neutral-800 py-16 px-6">
+    <h2 class="text-3xl font-semibold text-center mb-10">Portfolio</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <img src="img/sample1.jpg" alt="Татуировка 1" class="rounded-lg shadow-lg" />
+      <img src="img/sample2.jpg" alt="Татуировка 2" class="rounded-lg shadow-lg" />
+      <img src="img/sample3.jpg" alt="Татуировка 3" class="rounded-lg shadow-lg" />
+    </div>
+   <p class="text-center text-gray-400 mt-6 text-lg">
+  👉 <a href="https://instagram.com/alexkas.tattoo" target="_blank" class="underline hover:text-white transition">
+    See more works on Instagram
+  </a>
+</p>
+  </section>
+
+ 
+  <!-- Отзывы -->
+  <section class="py-16 px-6 max-w-4xl mx-auto">
+    <h2 class="text-3xl font-semibold text-center mb-10">Client Testimonials</h2>
+    <div class="space-y-6">
+      <div class="bg-neutral-800 p-6 rounded-lg shadow">
+        <p class="italic text-gray-200">“Alex is a true artist. My tattoo healed perfectly and exceeded my expectations. Clean studio and a calm experience.”</p>
+        <p class="mt-2 text-sm text-gray-400">— Jessica M.</p>
+      </div>
+      <div class="bg-neutral-800 p-6 rounded-lg shadow">
+        <p class="italic text-gray-200">“Best black and grey realism in the area. The level of detail and depth is unmatched.”</p>
+        <p class="mt-2 text-sm text-gray-400">— David R.</p>
+      </div>
+      <div class="bg-neutral-800 p-6 rounded-lg shadow">
+        <p class="italic text-gray-200">“Incredible experience. Alex took the time to understand my idea and turned it into a piece of art I wear proudly.”</p>
+        <p class="mt-2 text-sm text-gray-400">— Lina K.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Информация о бронировании -->
+  <section class="py-16 px-6 max-w-3xl mx-auto">
+    <h2 class="text-3xl font-semibold mb-6 text-center">Booking &amp; FAQ</h2>
+    <div class="text-gray-300 space-y-6 text-center">
+      <p><strong>Hourly Rate:</strong> $180 CAD + tax</p>
+      <p><strong>Full-Day Session:</strong> $800 CAD + tax</p>
+      <p><strong>Deposit:</strong> $100 CAD non-refundable (applied to final price)</p>
+      <p><strong>How to Book:</strong> Email or DM with your idea, placement, reference photos. Replies within 1–3 days.</p>
+      <p><strong>Rescheduling:</strong> Minimum 48h notice required to retain deposit.</p>
+    </div>
+  </section>
+
+  <!-- Контактная форма -->
+  <section id="contact" class="py-16 px-6 max-w-3xl mx-auto">
+    <h2 class="text-3xl font-semibold mb-4 text-center">Contact</h2>
+    <form action="https://formsubmit.co/alexkastattoo@gmail.com" method="POST" class="space-y-4">
+      <input type="text" name="name" required placeholder="Your Name" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700" />
+      <input type="email" name="email" required placeholder="Your Email" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700" />
+      <textarea name="message" required placeholder="Your Message" rows="5" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700"></textarea>
+      <button type="submit" class="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-300 transition">
+        Send
+      </button>
+    </form>
+    <p class="text-gray-400 mt-6 text-center">
+      📸 <a href="https://instagram.com/alexkas.tattoo" target="_blank" rel="noopener noreferrer" class="underline">Instagram</a><br />
+      📧 <a href="mailto:alexkastattoo@gmail.com" class="underline">alexkastattoo@gmail.com</a>
+    </p>
+   <p class="text-center text-gray-300 mt-4">📍 358 King St, Fredericton, NB E3B 1H2</p>
+    <div class="mt-4">
+      <iframe class="w-full rounded-lg h-64" frameborder="0" style="border:0"
+        src="https://www.google.com/maps/embed/v1/place?q=358+King+St,+Fredericton,+NB+E3B+1H2&key=AIzaSyD-IU88n34YBt9e0D1cW3uEUUEQ8AxZKow" allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  <!-- Футер -->
+  <footer class="bg-neutral-950 py-6 text-center text-gray-500 text-sm">
+    &copy; 2025 Alex Kas Tattoo. All rights reserved.
+  </footer>
+
+</body>
+</html>
