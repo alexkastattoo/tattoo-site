@@ -6,6 +6,7 @@
   <title>Alex Kas Tattoo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Montserrat', sans-serif; }
   </style>
@@ -103,13 +104,38 @@
       📸 <a href="https://instagram.com/alexkas.tattoo" target="_blank" rel="noopener noreferrer" class="underline">Instagram</a><br />
       📧 <a href="mailto:alexkastattoo@gmail.com" class="underline">alexkastattoo@gmail.com</a>
     </p>
-   <p class="text-center text-gray-300 mt-4">📍 358 King St, Fredericton, NB E3B 1H2</p>
-    <div class="mt-4">
-      <iframe class="w-full rounded-lg h-64" frameborder="0" style="border:0"
-        src="https://www.google.com/maps/embed/v1/place?q=358+King+St,+Fredericton,+NB+E3B+1H2&key=AIzaSyD-IU88n34YBt9e0D1cW3uEUUEQ8AxZKow" allowfullscreen>
-      </iframe>
-    </div>
   </section>
+
+  <!-- MAP SECTION -->
+  <section class="py-16 px-6 bg-neutral-800 text-center">
+    <h2 class="text-3xl font-semibold mb-6">📍 Location</h2>
+    <div id="map" class="w-full h-[400px] max-w-6xl mx-auto rounded-lg shadow-lg"></div>
+    <p class="mt-4 text-gray-400">
+      <a href="https://www.google.com/maps/place/358+King+St,+Fredericton,+NB+E3B+1H2,+Canada" target="_blank" class="underline hover:text-white">
+        358 King St, Fredericton, NB E3B1H2
+      </a>
+    </p>
+  </section>
+
+  <!-- MAP SCRIPT -->
+  <script>
+    function initMap() {
+      const location = { lat: 45.9592, lng: -66.6416 };
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: location,
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#212121" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+          { featureType: "poi", elementType: "geometry", stylers: [{ color: "#181818" }] },
+          { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] }
+        ]
+      });
+      const marker = new google.maps.Marker({ position: location, map: map });
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZeSYKlD-RQHI3Mn2hfNZJ8d9qwI0A3kQ&callback=initMap"></script>
 
   <!-- Футер -->
   <footer class="bg-neutral-950 py-6 text-center text-gray-500 text-sm">
