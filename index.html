@@ -10,6 +10,7 @@
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
     body { font-family: 'Montserrat', sans-serif; }
   </style>
@@ -17,9 +18,9 @@
 <body class="bg-neutral-900 text-white">
 
   <!-- Логотип по центру -->
-<header class="w-full flex justify-center items-center pt-4 pb-2">
-  <img src="img/logo.png" alt="logo Alex Kas Tattoo" class="h-24" />
-</header>
+<!--<header class="w-full flex justify-start items-center px-6 pt-4 pb-2">
+  <img src="img/logo.png" alt="Alex Kas Tattoo Logo" class="h-12" />
+</header> -->
 
  <!-- Главный блок с фоном -->
 <section class="h-screen bg-cover bg-center relative" style="background-image: url('img/alex_work.jpg');">
@@ -54,7 +55,7 @@
       <img src="img/sample3.jpg" alt="rose in realism" class="rounded-lg shadow-lg" />
     </div>
    <p class="text-center text-gray-400 mt-6 text-lg">
-  👉 <a href="https://instagram.com/alexkas.tattoo" target="_blank" class="underline hover:text-white transition">
+  👉 <a href="https://instagram.com/alexkastattoo" target="_blank" class="underline hover:text-white transition">
     See more works on Instagram
   </a>
 </p>
@@ -82,53 +83,150 @@
 
   <!-- Информация о бронировании -->
   <section class="py-16 px-6 max-w-3xl mx-auto">
-    <h2 class="text-3xl font-semibold mb-6 text-center">Booking &amp; FAQ</h2>
-    <div class="text-gray-300 space-y-6 text-center">
-      <p><strong>Hourly Rate:</strong> $180 CAD + tax</p>
-      <p><strong>Full-Day Session:</strong> $800 CAD + tax</p>
-      <p><strong>Deposit:</strong> $100 CAD non-refundable (applied to final price)</p>
-      <p><strong>How to Book:</strong> Email or DM with your idea, placement, reference photos. Replies within 1–3 days.</p>
-      <p><strong>Rescheduling:</strong> Minimum 48h notice required to retain deposit.</p>
+      <section id="faq" class="bg-neutral-900 py-16 px-6">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+    <div class="space-y-6">
+      <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">How much does a tattoo cost?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+    It depends on the size, complexity and placement. My minimum is $180/hour or $800 per session (4–6 hours) + tax.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">How do I book an appointment?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     To book a tattoo session, please fill out the booking form on this website or send me a message on Instagram <a href="https://instagram.com/alexkastattoo">@alexkastattoo</a>. I usually respond within 1–3 days.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">Do I need to leave a deposit?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Yes. A non-refundable deposit is required to secure your booking. The deposit goes toward the final cost of your tattoo.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">Can I reschedule my appointment?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Yes, but please notify me at least 48 hours in advance. Short-notice reschedules may result in losing your deposit.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">Does it hurt?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Yes, tattoos involve discomfort — but it’s manageable. Everyone feels it differently, and I always make sure you’re as comfortable as possible throughout the session.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">Can I bring my own design or idea?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Absolutely. You can send me your idea or reference — I’ll create a custom design based on it, in my signature style.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">How should I prepare for my tattoo session?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Get a good night’s sleep, eat a solid meal, and stay hydrated. Don’t drink alcohol or take painkillers 24 hours before the session. Wear comfortable clothes and bring snacks if it’s a long one.
+  </div>
+</div>
+<p>
+        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
+  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
+    <h3 class="text-xl font-semibold">What’s your cancellation policy?</h3>
+    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  <div x-show="open" x-transition class="mt-2 text-gray-400">
+     Cancellations made less than 48 hours before your appointment will result in a lost deposit. Please respect my time — no-shows are not tolerated.
+  </div>
+</div>
+  </div>
+</section>
     </div>
+     <!-- Соц.сети — иконки с подписями -->
+<div class="flex flex-wrap justify-center gap-6 mt-12 text-white">
+  <a href="https://instagram.com/alexkastattoo" target="_blank" class="flex items-center gap-2 hover:text-pink-500 transition">
+    <img src="img/ig.png" alt="Instagram" class="w-6 h-6" />
+    <span class="text-lg">Instagram</span>
+  </a>
+
+  <a href="https://www.facebook.com/share/1AUNESRY8v/?mibextid=wwXIfr" target="_blank" class="flex items-center gap-2 hover:text-blue-500 transition">
+    <img src="img/fb.png" alt="Facebook" class="w-6 h-6" />
+    <span class="text-lg">Facebook</span>
+  </a>
+
+  <a href="mailto:alexkastattoo@gmail.com" class="flex items-center gap-2 hover:text-gray-300 transition">
+    <img src="img/email.png" alt="Email" class="w-6 h-6" />
+    <span class="text-lg">Email</span>
+  </a>
+</div>
   </section>
 
   <!-- Контактная форма -->
   <section id="contact" class="py-16 px-6 max-w-3xl mx-auto">
-    <h2 class="text-3xl font-semibold mb-4 text-center">Contact</h2>
-    <form action="https://formsubmit.co/alexkastattoo@gmail.com" method="POST" class="space-y-4">
-      <input type="text" name="name" required placeholder="Your Name" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700" />
-      <input type="email" name="email" required placeholder="Your Email" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700" />
-      <textarea name="message" required placeholder="Your Message" rows="5" class="w-full p-3 rounded bg-neutral-800 text-white border border-neutral-700"></textarea>
-      <div class="mb-4">
-  <label class="block text-gray-300 mb-2" for="reference">Upload Reference Image</label>
-  <input
-    type="file"
-    id="reference"
-    name="reference"
-    accept="image/*"
-    class="w-full text-gray-200 bg-neutral-800 border border-gray-600 rounded px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-neutral-700 file:text-white hover:file:bg-neutral-600"
-  />
-</div>
-      <button type="submit" class="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-300 transition">
-        Send
-      </button>
-    </form>
-  <div class="flex flex-col items-center mt-8 space-y-4 text-center text-gray-300">
-  <a href="https://instagram.com/alexkas.tattoo" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 hover:text-white transition">
-    <img src="img/ig.png" alt="Instagram" class="w-6 h-6" />
-    <span>@alexkas.tattoo</span>
-  </a>
+    <h2 class="text-3xl font-bold text-center mb-6">Booking & Reference Upload</h2>
+      <p class="text-gray-400 text-center mb-8">Send your idea, contact info and upload reference images for your next tattoo.</p>
 
-  <a href="https://facebook.com/alexkas.tattoo" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 hover:text-white transition">
-    <img src="img/fb.png" alt="Facebook" class="w-6 h-6" />
-    <span>Facebook Page</span>
-  </a>
+      <form action="https://formcarry.com/s/InvXLPBi7-B" method="POST" enctype="multipart/form-data" class="space-y-6">
 
-  <a href="mailto:alexkastattoo@gmail.com" class="flex items-center space-x-2 hover:text-white transition">
-    <img src="img/email.png" alt="Email" class="w-6 h-6" />
-    <span>alexkastattoo@gmail.com</span>
-  </a>
-</div>
+        <input type="text" name="name" placeholder="Your Full Name" required class="w-full p-3 rounded bg-neutral-800 text-white" />
+
+        <input type="email" name="email" placeholder="Your Email" required class="w-full p-3 rounded bg-neutral-800 text-white" />
+
+        <textarea name="message" placeholder="Your Message" rows="4" required class="w-full p-3 rounded bg-neutral-800 text-white"></textarea>
+
+        <div>
+          <label class="block mb-1 text-gray-300">Upload reference image (jpg/png):</label>
+          <input type="file" name="reference" accept=".jpg, .png" class="block w-full text-white" />
+        </div>
+
+        <button type="submit" class="w-full bg-white text-black py-3 px-6 rounded hover:bg-gray-300 transition">
+          Send Message
+        </button>
+
+      </form>
   </section>
 
 
