@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #050509;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      width: 100%;
+      max-width: 1100px;
+      background: radial-gradient(circle at top left, #232334 0, #101018 50%, #06060b 100%);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .card { grid-template-columns: 1fr; }
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+    p {
+      margin: 4px 0 12px;
+      font-size: 14px;
+      color: #c3c3d0;
+    }
+    .label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a8aa0;
+      margin-bottom: 4px;
+    }
+    .panel {
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(10,10,18,0.85);
+      padding: 14px;
+    }
+    .upload-zone {
+      border: 1px dashed rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .upload-zone:hover {
+      border-color: #ff4b4b;
+      background: rgba(255,75,75,0.06);
+    }
+    input[type="file"] { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #ff4b4b;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+    .btn-secondary {
+      background: #252538;
+      margin-left: 10px;
+    }
+
+    .preview-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+    canvas, img {
+      width: 100%;
+      max-height: 450px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #050509;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9797b0;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div>
+    <div class="label">Alex Kas Tattoo · Tool</div>
+    <h1>Pic → Tattoo Reference</h1>
+    <p>Upload any photo and convert it into a clean, high-contrast black & grey tattoo reference. All processing runs locally in your browser.</p>
+
+    <div class="panel">
+      <div class="upload-zone" id="uploadZone">
+        <strong>Drop image here</strong><br/>
+        <span style="font-size:12px;">or click to choose JPG / PNG / WEBP</span>
+        <input type="file" id="fileInput" accept="image/*" />
+      </div>
+
+      <button class="btn" id="processBtn" disabled>Process to Tattoo Ref</button>
+      <button class="btn btn-secondary" id="downloadBtn" disabled>Download result</button>
+
+      <div style="margin-top:10px;font-size:11px;color:#777791;">
+        Preset: grayscale, +contrast, +clarity, light smooth – tuned for tattoo reference work.
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel preview-wrap">
+      <div class="label">Preview</div>
+      <canvas id="canvas"></canvas>
+      <div class="row">
+        <span id="status">Waiting for image…</span>
+        <span id="sizeInfo"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput   = document.getElementById('fileInput');
+  const uploadZone  = document.getElementById('uploadZone');
+  const processBtn  = document.getElementById('processBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const canvas      = document.getElementById('canvas');
+  const ctx         = canvas.getContext('2d');
+  const statusEl    = document.getElementById('status');
+  const sizeInfo    = document.getElementById('sizeInfo');
+
+  let originalImage = null;
+  let processedDataURL = null;
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#ff4b4b';
+  });
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.style.borderColor = 'rgba(255,255,255,0.25)';
+  });
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.style.borderColor = 'rgba(255,255,255,0.25)';
+    const file = e.dataTransfer.files[0];
+    if (file) loadImage(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) loadImage(file);
+  });
+
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        originalImage = img;
+
+        const maxW = 900;
+        const maxH = 450;
+        let { width, height } = img;
+        const ratio = Math.min(maxW / width, maxH / height, 1);
+        width *= ratio;
+        height *= ratio;
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        statusEl.textContent = 'Image loaded. Click “Process to Tattoo Ref”.';
+        sizeInfo.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+        processBtn.disabled = false;
+        downloadBtn.disabled = true;
+        processedDataURL = null;
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function applyTattooPreset() {
+    if (!originalImage) return;
+
+    const maxW = 900;
+    const maxH = 450;
+    let { width, height } = originalImage;
+    const ratio = Math.min(maxW / width, maxH / height, 1);
+    width *= ratio;
+    height *= ratio;
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(originalImage, 0, 0, width, height);
+
+    let imgData = ctx.getImageData(0, 0, width, height);
+    let data = imgData.data;
+
+    // Настройки пресета (можно потом подстроить под твой вкус)
+    const contrastBoost = 30;   // примерно +30%
+    const brightnessBoost = 10; // примерно +10
+    const sharpBoost = 25;      // примерно +25%
+
+    // 1) Grayscale + лёгкая коррекция яркости/контраста
+    const c = contrastBoost;
+    const factor = (259 * (c + 255)) / (255 * (259 - c));
+
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i];
+      let g = data[i+1];
+      let b = data[i+2];
+
+      // luminance
+      let gray = 0.299*r + 0.587*g + 0.114*b;
+
+      // контраст + яркость
+      gray = factor * (gray - 128) + 128 + brightnessBoost;
+      gray = Math.max(0, Math.min(255, gray));
+
+      // лёгкая S-кривая
+      let x = gray / 255;
+      x = Math.pow(x, 0.9); // немного поднимаем тени
+      gray = Math.max(0, Math.min(255, x * 255));
+
+      data[i] = data[i+1] = data[i+2] = gray;
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+
+    // 2) Лёгкое повышение резкости по принципу “clarity”
+    if (sharpBoost !== 0) {
+      const amount = sharpBoost / 100; // 0..0.25
+      const srcData = ctx.getImageData(0, 0, width, height);
+      const src = srcData.data;
+      const dstData = ctx.getImageData(0, 0, width, height);
+      const dst = dstData.data;
+
+      const w = width;
+      const h = height;
+      function idx(x, y) { return (y*w + x)*4; }
+
+      for (let y = 1; y < h-1; y++) {
+        for (let x = 1; x < w-1; x++) {
+          const i0 = idx(x, y);
+          const c0 = src[i0];
+
+          const up    = src[idx(x, y-1)];
+          const down  = src[idx(x, y+1)];
+          const left  = src[idx(x-1, y)];
+          const right = src[idx(x+1, y)];
+          const blur  = (c0 + up + down + left + right) / 5;
+
+          const highpass = c0 - blur;
+          let val = c0 + highpass * (amount * 2.5);
+
+          val = Math.max(0, Math.min(255, val));
+          dst[i0] = dst[i0+1] = dst[i0+2] = val;
+          dst[i0+3] = 255;
+        }
+      }
+
+      ctx.putImageData(dstData, 0, 0);
+    }
+
+    // 3) Лёгкое сглаживание шума
+    const smoothPasses = 1;
+    for (let s = 0; s < smoothPasses; s++) {
+      const srcData = ctx.getImageData(0, 0, width, height);
+      const src = srcData.data;
+      const dstData = ctx.getImageData(0, 0, width, height);
+      const dst = dstData.data;
+      const w = width;
+      const h = height;
+      function idx(x, y) { return (y*w + x)*4; }
+      for (let y = 1; y < h-1; y++) {
+        for (let x = 1; x < w-1; x++) {
+          const i0 = idx(x, y);
+          const c0 = src[i0];
+          const up    = src[idx(x, y-1)];
+          const down  = src[idx(x, y+1)];
+          const left  = src[idx(x-1, y)];
+          const right = src[idx(x+1, y)];
+          const avg = (c0 + up + down + left + right) / 5;
+          dst[i0] = dst[i0+1] = dst[i0+2] = avg;
+          dst[i0+3] = 255;
+        }
+      }
+      ctx.putImageData(dstData, 0, 0);
+    }
+
+    processedDataURL = canvas.toDataURL('image/jpeg', 0.95);
+    statusEl.textContent = 'Processed for tattoo reference. You can download the result.';
+    downloadBtn.disabled = false;
+  }
+
+  processBtn.addEventListener('click', () => {
+    statusEl.textContent = 'Processing…';
+    setTimeout(applyTattooPreset, 10);
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!processedDataURL) return;
+    const a = document.createElement('a');
+    a.href = processedDataURL;
+    a.download = 'tattoo_reference_alexkas.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+</script>
+</body>
+</html>
