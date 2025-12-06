@@ -1,501 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #05060a;
-      --card: #0b0e16;
-      --accent: #ff4b4b;
-      --accent-soft: rgba(255, 75, 75, 0.15);
-      --text: #f5f5f7;
-      --muted: #8b8ea0;
-      --border: #1b1f2a;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
+<meta charset="UTF-8">
+<title>Pic → Tattoo Reference</title>
+<style>
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #171b29 0, #05060a 55%);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      padding: 32px 16px;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: #eee;
     }
-
-    .page {
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    header {
-      margin-bottom: 24px;
-    }
-
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
     h1 {
-      font-size: 26px;
-      margin: 0;
+        text-align: center;
+        margin-top: 20px;
+        font-size: 28px;
     }
-
-    .subtitle {
-      margin-top: 8px;
-      font-size: 14px;
-      color: var(--muted);
-      max-width: 540px;
+    #upload-area {
+        width: 100%;
+        text-align: center;
+        padding: 25px;
     }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
-      gap: 24px;
-      align-items: stretch;
+    #controls {
+        text-align: center;
+        margin: 20px auto;
+        width: 90%;
+        max-width: 900px;
+        background: #222;
+        padding: 15px;
+        border-radius: 10px;
     }
-
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    .slider-block {
+        margin: 10px 0;
     }
-
-    .card {
-      background: radial-gradient(circle at top left, #171b29 0, #05060a 60%);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 18px 18px 16px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+    label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
     }
-
-    .card h2 {
-      font-size: 15px;
-      margin: 0 0 10px;
+    .preview-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        width: 100%;
     }
-
-    .dropzone {
-      border-radius: 14px;
-      border: 1px dashed rgba(139, 142, 160, 0.7);
-      background: linear-gradient(
-        135deg,
-        rgba(255, 75, 75, 0.08),
-        rgba(255, 75, 75, 0.02)
-      );
-      padding: 20px 14px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    .preview-box {
+        width: 50%;
+        padding: 10px;
     }
-
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: radial-gradient(
-        circle at top,
-        rgba(255, 75, 75, 0.25) 0,
-        rgba(255, 75, 75, 0.05) 40%,
-        transparent 70%
-      );
-      transform: translateY(-1px);
+    .preview-box img {
+        width: 100%;
+        border-radius: 10px;
+        background: #000;
     }
-
-    .drop-main-text {
-      font-size: 15px;
-      font-weight: 500;
-      margin-bottom: 2px;
+    button {
+        padding: 12px 22px;
+        margin: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        cursor: pointer;
     }
-
-    .drop-sub-text {
-      font-size: 12px;
-      color: var(--muted);
+    .process-button {
+        background: #ff4444;
+        color: #fff;
     }
-
-    input[type="file"] {
-      display: none;
+    .reset-button {
+        background: #555;
+        color: #fff;
     }
-
-    .controls {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(139, 142, 160, 0.3);
+    .download-button {
+        background: #3a8be4;
+        color: #fff;
     }
-
-    .slider-row {
-      display: grid;
-      grid-template-columns: 110px minmax(0, 1fr) 40px;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      font-size: 12px;
-    }
-
-    .slider-row label {
-      color: var(--muted);
-    }
-
-    .slider-row span.value {
-      text-align: right;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    input[type="range"] {
-      width: 100%;
-    }
-
-    .buttons {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 0;
-      padding: 8px 16px;
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 500;
-      transition: background 0.2s, transform 0.12s, box-shadow 0.15s,
-        color 0.2s, border-color 0.2s;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ff5f5f, #ff3838);
-      color: #ffffff;
-      box-shadow: 0 10px 30px rgba(255, 75, 75, 0.5);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.45;
-      box-shadow: none;
-      cursor: default;
-    }
-
-    .btn-outline {
-      background: rgba(11, 14, 22, 0.9);
-      border: 1px solid rgba(139, 142, 160, 0.7);
-      color: var(--muted);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid transparent;
-    }
-
-    .btn:not(:disabled):active {
-      transform: translateY(1px);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-    }
-
-    .hint {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .preview-card {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .preview-labels {
-      display: flex;
-      gap: 12px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .pill {
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(139, 142, 160, 0.7);
-    }
-
-    .pill.accent {
-      border-color: rgba(255, 75, 75, 0.8);
-      background: rgba(255, 75, 75, 0.16);
-      color: #ffecec;
-    }
-
-    .zoom-controls {
-      display: flex;
-      gap: 4px;
-    }
-
-    .zoom-controls button {
-      border-radius: 999px;
-      border: 1px solid rgba(139, 142, 160, 0.7);
-      background: rgba(5, 6, 10, 0.8);
-      color: var(--muted);
-      padding: 2px 7px;
-      font-size: 11px;
-      cursor: pointer;
-    }
-
-    .preview-split {
-      position: relative;
-      background: radial-gradient(circle at top, #202536 0, #05060a 70%);
-      border-radius: 14px;
-      border: 1px solid rgba(44, 48, 69, 0.9);
-      overflow: hidden;
-      min-height: 260px;
-    }
-
-    .canvas-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .canvas-wrapper {
-      position: relative;
-      border-right: 1px solid rgba(26, 30, 45, 0.95);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px;
-    }
-
-    .canvas-wrapper:last-child {
-      border-right: 0;
-    }
-
-    canvas {
-      max-width: 100%;
-      max-height: 100%;
-      background: #05060a;
-    }
-
-    .canvas-tag {
-      position: absolute;
-      left: 10px;
-      top: 9px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: rgba(213, 216, 232, 0.85);
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(5, 6, 10, 0.85);
-      border: 1px solid rgba(44, 48, 69, 0.9);
-    }
-
-    .canvas-tag.accent {
-      border-color: rgba(255, 75, 75, 0.9);
-      color: #ffe6e6;
-    }
-
-    .meta {
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .meta span {
-      opacity: 0.9;
-    }
-
-    .meta-strong {
-      color: #f0f0f0;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 16px 10px 24px;
-      }
-
-      .card {
-        padding: 14px 14px 12px;
-      }
-
-      .preview-split {
-        min-height: 220px;
-      }
-
-      .canvas-row {
-        grid-template-columns: 1fr;
-      }
-
-      .canvas-wrapper {
-        border-right: 0;
-        border-bottom: 1px solid rgba(26, 30, 45, 0.95);
-      }
-
-      .canvas-wrapper:last-child {
-        border-bottom: 0;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="eyebrow">ALEX KAS TATTOO · TOOL</div>
-      <h1>Pic → Tattoo Reference</h1>
-      <p class="subtitle">
-        Upload any photo and turn it into a clean, high-contrast black &amp; grey tattoo
-        reference. All processing runs locally in your browser.
-      </p>
-    </header>
 
-    <div class="layout">
-      <!-- LEFT: controls -->
-      <section class="card">
-        <h2>Step 1 · Image &amp; settings</h2>
+<h1>Pic → Tattoo Reference</h1>
 
-        <label id="dropzone" class="dropzone">
-          <input id="fileInput" type="file" accept="image/*" />
-          <div class="drop-main-text">Drop image here</div>
-          <div class="drop-sub-text">or click to choose JPG / PNG / WEBP</div>
-        </label>
+<div id="upload-area">
+    <input type="file" id="imageLoader">
+</div>
 
-        <div class="controls">
-          <div class="slider-row">
-            <label for="contrast">Contrast</label>
-            <input
-              type="range"
-              id="contrast"
-              min="0.6"
-              max="1.8"
-              step="0.02"
-              value="1.3"
-            />
-            <span class="value" id="contrastVal">1.30</span>
-          </div>
-
-          <div class="slider-row">
-            <label for="brightness">Brightness</label>
-            <input
-              type="range"
-              id="brightness"
-              min="0.7"
-              max="1.4"
-              step="0.02"
-              value="1.0"
-            />
-            <span class="value" id="brightnessVal">1.00</span>
-          </div>
-
-          <div class="slider-row">
-            <label for="smoothness">Smoothness</label>
-            <input
-              type="range"
-              id="smoothness"
-              min="0"
-              max="1"
-              step="0.05"
-              value="0.4"
-            />
-            <span class="value" id="smoothnessVal">0.40</span>
-          </div>
-
-          <div class="slider-row">
-            <label for="lineStrength">Line / pencil</label>
-            <input
-              type="range"
-              id="lineStrength"
-              min="0"
-              max="1"
-              step="0.05"
-              value="0.35"
-            />
-            <span class="value" id="lineStrengthVal">0.35</span>
-          </div>
-
-          <div class="buttons">
-            <button id="processBtn" class="btn btn-primary" disabled>
-              Process to tattoo ref
-            </button>
-            <button id="downloadBtn" class="btn btn-outline" disabled>
-              Download result
-            </button>
-            <button id="resetBtn" class="btn btn-ghost">
-              Reset
-            </button>
-          </div>
-
-          <p class="hint">
-            Preset: grayscale, controlled contrast, light smoothing, subtle pencil-style lines.
-            Tuned for tattoo reference work.
-          </p>
-        </div>
-      </section>
-
-      <!-- RIGHT: preview -->
-      <section class="card preview-card">
-        <div class="preview-header">
-          <div class="preview-labels">
-            <span>Preview</span>
-            <span class="pill accent">Tattoo Ref</span>
-          </div>
-          <div class="zoom-controls">
-            <button type="button" id="zoomOutBtn">−</button>
-            <button type="button" id="zoomResetBtn">100%</button>
-            <button type="button" id="zoomInBtn">+</button>
-          </div>
-        </div>
-
-        <div id="previewArea" class="preview-split">
-          <div class="canvas-row">
-            <div class="canvas-wrapper">
-              <span class="canvas-tag">Original</span>
-              <canvas id="originalCanvas"></canvas>
-            </div>
-            <div class="canvas-wrapper">
-              <span class="canvas-tag accent">Tattoo ref</span>
-              <canvas id="processedCanvas"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <div class="meta">
-          <span id="metaInfo">No image loaded yet.</span>
-          <span id="zoomInfo" class="meta-strong">Zoom: 100%</span>
-        </div>
-      </section>
+<div id="controls">
+    <div class="slider-block">
+        <label>Contrast</label>
+        <input id="contrast" type="range" min="0.5" max="2.0" step="0.01" value="1.30">
     </div>
-  </div>
+    <div class="slider-block">
+        <label>Brightness</label>
+        <input id="brightness" type="range" min="0.3" max="2.0" step="0.01" value="1.00">
+    </div>
+    <div class="slider-block">
+        <label>Smoothness</label>
+        <input id="smoothness" type="range" min="0" max="1.0" step="0.01" value="0.40">
+    </div>
+    <div class="slider-block">
+        <label>Line Strength (Pencil Effect)</label>
+        <input id="lineStrength" type="range" min="0" max="1.0" step="0.01" value="0.40">
+    </div>
 
-  <script src="tattoo-ref.js"></script>
+    <button class="process-button" onclick="processImage()">Process</button>
+    <button class="reset-button" onclick="resetSettings()">Reset</button>
+    <button class="download-button" id="downloadBtn" disabled>Download</button>
+</div>
+
+<div class="preview-container">
+    <div class="preview-box">
+        <h3 style="text-align:center;">Original</h3>
+        <img id="originalPreview">
+    </div>
+
+    <div class="preview-box">
+        <h3 style="text-align:center;">Processed</h3>
+        <img id="processedPreview">
+    </div>
+</div>
+
+<script src="tattoo-ref.js"></script>
+
 </body>
 </html>
