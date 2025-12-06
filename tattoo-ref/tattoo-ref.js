@@ -1,6 +1,5 @@
-// tattoo-ref.js
-// Pic → Tattoo Reference with 4 pencil modes
-// All processing is client-side, using Canvas.
+// Pic → Tattoo Reference with 4 pencil modes + Stylized Tattoo mode
+// Всё клиент‑сайд на Canvas.
 
 (() => {
   const fileInput = document.getElementById("fileInput");
@@ -18,11 +17,9 @@
 
   const zoomSlider = document.getElementById("zoom");
   const zoomVal = document.getElementById("zoomValue");
-  const origWrapper = document.getElementById("origWrapper");
-  const procWrapper = document.getElementById("procWrapper");
 
   const modeButtons = document.querySelectorAll(".mode-button");
-  let currentMode = "soft"; // soft | hard | smudge | photo
+  let currentMode = "soft"; // soft | hard | smudge | photo | stylized
 
   const processBtn = document.getElementById("processBtn");
   const resetBtn = document.getElementById("resetBtn");
@@ -36,10 +33,11 @@
   const origCtx = origCanvas.getContext("2d");
   const procCtx = procCanvas.getContext("2d");
 
-  let originalImageData = null; // ImageData of working image
+  let originalImageData = null;
   let workingWidth = 0;
   let workingHeight = 0;
-  const MAX_SIZE = 1600; // max dimension for processing (performance)
+
+  const MAX_SIZE = 1600;
 
   function updateSliderLabels() {
     contrastVal.textContent = parseFloat(contrastSlider.value).toFixed(2);
@@ -47,7 +45,6 @@
     smoothnessVal.textContent = parseFloat(smoothnessSlider.value).toFixed(2);
     pencilVal.textContent = parseFloat(pencilSlider.value).toFixed(2);
   }
-
   updateSliderLabels();
 
   function setZoomFromSlider() {
@@ -56,48 +53,40 @@
     origCanvas.style.transform = `scale(${z})`;
     procCanvas.style.transform = `scale(${z})`;
   }
-
   setZoomFromSlider();
 
-  zoomSlider.addEventListener("input", () => {
-    setZoomFromSlider();
-  });
+  zoomSlider.addEventListener("input", setZoomFromSlider);
 
   modeButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeButtons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentMode = btn.dataset.mode || "soft";
-      if (originalImageData) {
-        processImage();
-      }
+      if (originalImageData) processImage();
     });
   });
 
   function resetSliders() {
-    contrastSlider.value = "1.30";
-    brightnessSlider.value = "1.00";
-    smoothnessSlider.value = "0.40";
-    pencilSlider.value = "0.60";
+    contrastSlider.value = "1.15";
+    brightnessSlider.value = "1.05";
+    smoothnessSlider.value = "0.30";
+    pencilSlider.value = "0.50";
     zoomSlider.value = "100";
     updateSliderLabels();
     setZoomFromSlider();
   }
+  resetSliders();
 
   resetBtn.addEventListener("click", () => {
     resetSliders();
-    if (originalImageData) {
-      processImage();
-    }
+    if (originalImageData) processImage();
   });
 
   [contrastSlider, brightnessSlider, smoothnessSlider, pencilSlider].forEach(
     (slider) => {
       slider.addEventListener("input", () => {
         updateSliderLabels();
-        if (originalImageData) {
-          processImage();
-        }
+        if (originalImageData) processImage();
       });
     }
   );
@@ -109,30 +98,30 @@
 
   downloadBtn.addEventListener("click", () => {
     if (!workingWidth || !workingHeight) return;
-    procCanvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "tattoo-reference.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, "image/png");
+    procCanvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "tattoo-reference.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+      "image/png"
+    );
   });
 
   fileInput.addEventListener("change", (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     fileNameEl.textContent = file.name;
-
     const reader = new FileReader();
     reader.onload = (evt) => {
       const img = new Image();
-      img.onload = () => {
-        prepareImage(img);
-      };
+      img.onload = () => prepareImage(img);
       img.src = evt.target.result;
     };
     reader.readAsDataURL(file);
@@ -142,6 +131,7 @@
     const ratio = img.width / img.height;
     let w = img.width;
     let h = img.height;
+
     if (w > MAX_SIZE || h > MAX_SIZE) {
       if (w > h) {
         w = MAX_SIZE;
@@ -151,6 +141,7 @@
         w = Math.round(MAX_SIZE * ratio);
       }
     }
+
     workingWidth = w;
     workingHeight = h;
 
@@ -172,13 +163,13 @@
     downloadBtn.disabled = false;
   }
 
-  // --- Image processing helpers ---
+  // --- helpers ---
 
   function clamp(v, min, max) {
     return v < min ? min : v > max ? max : v;
   }
 
-  // Simple separable box blur for grayscale array
+  // separable box blur for grayscale array
   function boxBlurGray(src, width, height, radius) {
     if (radius <= 0) return src.slice();
     const tmp = new Float32Array(width * height);
@@ -188,13 +179,13 @@
     const h = height;
     const iarr = 1 / (2 * r + 1);
 
-    // Horizontal
+    // horizontal
     for (let y = 0; y < h; y++) {
       let ti = y * w;
       let li = ti;
       let ri = ti + r;
-      let fv = src[ti];
-      let lv = src[ti + w - 1];
+      const fv = src[ti];
+      const lv = src[ti + w - 1];
       let val = (r + 1) * fv;
       for (let j = 0; j < r; j++) val += src[ti + j];
       for (let x = 0; x < w; x++) {
@@ -206,13 +197,13 @@
       }
     }
 
-    // Vertical
+    // vertical
     for (let x = 0; x < w; x++) {
       let ti = x;
       let li = ti;
       let ri = ti + r * w;
-      let fv = tmp[ti];
-      let lv = tmp[ti + w * (h - 1)];
+      const fv = tmp[ti];
+      const lv = tmp[ti + w * (h - 1)];
       let val = (r + 1) * fv;
       for (let j = 0; j < r; j++) val += tmp[ti + j * w];
       for (let y = 0; y < h; y++) {
@@ -223,6 +214,7 @@
         ti += w;
       }
     }
+
     return dst;
   }
 
@@ -231,13 +223,13 @@
 
     const contrast = parseFloat(contrastSlider.value);
     const brightness = parseFloat(brightnessSlider.value);
-    const smoothness = parseFloat(smoothnessSlider.value); // 0 - 1
-    const pencilStrength = parseFloat(pencilSlider.value); // 0 - 1
+    const smoothness = parseFloat(smoothnessSlider.value);
+    const pencilStrength = parseFloat(pencilSlider.value);
 
     const { data, width, height } = originalImageData;
     const total = width * height;
 
-    // 1) Convert to grayscale
+    // 1) grayscale
     const gray = new Float32Array(total);
     for (let i = 0, j = 0; i < data.length; i += 4, j++) {
       const r = data[i];
@@ -248,12 +240,12 @@
       gray[j] = clamp(y, 0, 255);
     }
 
-    // 2) Base blur amount from smoothness + mode
+    // 2) blur amount
     let blurRadiusBase = 1 + Math.round(smoothness * 6); // 1..7
-
     if (currentMode === "hard") blurRadiusBase = Math.max(1, blurRadiusBase - 1);
     if (currentMode === "smudge") blurRadiusBase += 2;
     if (currentMode === "photo") blurRadiusBase = 2 + Math.round(smoothness * 4);
+    if (currentMode === "stylized") blurRadiusBase = 2 + Math.round(smoothness * 3);
 
     const inverted = new Float32Array(total);
     for (let i = 0; i < total; i++) {
@@ -262,69 +254,71 @@
 
     const blurredInv = boxBlurGray(inverted, width, height, blurRadiusBase);
 
-    // 3) Classic pencil sketch: color dodge of gray with blurred inverted gray
+    // 3) pencil sketch
     const sketch = new Float32Array(total);
     for (let i = 0; i < total; i++) {
       const g = gray[i];
       const b = blurredInv[i];
       const denom = 255 - b;
       let val;
-      if (denom <= 0) {
-        val = 255;
-      } else {
-        val = clamp((g * 255) / denom, 0, 255);
-      }
+      if (denom <= 0) val = 255;
+      else val = clamp((g * 255) / denom, 0, 255);
       sketch[i] = val;
     }
 
-    // 4) Mix modes
-
     const out = new Uint8ClampedArray(total * 4);
 
-    // Contrast factor
-    const cFactor = contrast;
-
-    // Helper to apply contrast to a value 0–255
     function applyContrast(v) {
       const mid = 128;
-      return clamp((v - mid) * cFactor + mid, 0, 255);
+      return clamp((v - mid) * contrast + mid, 0, 255);
     }
 
     for (let i = 0, j = 0; j < total; j++, i += 4) {
       const g = gray[j];
       const s = sketch[j];
-
       let finalVal;
 
       switch (currentMode) {
         case "soft": {
-          // Soft Graphite: смесь gray и sketch, мягкий
-          const mix = 0.5 + 0.4 * pencilStrength; // 0.5..0.9
+          const mix = 0.5 + 0.4 * pencilStrength;
           finalVal = g * (1 - mix) + s * mix;
           break;
         }
         case "hard": {
-          // Hard Sketch: почти одни линии, высокий контраст
-          const mix = 0.7 + 0.3 * pencilStrength; // 0.7..1
+          const mix = 0.7 + 0.3 * pencilStrength;
           finalVal = s * mix + g * (1 - mix);
-          // Дополнительное усиление
           if (pencilStrength > 0.3) {
             finalVal = finalVal * (1 + pencilStrength * 0.6);
           }
           break;
         }
         case "smudge": {
-          // Smudge Base: сильно размыто, мягкий диапазон
-          const mix = 0.4 + 0.4 * pencilStrength; // 0.4..0.8
+          const mix = 0.4 + 0.4 * pencilStrength;
           finalVal = g * (1 - mix) + s * mix;
-          // немного "подрезать" контраст, чтобы легко смаджить
           finalVal = 30 + (finalVal - 30) * 0.9;
           break;
         }
         case "photo": {
-          // Photo Pencil: ближе к фото, но с карандашной фактурой
-          const mix = 0.3 + 0.4 * pencilStrength; // 0.3..0.7
+          const mix = 0.3 + 0.4 * pencilStrength;
           finalVal = g * (1 - mix) + s * mix;
+          break;
+        }
+        case "stylized": {
+          // реалистичный, но единый stylized‑реф
+          const mix = 0.5 + 0.3 * pencilStrength; // 0.5..0.8
+          let v = g * (1 - mix) + s * mix;       // базовое смешение
+
+          // мягкая S‑кривая
+          const mid = 128;
+          const t = (v - mid) / 128;             // -1..1
+          const sCurve = t * (0.6 + 0.4 * contrast);
+          v = mid + sCurve * 128;
+
+          // лёгкая квантизация тонов (3–4 уровня), чтобы сблизить стиль
+          const levels = 4;
+          const step = 255 / (levels - 1);
+          const q = Math.round(v / step) * step;
+          finalVal = 0.6 * v + 0.4 * q;
           break;
         }
         default: {
@@ -342,10 +336,9 @@
 
     const outImageData = new ImageData(out, width, height);
     procCtx.putImageData(outImageData, 0, 0);
-
     procDims.textContent = `${width}×${height}`;
   }
 
-  // Expose reset for debugging, if needed
+  // для отладки, если нужно вызвать сброс из консоли
   window._tattooRefReset = resetSliders;
 })();
