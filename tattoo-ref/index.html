@@ -40,36 +40,11 @@
       border: 1px solid #34343d;
       font-size: 0.95rem;
     }
-    .file-label:hover {
-      border-color: #6f6fff;
-    }
-    #fileInput {
-      display: none;
-    }
+    .file-label:hover { border-color: #6f6fff; }
+    #fileInput { display: none; }
     #fileName {
       font-size: 0.9rem;
-      color: #aaaa bb;
-    }
-
-    .modes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-    .mode-button {
-      border-radius: 14px;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      background: #15151a;
-      border: 1px solid #33333c;
-      color: #d0d0dd;
-      cursor: pointer;
-    }
-    .mode-button.active {
-      background: #7265ff;
-      border-color: #a89bff;
-      color: #fff;
+      color: #aaaabb;
     }
 
     .sliders {
@@ -91,9 +66,7 @@
       margin-bottom: 6px;
       font-size: 0.85rem;
     }
-    input[type="range"] {
-      width: 100%;
-    }
+    input[type="range"] { width: 100%; }
 
     .actions {
       display: flex;
@@ -123,12 +96,6 @@
       cursor: default;
     }
 
-    .tip {
-      font-size: 0.82rem;
-      color: #a0a0b5;
-      margin-bottom: 14px;
-    }
-
     .zoom-row {
       display: flex;
       align-items: center;
@@ -138,6 +105,11 @@
     .zoom-row span {
       font-size: 0.85rem;
       color: #b6b6c6;
+    }
+    .tip {
+      font-size: 0.82rem;
+      color: #a0a0b5;
+      margin-bottom: 14px;
     }
 
     .panels {
@@ -186,7 +158,7 @@
 <body>
   <div class="page">
     <h1>Tattoo Reference Stylizer</h1>
-    <p>Загрузи фото клиента и получи единый стилизованный реф под твой тату‑стиль.</p>
+    <p>Загрузи фото – получи мягкий реалистичный реф под тату (портреты, животные, змеи).</p>
 
     <div class="upload-row">
       <label for="fileInput" class="file-label">Choose file</label>
@@ -194,21 +166,13 @@
       <span id="fileName">No file chosen</span>
     </div>
 
-    <div class="modes">
-      <button class="mode-button active" data-mode="soft">Soft Graphite</button>
-      <button class="mode-button" data-mode="hard">Hard Sketch</button>
-      <button class="mode-button" data-mode="smudge">Smudge Base</button>
-      <button class="mode-button" data-mode="photo">Photo Pencil</button>
-      <button class="mode-button" data-mode="stylized">Stylized (Tattoo)</button>
-    </div>
-
     <div class="sliders">
       <div class="slider-block">
         <div class="slider-top">
           <span>Contrast</span>
-          <span id="contrastValue">1.15</span>
+          <span id="contrastValue">1.10</span>
         </div>
-        <input id="contrast" type="range" min="0.6" max="2.0" step="0.05" value="1.15" />
+        <input id="contrast" type="range" min="0.7" max="1.7" step="0.05" value="1.10" />
       </div>
 
       <div class="slider-block">
@@ -216,23 +180,15 @@
           <span>Brightness</span>
           <span id="brightnessValue">1.05</span>
         </div>
-        <input id="brightness" type="range" min="0.4" max="1.8" step="0.05" value="1.05" />
+        <input id="brightness" type="range" min="0.6" max="1.6" step="0.05" value="1.05" />
       </div>
 
       <div class="slider-block">
         <div class="slider-top">
           <span>Smoothness</span>
-          <span id="smoothnessValue">0.30</span>
+          <span id="smoothnessValue">0.35</span>
         </div>
-        <input id="smoothness" type="range" min="0" max="1" step="0.02" value="0.30" />
-      </div>
-
-      <div class="slider-block">
-        <div class="slider-top">
-          <span>Pencil Strength</span>
-          <span id="pencilValue">0.50</span>
-        </div>
-        <input id="pencilStrength" type="range" min="0" max="1" step="0.02" value="0.50" />
+        <input id="smoothness" type="range" min="0" max="1" step="0.02" value="0.35" />
       </div>
     </div>
 
@@ -249,7 +205,7 @@
     </div>
 
     <p class="tip">
-      Tip: загрузи фото, выбери режим <b>Stylized (Tattoo)</b>, подстрой слайдеры и приблизь canvas для проверки деталей под иглу.
+      Tip: загрузи фото, нажми <b>Process</b>, подстрой слайдеры и приблизь preview, чтобы проверить детали под иглу.
     </p>
 
     <div class="panels">
