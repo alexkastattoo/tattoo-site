@@ -1,7 +1,8 @@
-// Получаем элементы
-const fileInput = document.getElementById('imageLoader');
-const originalImg = document.getElementById('originalPreview');
-const processedImg = document.getElementById('processedPreview');
+// ---------- ЭЛЕМЕНТЫ ----------
+
+const fileInput      = document.getElementById('imageLoader');
+const originalImg    = document.getElementById('originalPreview');
+const processedImg   = document.getElementById('processedPreview');
 
 const contrastSlider   = document.getElementById('contrast');
 const brightnessSlider = document.getElementById('brightness');
@@ -18,6 +19,7 @@ const ctx = workCanvas.getContext('2d');
 let originalImageData = null;   // исходные пиксели (после ресайза)
 let lastProcessedDataUrl = null;
 
+
 // ---------- ЗАГРУЗКА ИЗОБРАЖЕНИЯ ----------
 
 fileInput.addEventListener('change', e => {
@@ -28,7 +30,6 @@ fileInput.addEventListener('change', e => {
   reader.onload = evt => {
     const img = new Image();
     img.onload = () => {
-      // приводим к разумному размеру, чтобы браузер не умирал
       const maxSide = 1600;
       let w = img.width;
       let h = img.height;
@@ -41,9 +42,9 @@ fileInput.addEventListener('change', e => {
       ctx.drawImage(img, 0, 0, w, h);
       originalImageData = ctx.getImageData(0, 0, w, h);
 
-      // покажем оригинал сразу
+      // показываем оригинал
       originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
-      processedImg.src = '';  // пока пусто
+      processedImg.src = '';
       lastProcessedDataUrl = null;
       downloadBtn.disabled = true;
     };
@@ -52,15 +53,16 @@ fileInput.addEventListener('change', e => {
   reader.readAsDataURL(file);
 });
 
+
 // ---------- ОБРАБОТКА ----------
 
 function processImage() {
   if (!originalImageData) return;
 
-  const contrast   = parseFloat(contrastSlider.value);
-  const brightness = parseFloat(brightnessSlider.value);
-  const smoothness = parseFloat(smoothSlider.value);
-  const lineStrength = parseFloat(lineSlider.value);
+  const contrast    = parseFloat(contrastSlider.value);   // 0.5–2.0
+  const brightness  = parseFloat(brightnessSlider.value); // 0.3–2.0
+  const smoothness  = parseFloat(smoothSlider.value);     // 0–1
+  const lineStrength = parseFloat(lineSlider.value);      // 0–1
 
   // копия исходных пикселей
   const imgData = new ImageData(
@@ -71,51 +73,54 @@ function processImage() {
 
   const { width, height, data } = imgData;
 
-  // 1) перевод в ч/б + яркость/контраст
-  // формула: gray = 0.299 R + 0.587 G + 0.114 B
-  const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
-
+  // 1) в ч/б + яркость + контраст (аккуратная формула)
+  // gray в диапазоне 0..1, потом обратно 0..255
   for (let i = 0; i < data.length; i += 4) {
-    let r = data[i];
-    let g = data[i + 1];
-    let b = data[i + 2];
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
 
-    let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+    let gray = 0.299 * r + 0.587 * g + 0.114 * b; // 0..255
+    gray /= 255.0;                                // 0..1
 
-    // brightness (умножение)
+    // яркость – просто множитель
     gray *= brightness;
 
-    // contrast
-    gray = factor * (gray - 128) + 128;
+    // контраст вокруг 0.5
+    gray = (gray - 0.5) * contrast + 0.5;
 
-    gray = Math.max(0, Math.min(255, gray));
+    // кламп
+    gray = Math.max(0, Math.min(1, gray));
+    const v = gray * 255;
 
-    data[i] = data[i + 1] = data[i + 2] = gray;
+    data[i] = data[i + 1] = data[i + 2] = v;
   }
 
-  // 2) лёгкое размытие (smoothness)
+  // 2) лёгкое размытие (смягчить переходы)
   if (smoothness > 0.01) {
     boxBlur(imgData, Math.round(1 + smoothness * 3));
   }
 
-  // 3) эффект "карандаш" — детекция границ (Sobel) + смешивание с базой
+  // 3) «карандаш» — делаем края чуть темнее (без дикого стенсила)
   if (lineStrength > 0.01) {
     const edges = sobelEdges(imgData);
     const ed = edges.data;
+
     for (let i = 0; i < data.length; i += 4) {
-      const e = ed[i]; // 0..255
-      const base = data[i];
-      // invert edges, чтобы линии были тёмными
-      const line = 255 - e;
-      const mixed = base * (1 - lineStrength) + line * lineStrength;
+      const base = data[i];     // серый 0..255
+      const e    = ed[i];       // сила края 0..255
+
+      // вычитаем часть границы из базы => тёмные линии
+      const mixed = base - lineStrength * e;
+
       const v = Math.max(0, Math.min(255, mixed));
       data[i] = data[i + 1] = data[i + 2] = v;
+      // alpha оставляем как есть
     }
   }
 
-  // положим результат на canvas
+  // кладём результат
   ctx.putImageData(imgData, 0, 0);
-
   const url = workCanvas.toDataURL('image/jpeg', 0.95);
   processedImg.src = url;
   lastProcessedDataUrl = url;
@@ -123,6 +128,18 @@ function processImage() {
 }
 
 processBtn.addEventListener('click', processImage);
+
+
+// ---------- LIVE-ОБНОВЛЕНИЕ ПРИ ДВИЖЕНИИ СЛАЙДЕРОВ ----------
+
+[contrastSlider, brightnessSlider, smoothSlider, lineSlider].forEach(sl => {
+  sl.addEventListener('input', () => {
+    if (originalImageData) {
+      processImage();
+    }
+  });
+});
+
 
 // ---------- RESET ----------
 
@@ -133,7 +150,6 @@ function resetSettings() {
   lineSlider.value       = 0.40;
 
   if (originalImageData) {
-    // вернуть исходный preview
     ctx.putImageData(originalImageData, 0, 0);
     originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
     processedImg.src = '';
@@ -142,6 +158,7 @@ function resetSettings() {
   }
 }
 resetBtn.addEventListener('click', resetSettings);
+
 
 // ---------- DOWNLOAD ----------
 
@@ -154,6 +171,7 @@ downloadBtn.addEventListener('click', () => {
   a.click();
   document.body.removeChild(a);
 });
+
 
 // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
 
@@ -171,7 +189,7 @@ function boxBlur(imgData, radius) {
         const xx = x + k;
         if (xx < 0 || xx >= width) continue;
         const idx = (y * width + xx) * 4;
-        sum += data[idx]; // gray
+        sum += data[idx];
         count++;
       }
       const val = sum / count;
@@ -221,7 +239,7 @@ function sobelEdges(imgData) {
           const xx = x + i;
           const yy = y + j;
           const idx = (yy * width + xx) * 4;
-          const gray = data[idx]; // уже ч/б
+          const gray = data[idx];
           gx += gxKernel[k] * gray;
           gy += gyKernel[k] * gray;
           k++;
