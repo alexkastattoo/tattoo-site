@@ -7,19 +7,16 @@
   <style>
     :root {
       --bg: #05060a;
-      --bg-elevated: #12131b;
-      --bg-elevated-soft: #181924;
+      --panel: #0b0c14;
+      --panel-soft: #12131b;
       --accent: #ff5b3c;
-      --accent-soft: rgba(255, 91, 60, 0.2);
+      --accent-soft: rgba(255, 91, 60, 0.18);
       --text: #f5f5f7;
       --text-soft: #9ca3af;
       --border: #262737;
-      --input-bg: #111320;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -29,57 +26,50 @@
       background: radial-gradient(circle at top, #111320 0, #05060a 55%);
       color: var(--text);
       display: flex;
-      align-items: flex-start;
       justify-content: center;
-      padding: 32px 16px;
+      padding: 24px 12px 40px;
     }
 
-    .app-shell {
+    .app {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1280px;
       background: linear-gradient(135deg, #0b0c14, #05060a 40%, #10101a);
       border-radius: 24px;
-      padding: 28px 28px 32px;
       border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: 0 42px 120px rgba(0, 0, 0, 0.8);
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-      gap: 28px;
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.85);
+      padding: 22px 20px 26px;
     }
 
-    @media (max-width: 960px) {
-      .app-shell {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    @media (max-width: 800px) {
+      .app { padding: 18px 14px 22px; }
     }
 
-    .app-header {
-      grid-column: 1 / -1;
-      margin-bottom: 8px;
+    .header {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
       align-items: baseline;
+      gap: 16px;
+      margin-bottom: 18px;
     }
 
-    .title-block h1 {
+    .header-title h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
-    .title-block h1 span {
-      font-weight: 400;
-      font-size: 13px;
-      color: var(--accent);
-      letter-spacing: 0.16em;
+    .header-title h1 span {
       display: inline-block;
       margin-right: 8px;
-      vertical-align: middle;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 400;
+      color: var(--accent);
     }
 
-    .title-block p {
+    .header-title p {
       margin: 6px 0 0;
       font-size: 13px;
       color: var(--text-soft);
@@ -94,232 +84,25 @@
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid var(--accent-soft);
-      background: rgba(255, 91, 60, 0.04);
+      background: rgba(255, 91, 60, 0.03);
       white-space: nowrap;
     }
 
-    .panel {
-      background: radial-gradient(circle at top left, #191b28 0, #090a0f 60%);
-      border-radius: 18px;
-      padding: 18px 18px 20px;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
+    /* PREVIEW */
 
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        circle at top left,
-        rgba(255, 255, 255, 0.04),
-        transparent 55%
-      );
-      mix-blend-mode: screen;
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .panel-header h2 {
-      margin: 0;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-    }
-
-    .panel-header span {
-      font-size: 11px;
-      color: var(--text-soft);
-      opacity: 0.8;
-    }
-
-    .dropzone {
-      position: relative;
-      z-index: 1;
-      border-radius: 16px;
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-      padding: 20px;
-      text-align: center;
-      background: radial-gradient(circle at top, #151827 0, #05060a 60%);
-      cursor: pointer;
-      transition: border-color 0.18s ease, background 0.18s ease,
-        transform 0.08s ease;
-    }
-
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, #1d2235 0, #05060a 60%);
-      transform: translateY(-1px);
-    }
-
-    .dropzone-title {
-      font-size: 14px;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-
-    .dropzone-sub {
-      font-size: 12px;
-      color: var(--text-soft);
-    }
-
-    .mode-block {
-      margin-top: 16px;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 1;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .mode-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-soft);
-    }
-
-    .mode-options label {
-      margin-right: 14px;
-      font-size: 13px;
-      color: var(--text-soft);
-      cursor: pointer;
-    }
-
-    .mode-options input {
-      margin-right: 4px;
-      accent-color: var(--accent);
-    }
-
-    .sliders {
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .slider-row label {
-      flex: 0 0 160px;
-      font-size: 12px;
-      color: var(--text-soft);
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .slider-row label span {
-      font-size: 11px;
-      color: #e5e7eb;
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1;
-      accent-color: var(--accent);
-    }
-
-    .controls-footer {
-      margin-top: 16px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
-    }
-
-    button {
-      border-radius: 999px;
-      border: none;
-      font-size: 13px;
-      padding: 8px 18px;
-      cursor: pointer;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.1s ease, box-shadow 0.1s ease,
-        background 0.18s ease, color 0.18s ease;
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #ff9770);
-      color: #0b0b10;
-      box-shadow: 0 12px 24px rgba(255, 91, 60, 0.35);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .btn-secondary {
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-soft);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(15, 23, 42, 1);
-      color: #e5e7eb;
-    }
-
-    .hint {
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--text-soft);
-      position: relative;
-      z-index: 1;
-    }
-
-    .hint strong {
-      color: #e5e7eb;
-      font-weight: 500;
-    }
-
-    /* Preview side */
-
-    .preview-panel {
-      background: radial-gradient(circle at top right, #18192a 0, #05060a 60%);
+    .preview-block {
+      background: radial-gradient(circle at top, #18192a 0, #05060a 65%);
       border-radius: 18px;
       border: 1px solid var(--border);
-      padding: 16px 18px 18px;
-      position: relative;
-      overflow: hidden;
+      padding: 14px 14px 16px;
+      margin-bottom: 18px;
     }
 
     .preview-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 1;
+      margin-bottom: 10px;
     }
 
     .preview-header h2 {
@@ -333,7 +116,6 @@
     .preview-header span {
       font-size: 11px;
       color: var(--text-soft);
-      opacity: 0.85;
     }
 
     .zoom-row {
@@ -341,8 +123,6 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
       font-size: 11px;
       color: var(--text-soft);
     }
@@ -358,30 +138,27 @@
     }
 
     .zoom-row span.value {
-      width: 40px;
+      width: 42px;
       text-align: right;
     }
 
     .preview-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      position: relative;
-      z-index: 1;
+      gap: 10px;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 900px) {
       .preview-grid {
         grid-template-columns: 1fr;
       }
     }
 
     .canvas-wrap {
-      background: radial-gradient(circle at top, #0f1018 0, #03040a 60%);
+      background: radial-gradient(circle at top, #10121d 0, #030307 65%);
       border-radius: 14px;
-      padding: 10px;
       border: 1px solid rgba(31, 41, 55, 0.9);
-      position: relative;
+      padding: 8px 8px 10px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -397,12 +174,14 @@
     .canvas-scroll {
       border-radius: 10px;
       overflow: auto;
-      max-height: 520px;
+      max-height: min(70vh, 650px);
       background: radial-gradient(circle at center, #020617 0, #000 70%);
     }
 
     canvas {
       display: block;
+      width: 100%;
+      height: auto;
       transform-origin: top left;
     }
 
@@ -410,141 +189,191 @@
       margin-top: 8px;
       font-size: 11px;
       color: var(--text-soft);
-      position: relative;
-      z-index: 1;
     }
 
-    input[type="file"] {
-      display: none;
+    /* CONTROLS */
+
+    .controls {
+      background: radial-gradient(circle at top left, #191a27 0, #05060a 65%);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 16px 16px 18px;
     }
+
+    .controls-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .controls-top h3 {
+      margin: 0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+    }
+
+    .dropzone {
+      border-radius: 14px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      padding: 16px;
+      text-align: center;
+      background: radial-gradient(circle at top, #151827 0, #05060a 60%);
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s, transform 0.08s;
+      margin-bottom: 14px;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top, #1d2235 0, #05060a 60%);
+      transform: translateY(-1px);
+    }
+
+    .dropzone-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    input[type="file"] { display: none; }
+
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .mode-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .mode-options label {
+      margin-right: 12px;
+      cursor: pointer;
+    }
+
+    .mode-options input {
+      margin-right: 4px;
+      accent-color: var(--accent);
+    }
+
+    .sliders {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .slider-row label {
+      flex: 0 0 165px;
+      font-size: 12px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .slider-row label span {
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      font-size: 13px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.18s, color 0.18s;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #ff9770);
+      color: #050506;
+      box-shadow: 0 12px 24px rgba(255, 91, 60, 0.36);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--text-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(15, 23, 42, 1);
+      color: #e5e7eb;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .hint strong { color: #e5e7eb; }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="app-header">
-      <div class="title-block">
+  <div class="app">
+    <div class="header">
+      <div class="header-title">
         <h1><span>ALEX KAS TATTOO · TOOL</span>Pic → Tattoo Reference</h1>
         <p>
-          Upload any photo and turn it into a clean tattoo reference:
-          grayscale, graphite sketch or stylized cartoon. Everything runs locally
-          in your browser.
+          Two-panel view: original vs processed. All conversion runs in your
+          browser. Perfect for tattoo reference, graphite sketch or cartoon base.
         </p>
       </div>
-      <div class="badge">BETA · BROWSER-ONLY</div>
-    </header>
+      <div class="badge">BETA · LOCAL ONLY</div>
+    </div>
 
-    <!-- LEFT: controls -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>Source</h2>
-        <span>JPG / PNG / WEBP up to ~25MP</span>
-      </div>
-
-      <label class="dropzone" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*" />
-        <div class="dropzone-title">Drop image here</div>
-        <div class="dropzone-sub">or click to choose a file</div>
-      </label>
-
-      <div class="mode-block">
-        <div class="mode-label">Mode</div>
-        <div class="mode-options">
-          <label>
-            <input type="radio" name="mode" value="tattoo" checked />
-            Tattoo Ref
-          </label>
-          <label>
-            <input type="radio" name="mode" value="graphite" />
-            Graphite Sketch
-          </label>
-          <label>
-            <input type="radio" name="mode" value="cartoon" />
-            Cartoon
-          </label>
-        </div>
-      </div>
-
-      <div class="sliders">
-        <div class="slider-row">
-          <label>Contrast <span id="contrastVal">1.30</span></label>
-          <input
-            id="contrast"
-            type="range"
-            min="0.5"
-            max="2.0"
-            step="0.05"
-            value="1.3"
-          />
-        </div>
-
-        <div class="slider-row">
-          <label>Brightness <span id="brightnessVal">1.00</span></label>
-          <input
-            id="brightness"
-            type="range"
-            min="0.5"
-            max="1.5"
-            step="0.05"
-            value="1.0"
-          />
-        </div>
-
-        <div class="slider-row">
-          <label>Smoothness (blur) <span id="smoothnessVal">0.40</span></label>
-          <input
-            id="smoothness"
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value="0.4"
-          />
-        </div>
-
-        <div class="slider-row">
-          <label>Line / pencil strength <span id="lineVal">0.40</span></label>
-          <input
-            id="lineStrength"
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value="0.4"
-          />
-        </div>
-
-        <div class="slider-row">
-          <label>Cartoon detail <span id="cartoonVal">7</span></label>
-          <input
-            id="cartoonDetail"
-            type="range"
-            min="1"
-            max="10"
-            step="1"
-            value="7"
-          />
-        </div>
-      </div>
-
-      <div class="controls-footer">
-        <button class="btn-primary" id="processBtn" disabled>
-          Process image
-        </button>
-        <button class="btn-secondary" id="resetBtn">Reset</button>
-        <button class="btn-secondary" id="downloadBtn" disabled>
-          Download result
-        </button>
-      </div>
-
-      <div class="hint">
-        Tattoo Ref: grayscale + contrast + light smoothing + subtle edges.<br />
-        Graphite: softer matte sketch with stronger pencil structure.<br />
-        Cartoon: colour simplification + bold contour lines.
-      </div>
-    </section>
-
-    <!-- RIGHT: preview -->
-    <section class="preview-panel">
+    <!-- PREVIEW (2 large images) -->
+    <section class="preview-block">
       <div class="preview-header">
         <h2>Preview</h2>
         <span>Left: original · Right: processed</span>
@@ -571,46 +400,103 @@
         </div>
       </div>
 
-      <div class="status" id="status">
-        Waiting for image…
+      <div class="status" id="status">Waiting for image…</div>
+    </section>
+
+    <!-- CONTROLS UNDER IMAGES -->
+    <section class="controls">
+      <div class="controls-top">
+        <h3>Controls</h3>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept="image/*" />
+        <div class="dropzone-title">Drop image here</div>
+        <div class="dropzone-sub">or click to choose JPG / PNG / WEBP</div>
+      </div>
+
+      <div class="mode-row">
+        <div class="mode-label">Mode</div>
+        <div class="mode-options">
+          <label><input type="radio" name="mode" value="tattoo" checked /> Tattoo Ref</label>
+          <label><input type="radio" name="mode" value="graphite" /> Graphite Sketch</label>
+          <label><input type="radio" name="mode" value="cartoon" /> Cartoon</label>
+        </div>
+      </div>
+
+      <div class="sliders">
+        <div class="slider-row">
+          <label>Contrast <span id="contrastVal">1.30</span></label>
+          <input id="contrast" type="range" min="0.5" max="2.0" step="0.05" value="1.3" />
+        </div>
+
+        <div class="slider-row">
+          <label>Brightness <span id="brightnessVal">1.00</span></label>
+          <input id="brightness" type="range" min="0.5" max="1.5" step="0.05" value="1.0" />
+        </div>
+
+        <div class="slider-row">
+          <label>Smoothness (blur) <span id="smoothnessVal">0.40</span></label>
+          <input id="smoothness" type="range" min="0" max="1" step="0.05" value="0.4" />
+        </div>
+
+        <div class="slider-row">
+          <label>Line / pencil strength <span id="lineVal">0.40</span></label>
+          <input id="lineStrength" type="range" min="0" max="1" step="0.05" value="0.4" />
+        </div>
+
+        <div class="slider-row">
+          <label>Cartoon detail <span id="cartoonVal">7</span></label>
+          <input id="cartoonDetail" type="range" min="1" max="10" step="1" value="7" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn-primary" id="processBtn" disabled>Process image</button>
+        <button class="btn-secondary" id="resetBtn">Reset</button>
+        <button class="btn-secondary" id="downloadBtn" disabled>Download result</button>
+      </div>
+
+      <div class="hint">
+        <strong>Tattoo Ref:</strong> grayscale, controlled contrast, light smoothing + edges.<br />
+        <strong>Graphite:</strong> softer matte sketch with pencil texture.<br />
+        <strong>Cartoon:</strong> colour tone simplification + bold contour lines.
       </div>
     </section>
   </div>
 
   <script>
-    // ---------- State ----------
-    const fileInput = document.getElementById("fileInput");
-    const dropzone = document.getElementById("dropzone");
-    const processBtn = document.getElementById("processBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const statusEl = document.getElementById("status");
-
+    // === ELEMENTS ===
+    const fileInput      = document.getElementById("fileInput");
+    const dropzone       = document.getElementById("dropzone");
+    const processBtn     = document.getElementById("processBtn");
+    const resetBtn       = document.getElementById("resetBtn");
+    const downloadBtn    = document.getElementById("downloadBtn");
+    const statusEl       = document.getElementById("status");
     const originalCanvas = document.getElementById("originalCanvas");
-    const processedCanvas = document.getElementById("processedCanvas");
-    const oCtx = originalCanvas.getContext("2d");
-    const pCtx = processedCanvas.getContext("2d");
+    const processedCanvas= document.getElementById("processedCanvas");
+    const oCtx           = originalCanvas.getContext("2d");
+    const pCtx           = processedCanvas.getContext("2d");
+    const zoomSlider     = document.getElementById("zoomSlider");
+    const zoomVal        = document.getElementById("zoomVal");
 
     const modeInputs = document.querySelectorAll('input[name="mode"]');
 
     const sliders = {
-      contrast: document.getElementById("contrast"),
-      brightness: document.getElementById("brightness"),
-      smoothness: document.getElementById("smoothness"),
-      lineStrength: document.getElementById("lineStrength"),
+      contrast:      document.getElementById("contrast"),
+      brightness:    document.getElementById("brightness"),
+      smoothness:    document.getElementById("smoothness"),
+      lineStrength:  document.getElementById("lineStrength"),
       cartoonDetail: document.getElementById("cartoonDetail"),
     };
 
     const labels = {
-      contrast: document.getElementById("contrastVal"),
-      brightness: document.getElementById("brightnessVal"),
-      smoothness: document.getElementById("smoothnessVal"),
-      lineStrength: document.getElementById("lineVal"),
+      contrast:      document.getElementById("contrastVal"),
+      brightness:    document.getElementById("brightnessVal"),
+      smoothness:    document.getElementById("smoothnessVal"),
+      lineStrength:  document.getElementById("lineVal"),
       cartoonDetail: document.getElementById("cartoonVal"),
     };
-
-    const zoomSlider = document.getElementById("zoomSlider");
-    const zoomVal = document.getElementById("zoomVal");
 
     const defaults = {
       contrast: 1.3,
@@ -621,49 +507,36 @@
     };
 
     let uploadedImage = null;
-    let currentMode = "tattoo";
+    let currentMode   = "tattoo";
 
-    // ---------- Helpers ----------
+    // === HELPERS ===
 
     function updateLabels() {
-      labels.contrast.textContent = parseFloat(sliders.contrast.value).toFixed(2);
-      labels.brightness.textContent = parseFloat(
-        sliders.brightness.value
-      ).toFixed(2);
-      labels.smoothness.textContent = parseFloat(
-        sliders.smoothness.value
-      ).toFixed(2);
-      labels.lineStrength.textContent = parseFloat(
-        sliders.lineStrength.value
-      ).toFixed(2);
+      labels.contrast.textContent   = (+sliders.contrast.value).toFixed(2);
+      labels.brightness.textContent = (+sliders.brightness.value).toFixed(2);
+      labels.smoothness.textContent = (+sliders.smoothness.value).toFixed(2);
+      labels.lineStrength.textContent = (+sliders.lineStrength.value).toFixed(2);
       labels.cartoonDetail.textContent = sliders.cartoonDetail.value;
     }
 
-    function setStatus(text) {
-      statusEl.textContent = text;
-    }
+    function setStatus(t) { statusEl.textContent = t; }
 
     function fitCanvasToImage(img) {
-      // увеличил до 900 px максимум
-      const maxW = 900;
-      const maxH = 900;
-
+      const maxW = 900, maxH = 900;
       let w = img.naturalWidth || img.width;
       let h = img.naturalHeight || img.height;
-
       const scale = Math.min(maxW / w, maxH / h, 1);
       w = Math.round(w * scale);
       h = Math.round(h * scale);
 
       originalCanvas.width = w;
-      originalCanvas.height = h;
-      processedCanvas.width = w;
-      processedCanvas.height = h;
+      originalCanvas.height= h;
+      processedCanvas.width= w;
+      processedCanvas.height= h;
 
-      oCtx.clearRect(0, 0, w, h);
-      pCtx.clearRect(0, 0, w, h);
-
-      oCtx.drawImage(img, 0, 0, w, h);
+      oCtx.clearRect(0,0,w,h);
+      pCtx.clearRect(0,0,w,h);
+      oCtx.drawImage(img,0,0,w,h);
     }
 
     function loadImageToCanvas(file) {
@@ -672,337 +545,233 @@
         img.onload = () => resolve(img);
         img.onerror = reject;
         const reader = new FileReader();
-        reader.onload = (e) => {
-          img.src = e.target.result;
-        };
+        reader.onload = e => img.src = e.target.result;
         reader.readAsDataURL(file);
       });
     }
 
     function applyGrayscale(data) {
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const y = 0.299 * r + 0.587 * g + 0.114 * b;
-        data[i] = data[i + 1] = data[i + 2] = y;
+      for (let i=0;i<data.length;i+=4) {
+        const r=data[i],g=data[i+1],b=data[i+2];
+        const y=0.299*r+0.587*g+0.114*b;
+        data[i]=data[i+1]=data[i+2]=y;
       }
     }
 
     function applyBrightnessContrast(data, brightness, contrast) {
-      const c = contrast; // 0.5–2
-      const b = (brightness - 1) * 60; // roughly -30..+30
-
-      for (let i = 0; i < data.length; i += 4) {
-        for (let k = 0; k < 3; k++) {
-          let v = data[i + k];
-          v = ((v - 128) * c + 128) + b;
-          if (v < 0) v = 0;
-          if (v > 255) v = 255;
-          data[i + k] = v;
+      const c = contrast;
+      const b = (brightness-1)*60;
+      for (let i=0;i<data.length;i+=4) {
+        for (let k=0;k<3;k++) {
+          let v=data[i+k];
+          v=((v-128)*c+128)+b;
+          if (v<0) v=0;
+          if (v>255) v=255;
+          data[i+k]=v;
         }
       }
     }
 
-    function boxBlur(imageData, width, height, radius) {
-      if (radius <= 0) return;
-
-      const src = imageData.data;
-      const tmp = new Uint8ClampedArray(src.length);
-      const w4 = width * 4;
-      const r = Math.floor(radius);
+    function boxBlur(imageData,width,height,radius) {
+      if (radius<=0) return;
+      const src=imageData.data;
+      const tmp=new Uint8ClampedArray(src.length);
+      const w4=width*4;
+      const r=Math.floor(radius);
 
       // horizontal
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          let rSum = 0,
-            gSum = 0,
-            bSum = 0,
-            aSum = 0,
-            count = 0;
-          for (let dx = -r; dx <= r; dx++) {
-            const xx = x + dx;
-            if (xx >= 0 && xx < width) {
-              const idx = y * w4 + xx * 4;
-              rSum += src[idx];
-              gSum += src[idx + 1];
-              bSum += src[idx + 2];
-              aSum += src[idx + 3];
+      for (let y=0;y<height;y++) {
+        for (let x=0;x<width;x++) {
+          let rs=0,gs=0,bs=0,as=0,count=0;
+          for (let dx=-r;dx<=r;dx++) {
+            const xx=x+dx;
+            if (xx>=0 && xx<width) {
+              const idx=y*w4+xx*4;
+              rs+=src[idx]; gs+=src[idx+1]; bs+=src[idx+2]; as+=src[idx+3];
               count++;
             }
           }
-          const outIdx = y * w4 + x * 4;
-          tmp[outIdx] = rSum / count;
-          tmp[outIdx + 1] = gSum / count;
-          tmp[outIdx + 2] = bSum / count;
-          tmp[outIdx + 3] = aSum / count;
+          const o=y*w4+x*4;
+          tmp[o]=rs/count; tmp[o+1]=gs/count; tmp[o+2]=bs/count; tmp[o+3]=as/count;
         }
       }
-
       // vertical
-      for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-          let rSum = 0,
-            gSum = 0,
-            bSum = 0,
-            aSum = 0,
-            count = 0;
-          for (let dy = -r; dy <= r; dy++) {
-            const yy = y + dy;
-            if (yy >= 0 && yy < height) {
-              const idx = yy * w4 + x * 4;
-              rSum += tmp[idx];
-              gSum += tmp[idx + 1];
-              bSum += tmp[idx + 2];
-              aSum += tmp[idx + 3];
+      for (let x=0;x<width;x++) {
+        for (let y=0;y<height;y++) {
+          let rs=0,gs=0,bs=0,as=0,count=0;
+          for (let dy=-r;dy<=r;dy++) {
+            const yy=y+dy;
+            if (yy>=0 && yy<height) {
+              const idx=yy*w4+x*4;
+              rs+=tmp[idx]; gs+=tmp[idx+1]; bs+=tmp[idx+2]; as+=tmp[idx+3];
               count++;
             }
           }
-          const outIdx = y * w4 + x * 4;
-          src[outIdx] = rSum / count;
-          src[outIdx + 1] = gSum / count;
-          src[outIdx + 2] = bSum / count;
-          src[outIdx + 3] = aSum / count;
+          const o=y*w4+x*4;
+          src[o]=rs/count; src[o+1]=gs/count; src[o+2]=bs/count; src[o+3]=as/count;
         }
       }
     }
 
-    function sobelEdges(grayData, width, height) {
-      const out = new Uint8ClampedArray(grayData.length);
-      const w4 = width * 4;
+    function sobelEdges(gray,width,height) {
+      const out=new Uint8ClampedArray(gray.length);
+      const w4=width*4;
+      const gx=[-1,0,1,-2,0,2,-1,0,1];
+      const gy=[-1,-2,-1,0,0,0,1,2,1];
 
-      const gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-      const gy = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
-
-      for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-          let sx = 0,
-            sy = 0;
-          let idx = 0;
-          for (let ky = -1; ky <= 1; ky++) {
-            for (let kx = -1; kx <= 1; kx++) {
-              const xx = x + kx;
-              const yy = y + ky;
-              const i = yy * w4 + xx * 4;
-              const v = grayData[i]; // already gray
-              sx += v * gx[idx];
-              sy += v * gy[idx];
-              idx++;
+      for (let y=1;y<height-1;y++) {
+        for (let x=1;x<width-1;x++) {
+          let sx=0,sy=0,idx=0;
+          for (let ky=-1;ky<=1;ky++) {
+            for (let kx=-1;kx<=1;kx++) {
+              const xx=x+kx,yy=y+ky;
+              const i=yy*w4+xx*4;
+              const v=gray[i];
+              sx+=v*gx[idx]; sy+=v*gy[idx]; idx++;
             }
           }
-          const mag = Math.sqrt(sx * sx + sy * sy);
-          const outIdx = y * w4 + x * 4;
-          const e = mag > 255 ? 255 : mag;
-          out[outIdx] = out[outIdx + 1] = out[outIdx + 2] = e;
-          out[outIdx + 3] = 255;
+          const mag=Math.sqrt(sx*sx+sy*sy);
+          const o=y*w4+x*4;
+          const e=mag>255?255:mag;
+          out[o]=out[o+1]=out[o+2]=e;
+          out[o+3]=255;
         }
       }
       return out;
     }
 
     function addNoise(data, amount) {
-      const strength = amount * 40; // 0..40
-      if (strength <= 0) return;
-      for (let i = 0; i < data.length; i += 4) {
-        const n = (Math.random() - 0.5) * strength;
-        for (let k = 0; k < 3; k++) {
-          let v = data[i + k] + n;
-          if (v < 0) v = 0;
-          if (v > 255) v = 255;
-          data[i + k] = v;
+      const strength = amount*40;
+      if (strength<=0) return;
+      for (let i=0;i<data.length;i+=4) {
+        const n=(Math.random()-0.5)*strength;
+        for (let k=0;k<3;k++) {
+          let v=data[i+k]+n;
+          if (v<0) v=0;
+          if (v>255) v=255;
+          data[i+k]=v;
         }
       }
     }
 
-    function blendEdges(baseData, edgeData, strength) {
-      if (strength <= 0) return;
-      const s = strength;
-      for (let i = 0; i < baseData.length; i += 4) {
-        const e = edgeData[i] / 255; // 0..1
-        const edge = e * 255;
-        const mixed = baseData[i] * (1 - s * e) + edge * s * e;
-        baseData[i] = baseData[i + 1] = baseData[i + 2] = mixed;
+    function blendEdges(base,edges,strength) {
+      if (strength<=0) return;
+      const s=strength;
+      for (let i=0;i<base.length;i+=4) {
+        const e=edges[i]/255;
+        const edge=e*255;
+        const mixed = base[i]*(1-s*e) + edge*s*e;
+        base[i]=base[i+1]=base[i+2]=mixed;
       }
     }
 
-    function colorQuantize(data, levels) {
-      const step = Math.max(2, Math.round(256 / levels));
-      for (let i = 0; i < data.length; i += 4) {
-        for (let k = 0; k < 3; k++) {
-          const v = data[i + k];
-          const q = Math.round(v / step) * step;
-          data[i + k] = Math.min(255, q);
+    function colorQuantize(data,levels) {
+      const step=Math.max(2,Math.round(256/levels));
+      for (let i=0;i<data.length;i+=4) {
+        for (let k=0;k<3;k++) {
+          const v=data[i+k];
+          const q=Math.round(v/step)*step;
+          data[i+k]=Math.min(255,q);
         }
       }
     }
 
-    // Graphite style (simple dodge blend approximation)
-    function graphiteSketch(baseGray, width, height, smoothness, lineStrength) {
-      const imgData = new ImageData(
-        new Uint8ClampedArray(baseGray),
-        width,
-        height
-      );
-      // duplicate and invert
-      const inv = new ImageData(
-        new Uint8ClampedArray(baseGray),
-        width,
-        height
-      );
-      for (let i = 0; i < inv.data.length; i += 4) {
-        const v = inv.data[i];
-        const iv = 255 - v;
-        inv.data[i] = inv.data[i + 1] = inv.data[i + 2] = iv;
+    function graphiteSketch(baseGray,width,height,smooth,lineStrength) {
+      const inv = new ImageData(new Uint8ClampedArray(baseGray),width,height);
+      for (let i=0;i<inv.data.length;i+=4) {
+        const v=inv.data[i];
+        const iv=255-v;
+        inv.data[i]=inv.data[i+1]=inv.data[i+2]=iv;
       }
-      // blur inverted
-      const blurRadius = 1 + smoothness * 3;
-      boxBlur(inv, width, height, blurRadius);
+      boxBlur(inv,width,height,1+smooth*3);
 
-      // color dodge blend: result = base / (255 - blur)
-      const res = new Uint8ClampedArray(baseGray.length);
-      for (let i = 0; i < baseGray.length; i += 4) {
-        const b = baseGray[i];
-        const d = 255 - inv.data[i];
-        const v = d === 0 ? 255 : Math.min(255, (b * 255) / d);
-        res[i] = res[i + 1] = res[i + 2] = v;
-        res[i + 3] = 255;
+      const res=new Uint8ClampedArray(baseGray.length);
+      for (let i=0;i<baseGray.length;i+=4) {
+        const b=baseGray[i];
+        const d=255-inv.data[i];
+        const v=d===0?255:Math.min(255,(b*255)/d);
+        res[i]=res[i+1]=res[i+2]=v; res[i+3]=255;
       }
 
-      // edge enhancement
-      const edges = sobelEdges(baseGray, width, height);
-      blendEdges(res, edges, 0.4 + lineStrength * 0.6);
-
-      // light noise for paper texture
-      addNoise(res, 0.25 + smoothness * 0.2);
-
+      const edges=sobelEdges(baseGray,width,height);
+      blendEdges(res,edges,0.4+lineStrength*0.6);
+      addNoise(res,0.25+smooth*0.2);
       return res;
     }
 
-    // ---------- Processing pipeline ----------
-
+    // === PROCESSING ===
     function processImage() {
-      if (!uploadedImage) {
-        setStatus("Please upload an image first.");
-        return;
-      }
+      if (!uploadedImage) { setStatus("Upload an image first."); return; }
 
-      const width = originalCanvas.width;
-      const height = originalCanvas.height;
-      if (!width || !height) return;
+      const w=originalCanvas.width, h=originalCanvas.height;
+      if (!w || !h) return;
 
-      const mode = currentMode;
-      const contrast = parseFloat(sliders.contrast.value);
-      const brightness = parseFloat(sliders.brightness.value);
-      const smoothness = parseFloat(sliders.smoothness.value);
-      const lineStrength = parseFloat(sliders.lineStrength.value);
-      const cartoonDetail = parseInt(sliders.cartoonDetail.value, 10);
+      const mode=currentMode;
+      const contrast=+sliders.contrast.value;
+      const brightness=+sliders.brightness.value;
+      const smoothness=+sliders.smoothness.value;
+      const lineStrength=+sliders.lineStrength.value;
+      const cartoonDetail=parseInt(sliders.cartoonDetail.value,10);
 
-      // start from original
-      pCtx.clearRect(0, 0, width, height);
-      pCtx.drawImage(originalCanvas, 0, 0);
-      const imgData = pCtx.getImageData(0, 0, width, height);
-      const data = imgData.data;
+      pCtx.clearRect(0,0,w,h);
+      pCtx.drawImage(originalCanvas,0,0);
+      const imgData=pCtx.getImageData(0,0,w,h);
+      const data=imgData.data;
 
-      if (mode === "tattoo" || mode === "graphite") {
-        // grayscale base
+      if (mode==="tattoo" || mode==="graphite") {
         applyGrayscale(data);
-        applyBrightnessContrast(data, brightness, contrast);
+        applyBrightnessContrast(data,brightness,contrast);
+        boxBlur(imgData,w,h,smoothness*3);
 
-        // light smoothing
-        const blurRadius = smoothness * 3;
-        boxBlur(imgData, width, height, blurRadius);
+        const grayCopy=new Uint8ClampedArray(imgData.data);
+        const edges=sobelEdges(grayCopy,w,h);
 
-        // copy for edges
-        const grayCopy = new Uint8ClampedArray(imgData.data);
-        const edges = sobelEdges(grayCopy, width, height);
-
-        if (mode === "tattoo") {
-          blendEdges(imgData.data, edges, 0.25 + lineStrength * 0.75);
-          addNoise(imgData.data, 0.08 + smoothness * 0.12);
-          pCtx.putImageData(imgData, 0, 0);
+        if (mode==="tattoo") {
+          blendEdges(imgData.data,edges,0.25+lineStrength*0.75);
+          addNoise(imgData.data,0.08+smoothness*0.12);
+          pCtx.putImageData(imgData,0,0);
         } else {
-          const graphite = graphiteSketch(
-            grayCopy,
-            width,
-            height,
-            smoothness,
-            lineStrength
-          );
-          const gImage = new ImageData(graphite, width, height);
-          pCtx.putImageData(gImage, 0, 0);
+          const g=graphiteSketch(grayCopy,w,h,smoothness,lineStrength);
+          pCtx.putImageData(new ImageData(g,w,h),0,0);
         }
-      } else if (mode === "cartoon") {
-        // cartoon: keep color, smooth + quantize + edges
-        const blurRadius = 1 + smoothness * 3;
-        boxBlur(imgData, width, height, blurRadius);
+      } else {
+        // cartoon
+        boxBlur(imgData,w,h,1+smoothness*3);
+        const levels=4+Math.round(cartoonDetail/2);
+        colorQuantize(imgData.data,levels);
 
-        const levels = 4 + Math.round(cartoonDetail / 2); // 4..9
-        colorQuantize(imgData.data, levels);
-
-        // edges from grayscale copy
-        const grayCopy = new Uint8ClampedArray(imgData.data);
+        const grayCopy=new Uint8ClampedArray(imgData.data);
         applyGrayscale(grayCopy);
-        const edges = sobelEdges(grayCopy, width, height);
+        const edges=sobelEdges(grayCopy,w,h);
+        const edgeStrength=0.5+lineStrength*0.8;
 
-        // strengthen edges
-        const edgeStrength = 0.5 + lineStrength * 0.8;
-        for (let i = 0; i < imgData.data.length; i += 4) {
-          const e = edges[i] / 255;
-          const line = e > 0.35 ? 0 : 1; // threshold
-          const mix = edgeStrength * e;
-          for (let k = 0; k < 3; k++) {
-            const base = imgData.data[i + k];
-            const v = base * (1 - mix) + 255 * (1 - line) * mix;
-            imgData.data[i + k] = v;
+        for (let i=0;i<imgData.data.length;i+=4) {
+          const e=edges[i]/255;
+          const line = e>0.35 ? 0 : 1;
+          const mix=edgeStrength*e;
+          for (let k=0;k<3;k++) {
+            const base=imgData.data[i+k];
+            const v = base*(1-mix) + 255*(1-line)*mix;
+            imgData.data[i+k]=v;
           }
         }
-
-        applyBrightnessContrast(
-          imgData.data,
-          brightness,
-          0.8 + (contrast - 1) * 0.8
-        );
-
-        pCtx.putImageData(imgData, 0, 0);
+        applyBrightnessContrast(imgData.data,brightness,0.8+(contrast-1)*0.8);
+        pCtx.putImageData(imgData,0,0);
       }
 
-      setStatus(
-        `Processed in "${mode === "tattoo"
-          ? "Tattoo Ref"
-          : mode === "graphite"
-          ? "Graphite Sketch"
-          : "Cartoon"
-        }" mode.`
-      );
-      downloadBtn.disabled = false;
+      setStatus(`Processed in "${mode==="tattoo" ? "Tattoo Ref" : mode==="graphite" ? "Graphite Sketch" : "Cartoon"}" mode.`);
+      downloadBtn.disabled=false;
     }
 
-    // ---------- Event wiring ----------
+    // === ZOOM ===
+    function applyZoom() {
+      const z = zoomSlider.value / 100;
+      zoomVal.textContent = zoomSlider.value + "%";
+      originalCanvas.style.transform  = `scale(${z})`;
+      processedCanvas.style.transform = `scale(${z})`;
+    }
 
-    dropzone.addEventListener("click", () => fileInput.click());
-
-    dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropzone.classList.add("dragover");
-    });
-
-    dropzone.addEventListener("dragleave", () => {
-      dropzone.classList.remove("dragover");
-    });
-
-    dropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropzone.classList.remove("dragover");
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) handleFile(file);
-    });
-
+    // === FILE HANDLING (один upload) ===
     async function handleFile(file) {
       try {
         setStatus("Loading image…");
@@ -1011,7 +780,7 @@
 
         uploadedImage = await loadImageToCanvas(file);
         fitCanvasToImage(uploadedImage);
-        setStatus("Image loaded. Adjust sliders and press “Process image”.");
+        setStatus("Image loaded. Adjust sliders and click “Process image”.");
         processBtn.disabled = false;
       } catch (err) {
         console.error(err);
@@ -1019,19 +788,43 @@
       }
     }
 
-    modeInputs.forEach((input) => {
+    // === EVENTS ===
+
+    dropzone.addEventListener("click", () => {
+      // один вызов диалога
+      fileInput.click();
+    });
+
+    dropzone.addEventListener("dragover", e => {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+      dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    fileInput.addEventListener("change", e => {
+      const file=e.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    modeInputs.forEach(input => {
       input.addEventListener("change", () => {
         currentMode = input.value;
-        if (uploadedImage) {
-          processImage();
-        }
+        if (uploadedImage) processImage();
       });
     });
 
-    Object.values(sliders).forEach((slider) => {
-      slider.addEventListener("input", () => {
-        updateLabels();
-      });
+    Object.values(sliders).forEach(slider => {
+      slider.addEventListener("input", updateLabels);
       slider.addEventListener("change", () => {
         if (uploadedImage) processImage();
       });
@@ -1040,10 +833,10 @@
     processBtn.addEventListener("click", processImage);
 
     resetBtn.addEventListener("click", () => {
-      sliders.contrast.value = defaults.contrast;
-      sliders.brightness.value = defaults.brightness;
-      sliders.smoothness.value = defaults.smoothness;
-      sliders.lineStrength.value = defaults.lineStrength;
+      sliders.contrast.value      = defaults.contrast;
+      sliders.brightness.value    = defaults.brightness;
+      sliders.smoothness.value    = defaults.smoothness;
+      sliders.lineStrength.value  = defaults.lineStrength;
       sliders.cartoonDetail.value = defaults.cartoonDetail;
       updateLabels();
       zoomSlider.value = 100;
@@ -1052,18 +845,11 @@
     });
 
     downloadBtn.addEventListener("click", () => {
-      const link = document.createElement("a");
-      link.download = "tattoo_ref.png";
-      link.href = processedCanvas.toDataURL("image/png");
+      const link=document.createElement("a");
+      link.download="tattoo_ref.png";
+      link.href=processedCanvas.toDataURL("image/png");
       link.click();
     });
-
-    function applyZoom() {
-      const z = zoomSlider.value / 100;
-      zoomVal.textContent = zoomSlider.value + "%";
-      originalCanvas.style.transform = `scale(${z})`;
-      processedCanvas.style.transform = `scale(${z})`;
-    }
 
     zoomSlider.addEventListener("input", applyZoom);
 
