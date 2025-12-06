@@ -1,801 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #05060a;
-      --panel: #101119;
-      --panel-soft: #171826;
-      --accent: #ff5a3c;
-      --accent-soft: rgba(255,90,60,0.16);
-      --border: #2a2b3c;
-      --text-main: #f5f5fa;
-      --text-muted: #a1a2ba;
-      --radius-lg: 18px;
-      --radius-md: 11px;
-      --radius-sm: 8px;
-      --shadow-soft: 0 18px 45px rgba(0,0,0,0.6);
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: var(--font-main);
-      background: radial-gradient(circle at top, #171829 0, #05060a 50%);
-      color: var(--text-main);
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      padding: 32px 16px;
-    }
-
-    .shell {
-      width: 100%;
-      max-width: 1180px;
-      background: radial-gradient(circle at top left, #1f2135 0, #05060a 55%);
-      border-radius: 28px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255,255,255,0.05);
-      padding: 28px 28px 26px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr);
-      gap: 24px;
-    }
-
-    @media (max-width: 900px) {
-      .shell {
-        grid-template-columns: minmax(0,1fr);
-        padding: 20px 16px 18px;
-        border-radius: 22px;
-      }
-    }
-
-    header {
-      grid-column: 1 / -1;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-    }
-
-    .brand {
-      font-size: 13px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    h1 {
-      margin: 4px 0 4px;
-      font-size: 24px;
-      letter-spacing: 0.03em;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-      max-width: 420px;
-      line-height: 1.5;
-    }
-
-    .pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.12);
-      font-size: 11px;
-      color: var(--text-muted);
-      background: radial-gradient(circle at left, rgba(255,255,255,0.14), rgba(0,0,0,0.5));
-      white-space: nowrap;
-    }
-
-    .col {
-      background: linear-gradient(145deg, var(--panel) 0, #05060a 100%);
-      border-radius: 20px;
-      padding: 18px 18px 16px;
-      border: 1px solid rgba(255,255,255,0.06);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .col::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 55%);
-      pointer-events: none;
-    }
-
-    .col-inner { position: relative; z-index: 1; }
-
-    .label-muted {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .dropzone {
-      border-radius: var(--radius-lg);
-      border: 1px dashed rgba(255,255,255,0.25);
-      background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(9,10,16,0.95));
-      padding: 32px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      text-align: center;
-      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
-    }
-
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, rgba(255,90,60,0.20), rgba(3,4,8,0.96));
-      transform: translateY(-1px);
-    }
-
-    .dropzone-title {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .dropzone-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    input[type="file"] { display: none; }
-
-    .buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 10px 18px;
-      font-family: inherit;
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease,
-        opacity 0.12s ease;
-      white-space: nowrap;
-    }
-
-    button:disabled {
-      opacity: 0.45;
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .btn-primary {
-      background: radial-gradient(circle at top left, #ff7652 0, var(--accent) 55%);
-      color: #120809;
-      font-weight: 600;
-      box-shadow: 0 12px 26px rgba(255,90,60,0.4);
-    }
-
-    .btn-primary:not(:disabled):hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 40px rgba(255,90,60,0.55);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.03);
-      color: var(--text-main);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .btn-secondary:not(:disabled):hover {
-      background: rgba(255,255,255,0.06);
-      transform: translateY(-1px);
-    }
-
-    .preset-note {
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .preset-note span {
-      color: #f5f5fa;
-    }
-
-    .sliders {
-      margin-top: 14px;
-      padding: 10px 12px 2px;
-      border-radius: 14px;
-      background: var(--panel-soft);
-      border: 1px solid rgba(255,255,255,0.05);
-      display: grid;
-      grid-template-columns: minmax(0,1fr);
-      gap: 8px;
-    }
-
-    .slider-group {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) auto;
-      column-gap: 8px;
-      row-gap: 2px;
-      align-items: center;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .slider-group strong {
-      font-size: 11px;
-      color: var(--text-main);
-      font-weight: 500;
-    }
-
-    .slider-value {
-      font-variant-numeric: tabular-nums;
-    }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 4px;
-      border-radius: 999px;
-      background: #242537;
-      outline: none;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px var(--accent-soft);
-      cursor: pointer;
-      border: none;
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: none;
-      box-shadow: 0 0 0 4px var(--accent-soft);
-      cursor: pointer;
-    }
-
-    .preview-wrapper {
-      border-radius: 18px;
-      padding: 10px;
-      background: radial-gradient(circle at top, rgba(255,255,255,0.04), rgba(3,4,8,0.96));
-      border: 1px solid rgba(255,255,255,0.06);
-      min-height: 260px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .preview-header span.title-label {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 10px;
-    }
-
-    .view-toggle {
-      display: inline-flex;
-      gap: 4px;
-      background: rgba(5,6,12,0.9);
-      border-radius: 999px;
-      padding: 2px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .view-btn {
-      font-size: 10px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .view-btn.active {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-
-    .preview-area {
-      position: relative;
-      flex: 1;
-      border-radius: 14px;
-      background: #05060a;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    canvas {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-    }
-
-    .preview-placeholder {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 12px;
-      padding: 24px 12px;
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .preview-placeholder .icon {
-      font-size: 22px;
-      margin-bottom: 6px;
-      opacity: 0.9;
-    }
-
-    .meta {
-      margin-top: 4px;
-      font-size: 11px;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .meta strong { font-weight: 500; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="shell">
-    <header>
-      <div>
-        <div class="brand">Alex Kas Tattoo • Tool</div>
-        <h1>Pic → Tattoo Reference</h1>
-        <div class="subtitle">
-          Upload any photo and convert it into a clean, high-contrast black &amp; grey tattoo reference
-          with optional light pencil texture. All processing runs locally in your browser.
-        </div>
-      </div>
-      <div class="pill">Preset tuned for soft black &amp; grey realism</div>
+  <div class="page">
+    <header class="header">
+      <div class="logo">ALEX KAS TATTOO • TOOL</div>
+      <h1>Pic → Tattoo Reference</h1>
+      <p class="subtitle">
+        Upload any photo and convert it into a clean, high-contrast tattoo reference
+        or stylized cartoon. All processing runs locally in your browser.
+      </p>
     </header>
 
-    <!-- LEFT: controls -->
-    <section class="col">
-      <div class="col-inner">
-        <div class="label-muted">Input</div>
+    <main class="layout">
+      <!-- LEFT: UPLOAD & CONTROLS -->
+      <section class="panel panel-left">
+        <div
+          id="dropArea"
+          class="drop-area"
+        >
+          <p class="drop-title">Drop image here</p>
+          <p class="drop-subtitle">or click to choose JPG / PNG / WEBP</p>
+          <input id="fileInput" type="file" accept="image/*" hidden />
+        </div>
 
-        <label class="dropzone" id="dropzone">
-          <div class="dropzone-title">Drop image here</div>
-          <div class="dropzone-sub">or click to choose JPG / PNG / WEBP</div>
-          <input type="file" id="fileInput" accept="image/*" />
-        </label>
+        <!-- MODE SWITCH -->
+        <div class="controls-group">
+          <label class="controls-label">Mode</label>
+          <div class="mode-switch">
+            <label>
+              <input
+                type="radio"
+                name="mode"
+                value="ref"
+                checked
+              />
+              Tattoo Ref
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="mode"
+                value="cartoon"
+              />
+              Cartoon
+            </label>
+          </div>
+        </div>
 
+        <!-- SLIDERS -->
+        <div class="controls">
+          <div class="controls-group">
+            <label>
+              Contrast
+              <span id="contrastValue">1.30</span>
+            </label>
+            <input
+              id="contrast"
+              type="range"
+              min="0.6"
+              max="2.0"
+              step="0.05"
+              value="1.30"
+            />
+          </div>
+
+          <div class="controls-group">
+            <label>
+              Brightness
+              <span id="brightnessValue">1.00</span>
+            </label>
+            <input
+              id="brightness"
+              type="range"
+              min="0.6"
+              max="1.6"
+              step="0.05"
+              value="1.00"
+            />
+          </div>
+
+          <div class="controls-group">
+            <label>
+              Smoothness
+              <span id="smoothValue">0.40</span>
+            </label>
+            <input
+              id="smooth"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.40"
+            />
+          </div>
+
+          <!-- для обоих режимов: сила линий / карандаша -->
+          <div class="controls-group">
+            <label>
+              Line / Pencil strength
+              <span id="pencilValue">0.40</span>
+            </label>
+            <input
+              id="pencil"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.40"
+            />
+          </div>
+
+          <!-- только для cartoon -->
+          <div class="controls-group" id="cartoonLevelsGroup">
+            <label>
+              Cartoon detail
+              <span id="cartoonValue">7</span>
+            </label>
+            <input
+              id="cartoonLevels"
+              type="range"
+              min="3"
+              max="10"
+              step="1"
+              value="7"
+            />
+          </div>
+        </div>
+
+        <!-- BUTTONS -->
         <div class="buttons">
-          <button class="btn-primary" id="processBtn" disabled>Process to Tattoo Ref</button>
-          <button class="btn-secondary" id="downloadBtn" disabled>Download result</button>
-          <button class="btn-secondary" id="resetBtn">Reset</button>
+          <button id="processBtn" class="btn primary">Process image</button>
+          <button id="resetBtn" class="btn secondary">Reset</button>
+          <button id="downloadBtn" class="btn secondary" disabled>
+            Download result
+          </button>
         </div>
 
-        <div class="preset-note">
-          <span>Preset:</span> grayscale, +contrast, +clarity, light smoothing.  
-          <span>Pencil grain:</span> лёгкая текстура карандаша, помогает «убить» лишние детали и
-          оставить мягкую светотень под smudge в Procreate.
-        </div>
+        <p class="preset-note">
+          Tattoo Ref: grayscale, controlled contrast, light smoothing + pencil edges.<br />
+          Cartoon: colour, tone simplification + strong contour lines.
+        </p>
+      </section>
 
-        <!-- Слайдеры одного режима -->
-        <div class="sliders" id="slidersTattoo">
-          <div class="slider-group">
-            <div><strong>Contrast</strong> · global</div>
-            <div class="slider-value"><span id="contrastVal">1.25</span>x</div>
-            <input type="range" id="contrast" min="0.8" max="1.8" step="0.05" value="1.25" />
-          </div>
-          <div class="slider-group">
-            <div><strong>Brightness</strong></div>
-            <div class="slider-value"><span id="brightnessVal">0</span></div>
-            <input type="range" id="brightness" min="-40" max="40" step="2" value="0" />
-          </div>
-          <div class="slider-group">
-            <div><strong>Smoothness</strong> · reduce noise</div>
-            <div class="slider-value"><span id="smoothVal">0.35</span></div>
-            <input type="range" id="smooth" min="0" max="1" step="0.05" value="0.35" />
-          </div>
-          <div class="slider-group">
-            <div><strong>Pencil grain</strong> · texture</div>
-            <div class="slider-value"><span id="pencilGrainVal">0.35</span></div>
-            <input type="range" id="pencilGrain" min="0" max="1" step="0.05" value="0.35" />
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- RIGHT: PREVIEW -->
+      <section class="panel panel-right">
+        <h2 class="preview-title">Preview</h2>
 
-    <!-- RIGHT: preview -->
-    <section class="col">
-      <div class="col-inner">
-        <div class="label-muted">Preview</div>
         <div class="preview-wrapper">
-          <div class="preview-header">
-            <span class="title-label">Processed reference</span>
-            <div class="view-toggle">
-              <button class="view-btn active" id="viewAfter">After</button>
-              <button class="view-btn" id="viewBefore">Before</button>
+          <!-- before / after слайдер -->
+          <div class="compare-container">
+            <div class="compare-inner">
+              <canvas id="originalCanvas"></canvas>
+              <div id="divider" class="divider"></div>
+              <canvas id="previewCanvas"></canvas>
             </div>
-          </div>
-          <div class="preview-area">
-            <canvas id="previewCanvas"></canvas>
-            <div class="preview-placeholder" id="placeholder">
-              <div class="icon">🖼️</div>
-              Drop a photo on the left to see the tattoo reference here.
-            </div>
-          </div>
-          <div class="meta">
-            <div id="modeInfo">Preset: Tattoo Ref</div>
-            <div id="sizeInfo">No image loaded</div>
           </div>
         </div>
-      </div>
-    </section>
+
+        <p class="dim-note" id="dimNote"></p>
+      </section>
+    </main>
   </div>
 
-  <script>
-    // --- DOM elements --------------------------------------------------------
-    const fileInput      = document.getElementById('fileInput');
-    const dropzone       = document.getElementById('dropzone');
-    const processBtn     = document.getElementById('processBtn');
-    const downloadBtn    = document.getElementById('downloadBtn');
-    const resetBtn       = document.getElementById('resetBtn');
-    const previewCanvas  = document.getElementById('previewCanvas');
-    const placeholder    = document.getElementById('placeholder');
-    const sizeInfo       = document.getElementById('sizeInfo');
-    const modeInfo       = document.getElementById('modeInfo');
-    const viewAfterBtn   = document.getElementById('viewAfter');
-    const viewBeforeBtn  = document.getElementById('viewBefore');
-
-    // sliders – tattoo mode
-    const contrastSlider   = document.getElementById('contrast');
-    const contrastValSpan  = document.getElementById('contrastVal');
-    const brightSlider     = document.getElementById('brightness');
-    const brightValSpan    = document.getElementById('brightnessVal');
-    const smoothSlider     = document.getElementById('smooth');
-    const smoothValSpan    = document.getElementById('smoothVal');
-    const pencilSlider     = document.getElementById('pencilGrain');
-    const pencilValSpan    = document.getElementById('pencilGrainVal');
-
-    const defaults = {
-      contrast: 1.25,
-      brightness: 0,
-      smooth: 0.35,
-      pencilGrain: 0.35
-    };
-
-    // --- state ---------------------------------------------------------------
-    let originalImage = null;
-    let originalData  = null;
-    let originalW     = 0;
-    let originalH     = 0;
-
-    const workCanvas = document.createElement('canvas');
-    const workCtx    = workCanvas.getContext('2d');
-
-    let lastOutputData = null;
-    let currentView    = 'after';  // 'after' | 'before'
-
-    // --- helpers -------------------------------------------------------------
-    function clamp(v, min, max) {
-      return v < min ? min : (v > max ? max : v);
-    }
-
-    function loadImageToCanvas(img) {
-      const maxSide = 1600;
-      let { width, height } = img;
-      const ratio = width / height;
-
-      if (width > height && width > maxSide) {
-        width  = maxSide;
-        height = Math.round(maxSide / ratio);
-      } else if (height >= width && height > maxSide) {
-        height = maxSide;
-        width  = Math.round(maxSide * ratio);
-      }
-
-      workCanvas.width  = width;
-      workCanvas.height = height;
-      workCtx.clearRect(0, 0, width, height);
-      workCtx.drawImage(img, 0, 0, width, height);
-      originalData = workCtx.getImageData(0, 0, width, height);
-      originalW = width;
-      originalH = height;
-      sizeInfo.textContent = `${width}×${height}px loaded`;
-      lastOutputData = null;
-      renderPreview();
-    }
-
-    function renderPreview() {
-      const ctxPrev = previewCanvas.getContext('2d');
-      let data = null;
-
-      if (currentView === 'before' && originalData) {
-        data = originalData;
-      } else if (lastOutputData) {
-        data = lastOutputData;
-      } else if (originalData) {
-        data = originalData;
-      }
-
-      if (!data) return;
-
-      previewCanvas.width  = data.width;
-      previewCanvas.height = data.height;
-      ctxPrev.putImageData(data, 0, 0);
-      placeholder.style.display = 'none';
-      downloadBtn.disabled = (currentView === 'before' || !lastOutputData);
-    }
-
-    function setProcessedOutput(imageData) {
-      lastOutputData = imageData;
-      if (currentView === 'before') {
-        downloadBtn.disabled = true;
-      } else {
-        renderPreview();
-      }
-    }
-
-    // --- основной процессинг -------------------------------------------------
-    function processTattooRef() {
-      if (!originalData) return;
-
-      const contrast = parseFloat(contrastSlider.value);
-      const bright   = parseInt(brightSlider.value, 10);
-      const smooth   = parseFloat(smoothSlider.value);
-      const pencil   = parseFloat(pencilSlider.value);
-
-      const src = originalData;
-      const w = src.width;
-      const h = src.height;
-      const out = new ImageData(w, h);
-      const sData = src.data;
-      const oData = out.data;
-
-      const factor = contrast;
-      const bShift = bright;
-
-      // 1) grayscale + contrast/brightness
-      for (let i = 0; i < sData.length; i += 4) {
-        const r = sData[i];
-        const g = sData[i+1];
-        const b = sData[i+2];
-
-        let gray = 0.299*r + 0.587*g + 0.114*b;
-        gray = (gray - 128) * factor + 128 + bShift;
-        gray = clamp(gray, 0, 255);
-
-        oData[i]   = gray;
-        oData[i+1] = gray;
-        oData[i+2] = gray;
-        oData[i+3] = 255;
-      }
-
-      // 2) лёгкое сглаживание
-      const strength = smooth;
-      if (strength > 0.01) {
-        const radius = 1 + Math.round(strength * 2);
-        boxBlurGrayscale(oData, w, h, radius, 1 + Math.round(strength * 2));
-      }
-
-      // 3) карандашная текстура (grain)
-      const grainStrength = pencil;
-      if (grainStrength > 0.001) {
-        const amp = 28 * grainStrength; // сила шума
-        for (let i = 0; i < oData.length; i += 4) {
-          let g = oData[i];
-          // Добавляем зерно только в «рабочих» тонах, чтобы не убить чистые хайлайты и глубокие тени
-          if (g > 16 && g < 245) {
-            const rnd = Math.random() - 0.5; // [-0.5; 0.5]
-            g += rnd * amp;
-            g = clamp(g, 0, 255);
-            oData[i] = oData[i+1] = oData[i+2] = g;
-          }
-        }
-      }
-
-      modeInfo.textContent = `Preset: Tattoo Ref · pencil ${grainStrength > 0.01 ? 'ON' : 'OFF'}`;
-      setProcessedOutput(out);
-    }
-
-    // --- blur helper ---------------------------------------------------------
-    function blurMono(buf, w, h, radius, passes) {
-      for (let p = 0; p < passes; p++) {
-        // горизонтальный
-        for (let y = 0; y < h; y++) {
-          let acc = 0, count = 0;
-          const row = y * w;
-          for (let x = -radius; x < w; x++) {
-            const addX = x + radius;
-            const subX = x - radius - 1;
-            if (addX >= 0 && addX < w) { acc += buf[row + addX]; count++; }
-            if (subX >= 0 && subX < w) { acc -= buf[row + subX]; count--; }
-            if (x >= 0) buf[row + x] = acc / count;
-          }
-        }
-        // вертикальный
-        for (let x = 0; x < w; x++) {
-          let acc = 0, count = 0;
-          for (let y = -radius; y < h; y++) {
-            const addY = y + radius;
-            const subY = y - radius - 1;
-            if (addY >= 0 && addY < h) { acc += buf[addY * w + x]; count++; }
-            if (subY >= 0 && subY < h) { acc -= buf[subY * w + x]; count--; }
-            if (y >= 0) buf[y * w + x] = acc / count;
-          }
-        }
-      }
-    }
-
-    function boxBlurGrayscale(data, w, h, radius, passes) {
-      const mono = new Float32Array(w*h);
-      for (let i = 0, p = 0; p < mono.length; p++, i += 4) mono[p] = data[i];
-      blurMono(mono, w, h, radius, passes);
-      for (let i = 0, p = 0; p < mono.length; p++, i += 4) {
-        const g = clamp(mono[p], 0, 255);
-        data[i] = data[i+1] = data[i+2] = g;
-      }
-    }
-
-    // --- загрузка файла ------------------------------------------------------
-    function handleFiles(files) {
-      if (!files || !files.length) return;
-      const file = files[0];
-      if (!file.type.startsWith('image/')) return;
-
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          originalImage = img;
-          loadImageToCanvas(img);
-          processBtn.disabled = false;
-          processTattooRef();  // авто-процесс при загрузке
-          currentView = 'after';
-          updateViewButtons();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    fileInput.addEventListener('change', e => handleFiles(e.target.files));
-
-    dropzone.addEventListener('dragover', e => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-
-    dropzone.addEventListener('dragleave', e => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-    });
-
-    dropzone.addEventListener('drop', e => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-
-    processBtn.addEventListener('click', () => {
-      if (!originalData) return;
-      processTattooRef();
-      currentView = 'after';
-      updateViewButtons();
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      if (!previewCanvas.width || !previewCanvas.height || !lastOutputData) return;
-      const link = document.createElement('a');
-      link.download = 'tattoo-reference.png';
-      link.href = previewCanvas.toDataURL('image/png');
-      link.click();
-    });
-
-    resetBtn.addEventListener('click', () => {
-      contrastSlider.value   = defaults.contrast;
-      brightSlider.value     = defaults.brightness;
-      smoothSlider.value     = defaults.smooth;
-      pencilSlider.value     = defaults.pencilGrain;
-
-      contrastValSpan.textContent = defaults.contrast.toFixed(2);
-      brightValSpan.textContent   = defaults.brightness;
-      smoothValSpan.textContent   = defaults.smooth.toFixed(2);
-      pencilValSpan.textContent   = defaults.pencilGrain.toFixed(2);
-
-      currentView = 'after';
-      updateViewButtons();
-
-      if (originalData) {
-        processTattooRef();
-      } else {
-        previewCanvas.width = previewCanvas.height = 0;
-        placeholder.style.display = 'flex';
-        sizeInfo.textContent = 'No image loaded';
-        modeInfo.textContent = 'Preset: Tattoo Ref';
-        lastOutputData = null;
-        downloadBtn.disabled = true;
-      }
-    });
-
-    // --- слайдеры: лайв-обновление ------------------------------------------
-    function hookSlider(slider, span, formatter) {
-      const update = () => {
-        span.textContent = formatter(slider.value);
-        if (!originalData) return;
-        processTattooRef();
-        currentView = 'after';
-        updateViewButtons();
-      };
-      slider.addEventListener('input', update);
-      update();
-    }
-
-    hookSlider(contrastSlider, contrastValSpan, v => Number(v).toFixed(2));
-    hookSlider(brightSlider,   brightValSpan,   v => parseInt(v,10));
-    hookSlider(smoothSlider,   smoothValSpan,   v => Number(v).toFixed(2));
-    hookSlider(pencilSlider,   pencilValSpan,   v => Number(v).toFixed(2));
-
-    function updateViewButtons() {
-      if (currentView === 'after') {
-        viewAfterBtn.classList.add('active');
-        viewBeforeBtn.classList.remove('active');
-      } else {
-        viewBeforeBtn.classList.add('active');
-        viewAfterBtn.classList.remove('active');
-      }
-      renderPreview();
-    }
-
-    viewAfterBtn.addEventListener('click', () => {
-      currentView = 'after';
-      updateViewButtons();
-    });
-
-    viewBeforeBtn.addEventListener('click', () => {
-      currentView = 'before';
-      updateViewButtons();
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
