@@ -1,4 +1,4 @@
-// Tattoo Reference Stylizer – один мягкий реалистичный режим
+// Tattoo Reference Stylizer – два режима: Realistic и Cartoon
 
 (() => {
   const fileInput = document.getElementById("fileInput");
@@ -18,6 +18,7 @@
   const processBtn = document.getElementById("processBtn");
   const resetBtn = document.getElementById("resetBtn");
   const downloadBtn = document.getElementById("downloadBtn");
+  const modeBtn = document.getElementById("modeBtn");
 
   const origDims = document.getElementById("origDims");
   const procDims = document.getElementById("procDims");
@@ -32,6 +33,8 @@
   let workingHeight = 0;
 
   const MAX_SIZE = 1600;
+
+  let currentMode = "real"; // "real" | "toon"
 
   function updateSliderLabels() {
     contrastVal.textContent = parseFloat(contrastSlider.value).toFixed(2);
@@ -59,6 +62,13 @@
     setZoomFromSlider();
   }
   resetSliders();
+
+  modeBtn.addEventListener("click", () => {
+    currentMode = currentMode === "real" ? "toon" : "real";
+    modeBtn.textContent =
+      currentMode === "real" ? "Mode: Realistic" : "Mode: Cartoon";
+    if (originalImageData) processImage();
+  });
 
   resetBtn.addEventListener("click", () => {
     resetSliders();
@@ -144,12 +154,11 @@
     downloadBtn.disabled = false;
   }
 
-  // helpers
   function clamp(v, min, max) {
     return v < min ? min : v > max ? max : v;
   }
 
-  // простой separable blur для grayscale
+  // blur для grayscale
   function boxBlurGray(src, width, height, radius) {
     if (radius <= 0) return src.slice();
     const tmp = new Float32Array(width * height);
@@ -208,7 +217,7 @@
     const { data, width, height } = originalImageData;
     const total = width * height;
 
-    // 1) grayscale
+    // grayscale
     const gray = new Float32Array(total);
     for (let i = 0, j = 0; i < data.length; i += 4, j++) {
       const r = data[i];
@@ -219,7 +228,7 @@
       gray[j] = clamp(y, 0, 255);
     }
 
-    // 2) blur для мягкости и pencil‑эффекта
+    // blur для sketch
     const blurRadius = 1 + Math.round(smoothness * 6); // 1..7
     const inverted = new Float32Array(total);
     for (let i = 0; i < total; i++) {
@@ -227,7 +236,7 @@
     }
     const blurredInv = boxBlurGray(inverted, width, height, blurRadius);
 
-    // 3) классический sketch
+    // classic sketch
     const sketch = new Float32Array(total);
     for (let i = 0; i < total; i++) {
       const g = gray[i];
@@ -241,33 +250,43 @@
 
     const out = new Uint8ClampedArray(total * 4);
 
-    function applyContrast(v) {
-      const mid = 128;
-      return clamp((v - mid) * contrast + mid, 0, 255);
-    }
-
     for (let i = 0, j = 0; j < total; j++, i += 4) {
       const g = gray[j];
       const s = sketch[j];
+      let v;
 
-      // мягкий портретный микс
-      const mix = 0.35 + 0.25; // 0.60, фикс
-      let v = g * (1 - mix) + s * mix;
+      if (currentMode === "real") {
+        // мягкий реализм
+        const mix = 0.60; // фиксированная смесь gray/sketch
+        v = g * (1 - mix) + s * mix;
 
-      // лёгкий локальный контраст
-      const mid = 128;
-      const t = (v - mid) / 128;
-      const boost = 0.5 + 0.3 * (contrast - 1.0); // мягко
-      v = mid + t * 128 * (1 + boost * 0.3);
+        const mid = 128;
+        const t = (v - mid) / 128;
+        const boost = 0.5 + 0.3 * (contrast - 1.0);
+        v = mid + t * 128 * (1 + boost * 0.3);
 
-      // поджать самые тёмные
-      if (v < 35) v = 35 + (v - 35) * 0.4;
+        if (v < 35) v = 35 + (v - 35) * 0.4;
+      } else {
+        // CARTOON / ANIME
+        const mid = 128;
+        let t = (g - mid) / 128;
+        const localBoost = 1.3 + (contrast - 1.0) * 0.8;
+        v = mid + t * 128 * localBoost;
 
-      let finalVal = applyContrast(v);
+        const levels = 5; // крупные пятна
+        const step = 255 / (levels - 1);
+        v = Math.round(v / step) * step;
 
-      out[i] = finalVal;
-      out[i + 1] = finalVal;
-      out[i + 2] = finalVal;
+        v = 0.7 * v + 0.3 * s; // чуть линий
+      }
+
+      // общий контраст
+      const mid2 = 128;
+      v = clamp((v - mid2) * contrast + mid2, 0, 255);
+
+      out[i] = v;
+      out[i + 1] = v;
+      out[i + 2] = v;
       out[i + 3] = 255;
     }
 
