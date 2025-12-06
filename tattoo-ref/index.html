@@ -220,30 +220,6 @@
       color: #f5f5fa;
     }
 
-    .modes {
-      margin-top: 18px;
-      padding: 10px 12px;
-      border-radius: 13px;
-      background: rgba(10,11,18,0.9);
-      border: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 14px;
-    }
-
-    .mode-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .mode-label input {
-      margin: 0;
-      accent-color: var(--accent);
-    }
-
     .sliders {
       margin-top: 14px;
       padding: 10px 12px 2px;
@@ -413,8 +389,8 @@
         <div class="brand">Alex Kas Tattoo • Tool</div>
         <h1>Pic → Tattoo Reference</h1>
         <div class="subtitle">
-          Upload any photo and convert it into a clean, high-contrast black &amp; grey tattoo reference.
-          All processing runs locally in your browser.
+          Upload any photo and convert it into a clean, high-contrast black &amp; grey tattoo reference
+          with optional light pencil texture. All processing runs locally in your browser.
         </div>
       </div>
       <div class="pill">Preset tuned for soft black &amp; grey realism</div>
@@ -438,23 +414,12 @@
         </div>
 
         <div class="preset-note">
-          <span>Mode 1 – Tattoo Ref:</span> grayscale, contrast, clarity, light smoothing.<br/>
-          <span>Mode 2 – Soft Sketch:</span> убирает мелкие детали, оставляет мягкую светотень под
-          smudge/brush в Procreate. Дополнительно можно добавить лёгкую карандашную текстуру.
+          <span>Preset:</span> grayscale, +contrast, +clarity, light smoothing.  
+          <span>Pencil grain:</span> лёгкая текстура карандаша, помогает «убить» лишние детали и
+          оставить мягкую светотень под smudge в Procreate.
         </div>
 
-        <div class="modes">
-          <label class="mode-label">
-            <input type="radio" name="mode" value="tattoo" checked />
-            Tattoo Ref
-          </label>
-          <label class="mode-label">
-            <input type="radio" name="mode" value="sketch" />
-            Soft Sketch (simplified tones)
-          </label>
-        </div>
-
-        <!-- Tattoo Ref sliders -->
+        <!-- Слайдеры одного режима -->
         <div class="sliders" id="slidersTattoo">
           <div class="slider-group">
             <div><strong>Contrast</strong> · global</div>
@@ -470,25 +435,6 @@
             <div><strong>Smoothness</strong> · reduce noise</div>
             <div class="slider-value"><span id="smoothVal">0.35</span></div>
             <input type="range" id="smooth" min="0" max="1" step="0.05" value="0.35" />
-          </div>
-        </div>
-
-        <!-- Soft Sketch sliders -->
-        <div class="sliders" id="slidersSketch" style="margin-top:10px; display:none;">
-          <div class="slider-group">
-            <div><strong>Detail smoothing</strong> · blur strength</div>
-            <div class="slider-value"><span id="dSmoothVal">0.70</span></div>
-            <input type="range" id="detailSmooth" min="0" max="1" step="0.05" value="0.70" />
-          </div>
-          <div class="slider-group">
-            <div><strong>Tone steps</strong> · levels</div>
-            <div class="slider-value"><span id="toneStepsVal">6</span></div>
-            <input type="range" id="toneSteps" min="3" max="9" step="1" value="6" />
-          </div>
-          <div class="slider-group">
-            <div><strong>Edge strength</strong> · contour</div>
-            <div class="slider-value"><span id="edgeStrengthVal">0.35</span></div>
-            <input type="range" id="edgeStrength" min="0" max="1" step="0.05" value="0.35" />
           </div>
           <div class="slider-group">
             <div><strong>Pencil grain</strong> · texture</div>
@@ -519,7 +465,7 @@
             </div>
           </div>
           <div class="meta">
-            <div id="modeInfo">Mode: —</div>
+            <div id="modeInfo">Preset: Tattoo Ref</div>
             <div id="sizeInfo">No image loaded</div>
           </div>
         </div>
@@ -538,8 +484,6 @@
     const placeholder    = document.getElementById('placeholder');
     const sizeInfo       = document.getElementById('sizeInfo');
     const modeInfo       = document.getElementById('modeInfo');
-    const slidersTattoo  = document.getElementById('slidersTattoo');
-    const slidersSketch  = document.getElementById('slidersSketch');
     const viewAfterBtn   = document.getElementById('viewAfter');
     const viewBeforeBtn  = document.getElementById('viewBefore');
 
@@ -550,48 +494,29 @@
     const brightValSpan    = document.getElementById('brightnessVal');
     const smoothSlider     = document.getElementById('smooth');
     const smoothValSpan    = document.getElementById('smoothVal');
-
-    // sliders – soft sketch mode
-    const dSmoothSlider    = document.getElementById('detailSmooth');
-    const dSmoothValSpan   = document.getElementById('dSmoothVal');
-    const toneStepsSlider  = document.getElementById('toneSteps');
-    const toneStepsValSpan = document.getElementById('toneStepsVal');
-    const edgeSlider       = document.getElementById('edgeStrength');
-    const edgeValSpan      = document.getElementById('edgeStrengthVal');
     const pencilSlider     = document.getElementById('pencilGrain');
     const pencilValSpan    = document.getElementById('pencilGrainVal');
 
-    const modeRadios   = document.querySelectorAll('input[name="mode"]');
-
     const defaults = {
-      mode: 'tattoo',
       contrast: 1.25,
       brightness: 0,
       smooth: 0.35,
-      detailSmooth: 0.70,
-      toneSteps: 6,
-      edgeStrength: 0.35,
       pencilGrain: 0.35
     };
 
     // --- state ---------------------------------------------------------------
-    let originalImage = null;      // HTMLImageElement
-    let originalData  = null;      // ImageData
+    let originalImage = null;
+    let originalData  = null;
     let originalW     = 0;
     let originalH     = 0;
 
     const workCanvas = document.createElement('canvas');
     const workCtx    = workCanvas.getContext('2d');
 
-    let lastOutputData = null;     // ImageData (processed)
+    let lastOutputData = null;
     let currentView    = 'after';  // 'after' | 'before'
 
     // --- helpers -------------------------------------------------------------
-    function getSelectedMode() {
-      for (const r of modeRadios) if (r.checked) return r.value;
-      return 'tattoo';
-    }
-
     function clamp(v, min, max) {
       return v < min ? min : (v > max ? max : v);
     }
@@ -651,12 +576,14 @@
       }
     }
 
-    // --- core processing: tattoo ref ----------------------------------------
+    // --- основной процессинг -------------------------------------------------
     function processTattooRef() {
       if (!originalData) return;
+
       const contrast = parseFloat(contrastSlider.value);
       const bright   = parseInt(brightSlider.value, 10);
       const smooth   = parseFloat(smoothSlider.value);
+      const pencil   = parseFloat(pencilSlider.value);
 
       const src = originalData;
       const w = src.width;
@@ -668,6 +595,7 @@
       const factor = contrast;
       const bShift = bright;
 
+      // 1) grayscale + contrast/brightness
       for (let i = 0; i < sData.length; i += 4) {
         const r = sData[i];
         const g = sData[i+1];
@@ -683,152 +611,58 @@
         oData[i+3] = 255;
       }
 
+      // 2) лёгкое сглаживание
       const strength = smooth;
       if (strength > 0.01) {
         const radius = 1 + Math.round(strength * 2);
         boxBlurGrayscale(oData, w, h, radius, 1 + Math.round(strength * 2));
       }
 
-      modeInfo.textContent = 'Mode: Tattoo Ref';
-      setProcessedOutput(out);
-    }
-
-    // --- core processing: soft sketch + pencil grain ------------------------
-    function processSoftSketch() {
-      if (!originalData) return;
-
-      const smoothStrength = parseFloat(dSmoothSlider.value);
-      const toneSteps      = parseInt(toneStepsSlider.value, 10);
-      const edgeStrength   = parseFloat(edgeSlider.value);
-      const pencilGrain    = parseFloat(pencilSlider.value);
-
-      const src = originalData;
-      const w = src.width;
-      const h = src.height;
-      const grayBase = new Float32Array(w*h);
-      const sData = src.data;
-
-      for (let i = 0, p = 0; i < sData.length; i += 4, p++) {
-        const r = sData[i];
-        const g = sData[i+1];
-        const b = sData[i+2];
-        grayBase[p] = 0.299*r + 0.587*g + 0.114*b;
-      }
-
-      const work = new Float32Array(grayBase);
-
-      if (smoothStrength > 0.01) {
-        const radius = 1 + Math.round(smoothStrength * 4);
-        const passes = 1 + Math.round(smoothStrength * 2);
-        blurMono(work, w, h, radius, passes);
-      }
-
-      const levels = toneSteps;
-      const step = 255 / (levels - 1);
-      for (let i = 0; i < work.length; i++) {
-        let g = work[i];
-        g = Math.round(g / step) * step;
-        work[i] = clamp(g, 0, 255);
-      }
-
-      const edges = new Float32Array(w*h);
-      sobelEdges(grayBase, w, h, edges);
-
-      let maxE = 0;
-      for (let i = 0; i < edges.length; i++) if (edges[i] > maxE) maxE = edges[i];
-      const invMaxE = maxE ? 1 / maxE : 1;
-      for (let i = 0; i < edges.length; i++) edges[i] = edges[i] * invMaxE;
-
-      const out = new ImageData(w, h);
-      const oData = out.data;
-      const k = edgeStrength;
-      const grainAmp = 24 * pencilGrain; // сила "карандаша"
-
-      for (let i = 0, p = 0; p < work.length; p++, i += 4) {
-        let g = work[p];
-        const e = edges[p];
-
-        // контурные линии
-        g = g - k * 220 * e;
-
-        // лёгкая зернистая текстура по средним тонам
-        if (grainAmp > 0.001 && g > 18 && g < 240) {
-          const rnd = Math.random() - 0.5; // [-0.5; 0.5]
-          g += rnd * grainAmp;
+      // 3) карандашная текстура (grain)
+      const grainStrength = pencil;
+      if (grainStrength > 0.001) {
+        const amp = 28 * grainStrength; // сила шума
+        for (let i = 0; i < oData.length; i += 4) {
+          let g = oData[i];
+          // Добавляем зерно только в «рабочих» тонах, чтобы не убить чистые хайлайты и глубокие тени
+          if (g > 16 && g < 245) {
+            const rnd = Math.random() - 0.5; // [-0.5; 0.5]
+            g += rnd * amp;
+            g = clamp(g, 0, 255);
+            oData[i] = oData[i+1] = oData[i+2] = g;
+          }
         }
-
-        g = clamp(g, 0, 255);
-
-        oData[i]   = g;
-        oData[i+1] = g;
-        oData[i+2] = g;
-        oData[i+3] = 255;
       }
 
-      modeInfo.textContent = 'Mode: Soft Sketch + pencil grain';
+      modeInfo.textContent = `Preset: Tattoo Ref · pencil ${grainStrength > 0.01 ? 'ON' : 'OFF'}`;
       setProcessedOutput(out);
     }
 
-    // --- blur & sobel helpers -----------------------------------------------
+    // --- blur helper ---------------------------------------------------------
     function blurMono(buf, w, h, radius, passes) {
-      const tmp = new Float32Array(buf.length);
       for (let p = 0; p < passes; p++) {
+        // горизонтальный
         for (let y = 0; y < h; y++) {
-          let acc = 0;
-          let count = 0;
+          let acc = 0, count = 0;
           const row = y * w;
           for (let x = -radius; x < w; x++) {
             const addX = x + radius;
             const subX = x - radius - 1;
-            if (addX >= 0 && addX < w) {
-              acc += buf[row + addX];
-              count++;
-            }
-            if (subX >= 0 && subX < w) {
-              acc -= buf[row + subX];
-              count--;
-            }
+            if (addX >= 0 && addX < w) { acc += buf[row + addX]; count++; }
+            if (subX >= 0 && subX < w) { acc -= buf[row + subX]; count--; }
             if (x >= 0) buf[row + x] = acc / count;
           }
         }
+        // вертикальный
         for (let x = 0; x < w; x++) {
-          let acc = 0;
-          let count = 0;
+          let acc = 0, count = 0;
           for (let y = -radius; y < h; y++) {
             const addY = y + radius;
             const subY = y - radius - 1;
-            if (addY >= 0 && addY < h) {
-              acc += buf[addY * w + x];
-              count++;
-            }
-            if (subY >= 0 && subY < h) {
-              acc -= buf[subY * w + x];
-              count--;
-            }
+            if (addY >= 0 && addY < h) { acc += buf[addY * w + x]; count++; }
+            if (subY >= 0 && subY < h) { acc -= buf[subY * w + x]; count--; }
             if (y >= 0) buf[y * w + x] = acc / count;
           }
-        }
-      }
-    }
-
-    function sobelEdges(src, w, h, out) {
-      const gxKernel = [-1,0,1,-2,0,2,-1,0,1];
-      const gyKernel = [-1,-2,-1,0,0,0,1,2,1];
-
-      for (let y = 1; y < h-1; y++) {
-        for (let x = 1; x < w-1; x++) {
-          let gx = 0, gy = 0;
-          let k = 0;
-          for (let j = -1; j <= 1; j++) {
-            for (let i = -1; i <= 1; i++, k++) {
-              const idx = (y+j)*w + (x+i);
-              const v = src[idx];
-              gx += v * gxKernel[k];
-              gy += v * gyKernel[k];
-            }
-          }
-          const mag = Math.sqrt(gx*gx + gy*gy);
-          out[y*w + x] = mag;
         }
       }
     }
@@ -843,7 +677,7 @@
       }
     }
 
-    // --- events --------------------------------------------------------------
+    // --- загрузка файла ------------------------------------------------------
     function handleFiles(files) {
       if (!files || !files.length) return;
       const file = files[0];
@@ -856,7 +690,9 @@
           originalImage = img;
           loadImageToCanvas(img);
           processBtn.disabled = false;
-          modeChange(); // авто-процесс
+          processTattooRef();  // авто-процесс при загрузке
+          currentView = 'after';
+          updateViewButtons();
         };
         img.src = e.target.result;
       };
@@ -883,11 +719,9 @@
 
     processBtn.addEventListener('click', () => {
       if (!originalData) return;
-      if (getSelectedMode() === 'tattoo') processTattooRef();
-      else processSoftSketch();
+      processTattooRef();
       currentView = 'after';
       updateViewButtons();
-      renderPreview();
     });
 
     downloadBtn.addEventListener('click', () => {
@@ -899,74 +733,48 @@
     });
 
     resetBtn.addEventListener('click', () => {
-      // режим
-      modeRadios.forEach(r => { r.checked = (r.value === defaults.mode); });
-      // слайдеры
       contrastSlider.value   = defaults.contrast;
       brightSlider.value     = defaults.brightness;
       smoothSlider.value     = defaults.smooth;
-      dSmoothSlider.value    = defaults.detailSmooth;
-      toneStepsSlider.value  = defaults.toneSteps;
-      edgeSlider.value       = defaults.edgeStrength;
       pencilSlider.value     = defaults.pencilGrain;
 
-      // подписи
-      contrastValSpan.textContent  = defaults.contrast.toFixed(2);
-      brightValSpan.textContent    = defaults.brightness;
-      smoothValSpan.textContent    = defaults.smooth.toFixed(2);
-      dSmoothValSpan.textContent   = defaults.detailSmooth.toFixed(2);
-      toneStepsValSpan.textContent = defaults.toneSteps;
-      edgeValSpan.textContent      = defaults.edgeStrength.toFixed(2);
-      pencilValSpan.textContent    = defaults.pencilGrain.toFixed(2);
+      contrastValSpan.textContent = defaults.contrast.toFixed(2);
+      brightValSpan.textContent   = defaults.brightness;
+      smoothValSpan.textContent   = defaults.smooth.toFixed(2);
+      pencilValSpan.textContent   = defaults.pencilGrain.toFixed(2);
 
       currentView = 'after';
       updateViewButtons();
-      modeChange();
+
+      if (originalData) {
+        processTattooRef();
+      } else {
+        previewCanvas.width = previewCanvas.height = 0;
+        placeholder.style.display = 'flex';
+        sizeInfo.textContent = 'No image loaded';
+        modeInfo.textContent = 'Preset: Tattoo Ref';
+        lastOutputData = null;
+        downloadBtn.disabled = true;
+      }
     });
 
-    function modeChange() {
-      const mode = getSelectedMode();
-      if (mode === 'tattoo') {
-        slidersTattoo.style.display = 'grid';
-        slidersSketch.style.display = 'none';
-      } else {
-        slidersTattoo.style.display = 'grid';
-        slidersSketch.style.display = 'grid';
-      }
-      if (originalData) {
-        if (mode === 'tattoo') processTattooRef();
-        else processSoftSketch();
+    // --- слайдеры: лайв-обновление ------------------------------------------
+    function hookSlider(slider, span, formatter) {
+      const update = () => {
+        span.textContent = formatter(slider.value);
+        if (!originalData) return;
+        processTattooRef();
         currentView = 'after';
         updateViewButtons();
-        renderPreview();
-      }
-    }
-    modeRadios.forEach(r => r.addEventListener('change', modeChange));
-
-    function hookSlider(slider, span, format, mode) {
-      const update = () => {
-        span.textContent = typeof format === 'function' ? format(slider.value) : slider.value;
-        if (!originalData) return;
-        if (getSelectedMode() === mode) {
-          if (mode === 'tattoo') processTattooRef();
-          else processSoftSketch();
-          currentView = 'after';
-          updateViewButtons();
-          renderPreview();
-        }
       };
       slider.addEventListener('input', update);
       update();
     }
 
-    hookSlider(contrastSlider, contrastValSpan, v => Number(v).toFixed(2), 'tattoo');
-    hookSlider(brightSlider,   brightValSpan,   v => parseInt(v,10),        'tattoo');
-    hookSlider(smoothSlider,   smoothValSpan,   v => Number(v).toFixed(2), 'tattoo');
-
-    hookSlider(dSmoothSlider,  dSmoothValSpan,  v => Number(v).toFixed(2), 'sketch');
-    hookSlider(toneStepsSlider,toneStepsValSpan,v => parseInt(v,10),       'sketch');
-    hookSlider(edgeSlider,     edgeValSpan,     v => Number(v).toFixed(2), 'sketch');
-    hookSlider(pencilSlider,   pencilValSpan,   v => Number(v).toFixed(2), 'sketch');
+    hookSlider(contrastSlider, contrastValSpan, v => Number(v).toFixed(2));
+    hookSlider(brightSlider,   brightValSpan,   v => parseInt(v,10));
+    hookSlider(smoothSlider,   smoothValSpan,   v => Number(v).toFixed(2));
+    hookSlider(pencilSlider,   pencilValSpan,   v => Number(v).toFixed(2));
 
     function updateViewButtons() {
       if (currentView === 'after') {
