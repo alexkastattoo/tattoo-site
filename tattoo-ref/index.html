@@ -6,856 +6,496 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
+      color-scheme: dark;
       --bg: #05060a;
-      --panel: #0b0c14;
-      --panel-soft: #12131b;
-      --accent: #ff5b3c;
-      --accent-soft: rgba(255, 91, 60, 0.18);
+      --card: #0b0e16;
+      --accent: #ff4b4b;
+      --accent-soft: rgba(255, 75, 75, 0.15);
       --text: #f5f5f7;
-      --text-soft: #9ca3af;
-      --border: #262737;
+      --muted: #8b8ea0;
+      --border: #1b1f2a;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #111320 0, #05060a 55%);
+      background: radial-gradient(circle at top, #171b29 0, #05060a 55%);
       color: var(--text);
       display: flex;
       justify-content: center;
-      padding: 24px 12px 40px;
+      padding: 32px 16px;
     }
 
-    .app {
+    .page {
       width: 100%;
-      max-width: 1280px;
-      background: linear-gradient(135deg, #0b0c14, #05060a 40%, #10101a);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.85);
-      padding: 22px 20px 26px;
+      max-width: 1200px;
     }
 
-    @media (max-width: 800px) {
-      .app { padding: 18px 14px 22px; }
+    header {
+      margin-bottom: 24px;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .header-title h1 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .header-title h1 span {
-      display: inline-block;
-      margin-right: 8px;
-      font-size: 12px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      font-weight: 400;
-      color: var(--accent);
-    }
-
-    .header-title p {
-      margin: 6px 0 0;
-      font-size: 13px;
-      color: var(--text-soft);
-      max-width: 520px;
-    }
-
-    .badge {
+    .eyebrow {
       font-size: 11px;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--accent-soft);
-      background: rgba(255, 91, 60, 0.03);
-      white-space: nowrap;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
 
-    /* PREVIEW */
+    h1 {
+      font-size: 26px;
+      margin: 0;
+    }
 
-    .preview-block {
-      background: radial-gradient(circle at top, #18192a 0, #05060a 65%);
+    .subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 540px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #171b29 0, #05060a 60%);
       border-radius: 18px;
       border: 1px solid var(--border);
-      padding: 14px 14px 16px;
-      margin-bottom: 18px;
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    .card h2 {
+      font-size: 15px;
+      margin: 0 0 10px;
+    }
+
+    .dropzone {
+      border-radius: 14px;
+      border: 1px dashed rgba(139, 142, 160, 0.7);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 75, 75, 0.08),
+        rgba(255, 75, 75, 0.02)
+      );
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: radial-gradient(
+        circle at top,
+        rgba(255, 75, 75, 0.25) 0,
+        rgba(255, 75, 75, 0.05) 40%,
+        transparent 70%
+      );
+      transform: translateY(-1px);
+    }
+
+    .drop-main-text {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .drop-sub-text {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .controls {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(139, 142, 160, 0.3);
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .slider-row label {
+      color: var(--muted);
+    }
+
+    .slider-row span.value {
+      text-align: right;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .buttons {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 0;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: background 0.2s, transform 0.12s, box-shadow 0.15s,
+        color 0.2s, border-color 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff5f5f, #ff3838);
+      color: #ffffff;
+      box-shadow: 0 10px 30px rgba(255, 75, 75, 0.5);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.45;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .btn-outline {
+      background: rgba(11, 14, 22, 0.9);
+      border: 1px solid rgba(139, 142, 160, 0.7);
+      color: var(--muted);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+    }
+
+    .btn:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .preview-card {
+      position: relative;
+      overflow: hidden;
     }
 
     .preview-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 10px;
-    }
-
-    .preview-header h2 {
-      margin: 0;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-soft);
-    }
-
-    .preview-header span {
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .zoom-row {
-      display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .preview-labels {
+      display: flex;
+      gap: 12px;
       font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .zoom-row span.label {
       text-transform: uppercase;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
     }
 
-    .zoom-row input[type="range"] {
-      flex: 1;
-      accent-color: var(--accent);
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(139, 142, 160, 0.7);
     }
 
-    .zoom-row span.value {
-      width: 42px;
-      text-align: right;
+    .pill.accent {
+      border-color: rgba(255, 75, 75, 0.8);
+      background: rgba(255, 75, 75, 0.16);
+      color: #ffecec;
     }
 
-    .preview-grid {
+    .zoom-controls {
+      display: flex;
+      gap: 4px;
+    }
+
+    .zoom-controls button {
+      border-radius: 999px;
+      border: 1px solid rgba(139, 142, 160, 0.7);
+      background: rgba(5, 6, 10, 0.8);
+      color: var(--muted);
+      padding: 2px 7px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .preview-split {
+      position: relative;
+      background: radial-gradient(circle at top, #202536 0, #05060a 70%);
+      border-radius: 14px;
+      border: 1px solid rgba(44, 48, 69, 0.9);
+      overflow: hidden;
+      min-height: 260px;
+    }
+
+    .canvas-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 0;
+      width: 100%;
+      height: 100%;
     }
 
-    @media (max-width: 900px) {
-      .preview-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .canvas-wrap {
-      background: radial-gradient(circle at top, #10121d 0, #030307 65%);
-      border-radius: 14px;
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      padding: 8px 8px 10px;
+    .canvas-wrapper {
+      position: relative;
+      border-right: 1px solid rgba(26, 30, 45, 0.95);
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
     }
 
-    .canvas-wrap small {
-      font-size: 11px;
-      color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-    }
-
-    .canvas-scroll {
-      border-radius: 10px;
-      overflow: auto;
-      max-height: min(70vh, 650px);
-      background: radial-gradient(circle at center, #020617 0, #000 70%);
+    .canvas-wrapper:last-child {
+      border-right: 0;
     }
 
     canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      transform-origin: top left;
+      max-width: 100%;
+      max-height: 100%;
+      background: #05060a;
     }
 
-    .status {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    /* CONTROLS */
-
-    .controls {
-      background: radial-gradient(circle at top left, #191a27 0, #05060a 65%);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 16px 16px 18px;
-    }
-
-    .controls-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .controls-top h3 {
-      margin: 0;
-      font-size: 13px;
+    .canvas-tag {
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-soft);
-    }
-
-    .dropzone {
-      border-radius: 14px;
-      border: 1px dashed rgba(148, 163, 184, 0.7);
-      padding: 16px;
-      text-align: center;
-      background: radial-gradient(circle at top, #151827 0, #05060a 60%);
-      cursor: pointer;
-      transition: border-color 0.18s, background 0.18s, transform 0.08s;
-      margin-bottom: 14px;
-    }
-
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, #1d2235 0, #05060a 60%);
-      transform: translateY(-1px);
-    }
-
-    .dropzone-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
-
-    .dropzone-sub {
-      font-size: 12px;
-      color: var(--text-soft);
-    }
-
-    input[type="file"] { display: none; }
-
-    .mode-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 13px;
-      color: var(--text-soft);
-    }
-
-    .mode-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-    }
-
-    .mode-options label {
-      margin-right: 12px;
-      cursor: pointer;
-    }
-
-    .mode-options input {
-      margin-right: 4px;
-      accent-color: var(--accent);
-    }
-
-    .sliders {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-      margin-bottom: 12px;
-    }
-
-    .slider-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .slider-row label {
-      flex: 0 0 165px;
-      font-size: 12px;
-      color: var(--text-soft);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .slider-row label span {
-      font-size: 11px;
-      color: #e5e7eb;
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1;
-      accent-color: var(--accent);
-    }
-
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    button {
+      letter-spacing: 0.18em;
+      color: rgba(213, 216, 232, 0.85);
+      padding: 2px 7px;
       border-radius: 999px;
-      border: none;
-      font-size: 13px;
-      padding: 8px 18px;
-      cursor: pointer;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.1s, box-shadow 0.1s, background 0.18s, color 0.18s;
+      background: rgba(5, 6, 10, 0.85);
+      border: 1px solid rgba(44, 48, 69, 0.9);
     }
 
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
+    .canvas-tag.accent {
+      border-color: rgba(255, 75, 75, 0.9);
+      color: #ffe6e6;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #ff9770);
-      color: #050506;
-      box-shadow: 0 12px 24px rgba(255, 91, 60, 0.36);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .btn-secondary {
-      background: rgba(15, 23, 42, 0.92);
-      color: var(--text-soft);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-    }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: rgba(15, 23, 42, 1);
-      color: #e5e7eb;
-    }
-
-    .hint {
+    .meta {
+      margin-top: 6px;
       font-size: 11px;
-      color: var(--text-soft);
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .hint strong { color: #e5e7eb; }
+    .meta span {
+      opacity: 0.9;
+    }
+
+    .meta-strong {
+      color: #f0f0f0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 10px 24px;
+      }
+
+      .card {
+        padding: 14px 14px 12px;
+      }
+
+      .preview-split {
+        min-height: 220px;
+      }
+
+      .canvas-row {
+        grid-template-columns: 1fr;
+      }
+
+      .canvas-wrapper {
+        border-right: 0;
+        border-bottom: 1px solid rgba(26, 30, 45, 0.95);
+      }
+
+      .canvas-wrapper:last-child {
+        border-bottom: 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <div class="header-title">
-        <h1><span>ALEX KAS TATTOO · TOOL</span>Pic → Tattoo Reference</h1>
-        <p>
-          Two-panel view: original vs processed. All conversion runs in your
-          browser. Perfect for tattoo reference, graphite sketch or cartoon base.
-        </p>
-      </div>
-      <div class="badge">BETA · LOCAL ONLY</div>
+  <div class="page">
+    <header>
+      <div class="eyebrow">ALEX KAS TATTOO · TOOL</div>
+      <h1>Pic → Tattoo Reference</h1>
+      <p class="subtitle">
+        Upload any photo and turn it into a clean, high-contrast black &amp; grey tattoo
+        reference. All processing runs locally in your browser.
+      </p>
+    </header>
+
+    <div class="layout">
+      <!-- LEFT: controls -->
+      <section class="card">
+        <h2>Step 1 · Image &amp; settings</h2>
+
+        <label id="dropzone" class="dropzone">
+          <input id="fileInput" type="file" accept="image/*" />
+          <div class="drop-main-text">Drop image here</div>
+          <div class="drop-sub-text">or click to choose JPG / PNG / WEBP</div>
+        </label>
+
+        <div class="controls">
+          <div class="slider-row">
+            <label for="contrast">Contrast</label>
+            <input
+              type="range"
+              id="contrast"
+              min="0.6"
+              max="1.8"
+              step="0.02"
+              value="1.3"
+            />
+            <span class="value" id="contrastVal">1.30</span>
+          </div>
+
+          <div class="slider-row">
+            <label for="brightness">Brightness</label>
+            <input
+              type="range"
+              id="brightness"
+              min="0.7"
+              max="1.4"
+              step="0.02"
+              value="1.0"
+            />
+            <span class="value" id="brightnessVal">1.00</span>
+          </div>
+
+          <div class="slider-row">
+            <label for="smoothness">Smoothness</label>
+            <input
+              type="range"
+              id="smoothness"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.4"
+            />
+            <span class="value" id="smoothnessVal">0.40</span>
+          </div>
+
+          <div class="slider-row">
+            <label for="lineStrength">Line / pencil</label>
+            <input
+              type="range"
+              id="lineStrength"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.35"
+            />
+            <span class="value" id="lineStrengthVal">0.35</span>
+          </div>
+
+          <div class="buttons">
+            <button id="processBtn" class="btn btn-primary" disabled>
+              Process to tattoo ref
+            </button>
+            <button id="downloadBtn" class="btn btn-outline" disabled>
+              Download result
+            </button>
+            <button id="resetBtn" class="btn btn-ghost">
+              Reset
+            </button>
+          </div>
+
+          <p class="hint">
+            Preset: grayscale, controlled contrast, light smoothing, subtle pencil-style lines.
+            Tuned for tattoo reference work.
+          </p>
+        </div>
+      </section>
+
+      <!-- RIGHT: preview -->
+      <section class="card preview-card">
+        <div class="preview-header">
+          <div class="preview-labels">
+            <span>Preview</span>
+            <span class="pill accent">Tattoo Ref</span>
+          </div>
+          <div class="zoom-controls">
+            <button type="button" id="zoomOutBtn">−</button>
+            <button type="button" id="zoomResetBtn">100%</button>
+            <button type="button" id="zoomInBtn">+</button>
+          </div>
+        </div>
+
+        <div id="previewArea" class="preview-split">
+          <div class="canvas-row">
+            <div class="canvas-wrapper">
+              <span class="canvas-tag">Original</span>
+              <canvas id="originalCanvas"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+              <span class="canvas-tag accent">Tattoo ref</span>
+              <canvas id="processedCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <span id="metaInfo">No image loaded yet.</span>
+          <span id="zoomInfo" class="meta-strong">Zoom: 100%</span>
+        </div>
+      </section>
     </div>
-
-    <!-- PREVIEW (2 large images) -->
-    <section class="preview-block">
-      <div class="preview-header">
-        <h2>Preview</h2>
-        <span>Left: original · Right: processed</span>
-      </div>
-
-      <div class="zoom-row">
-        <span class="label">Zoom</span>
-        <input id="zoomSlider" type="range" min="50" max="200" step="10" value="100" />
-        <span class="value" id="zoomVal">100%</span>
-      </div>
-
-      <div class="preview-grid">
-        <div class="canvas-wrap">
-          <small>Original</small>
-          <div class="canvas-scroll">
-            <canvas id="originalCanvas"></canvas>
-          </div>
-        </div>
-        <div class="canvas-wrap">
-          <small>Processed</small>
-          <div class="canvas-scroll">
-            <canvas id="processedCanvas"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="status" id="status">Waiting for image…</div>
-    </section>
-
-    <!-- CONTROLS UNDER IMAGES -->
-    <section class="controls">
-      <div class="controls-top">
-        <h3>Controls</h3>
-      </div>
-
-      <div class="dropzone" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*" />
-        <div class="dropzone-title">Drop image here</div>
-        <div class="dropzone-sub">or click to choose JPG / PNG / WEBP</div>
-      </div>
-
-      <div class="mode-row">
-        <div class="mode-label">Mode</div>
-        <div class="mode-options">
-          <label><input type="radio" name="mode" value="tattoo" checked /> Tattoo Ref</label>
-          <label><input type="radio" name="mode" value="graphite" /> Graphite Sketch</label>
-          <label><input type="radio" name="mode" value="cartoon" /> Cartoon</label>
-        </div>
-      </div>
-
-      <div class="sliders">
-        <div class="slider-row">
-          <label>Contrast <span id="contrastVal">1.30</span></label>
-          <input id="contrast" type="range" min="0.5" max="2.0" step="0.05" value="1.3" />
-        </div>
-
-        <div class="slider-row">
-          <label>Brightness <span id="brightnessVal">1.00</span></label>
-          <input id="brightness" type="range" min="0.5" max="1.5" step="0.05" value="1.0" />
-        </div>
-
-        <div class="slider-row">
-          <label>Smoothness (blur) <span id="smoothnessVal">0.40</span></label>
-          <input id="smoothness" type="range" min="0" max="1" step="0.05" value="0.4" />
-        </div>
-
-        <div class="slider-row">
-          <label>Line / pencil strength <span id="lineVal">0.40</span></label>
-          <input id="lineStrength" type="range" min="0" max="1" step="0.05" value="0.4" />
-        </div>
-
-        <div class="slider-row">
-          <label>Cartoon detail <span id="cartoonVal">7</span></label>
-          <input id="cartoonDetail" type="range" min="1" max="10" step="1" value="7" />
-        </div>
-      </div>
-
-      <div class="buttons">
-        <button class="btn-primary" id="processBtn" disabled>Process image</button>
-        <button class="btn-secondary" id="resetBtn">Reset</button>
-        <button class="btn-secondary" id="downloadBtn" disabled>Download result</button>
-      </div>
-
-      <div class="hint">
-        <strong>Tattoo Ref:</strong> grayscale, controlled contrast, light smoothing + edges.<br />
-        <strong>Graphite:</strong> softer matte sketch with pencil texture.<br />
-        <strong>Cartoon:</strong> colour tone simplification + bold contour lines.
-      </div>
-    </section>
   </div>
 
-  <script>
-    // === ELEMENTS ===
-    const fileInput      = document.getElementById("fileInput");
-    const dropzone       = document.getElementById("dropzone");
-    const processBtn     = document.getElementById("processBtn");
-    const resetBtn       = document.getElementById("resetBtn");
-    const downloadBtn    = document.getElementById("downloadBtn");
-    const statusEl       = document.getElementById("status");
-    const originalCanvas = document.getElementById("originalCanvas");
-    const processedCanvas= document.getElementById("processedCanvas");
-    const oCtx           = originalCanvas.getContext("2d");
-    const pCtx           = processedCanvas.getContext("2d");
-    const zoomSlider     = document.getElementById("zoomSlider");
-    const zoomVal        = document.getElementById("zoomVal");
-
-    const modeInputs = document.querySelectorAll('input[name="mode"]');
-
-    const sliders = {
-      contrast:      document.getElementById("contrast"),
-      brightness:    document.getElementById("brightness"),
-      smoothness:    document.getElementById("smoothness"),
-      lineStrength:  document.getElementById("lineStrength"),
-      cartoonDetail: document.getElementById("cartoonDetail"),
-    };
-
-    const labels = {
-      contrast:      document.getElementById("contrastVal"),
-      brightness:    document.getElementById("brightnessVal"),
-      smoothness:    document.getElementById("smoothnessVal"),
-      lineStrength:  document.getElementById("lineVal"),
-      cartoonDetail: document.getElementById("cartoonVal"),
-    };
-
-    const defaults = {
-      contrast: 1.3,
-      brightness: 1.0,
-      smoothness: 0.4,
-      lineStrength: 0.4,
-      cartoonDetail: 7,
-    };
-
-    let uploadedImage = null;
-    let currentMode   = "tattoo";
-
-    // === HELPERS ===
-
-    function updateLabels() {
-      labels.contrast.textContent   = (+sliders.contrast.value).toFixed(2);
-      labels.brightness.textContent = (+sliders.brightness.value).toFixed(2);
-      labels.smoothness.textContent = (+sliders.smoothness.value).toFixed(2);
-      labels.lineStrength.textContent = (+sliders.lineStrength.value).toFixed(2);
-      labels.cartoonDetail.textContent = sliders.cartoonDetail.value;
-    }
-
-    function setStatus(t) { statusEl.textContent = t; }
-
-    function fitCanvasToImage(img) {
-      const maxW = 900, maxH = 900;
-      let w = img.naturalWidth || img.width;
-      let h = img.naturalHeight || img.height;
-      const scale = Math.min(maxW / w, maxH / h, 1);
-      w = Math.round(w * scale);
-      h = Math.round(h * scale);
-
-      originalCanvas.width = w;
-      originalCanvas.height= h;
-      processedCanvas.width= w;
-      processedCanvas.height= h;
-
-      oCtx.clearRect(0,0,w,h);
-      pCtx.clearRect(0,0,w,h);
-      oCtx.drawImage(img,0,0,w,h);
-    }
-
-    function loadImageToCanvas(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        const reader = new FileReader();
-        reader.onload = e => img.src = e.target.result;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function applyGrayscale(data) {
-      for (let i=0;i<data.length;i+=4) {
-        const r=data[i],g=data[i+1],b=data[i+2];
-        const y=0.299*r+0.587*g+0.114*b;
-        data[i]=data[i+1]=data[i+2]=y;
-      }
-    }
-
-    function applyBrightnessContrast(data, brightness, contrast) {
-      const c = contrast;
-      const b = (brightness-1)*60;
-      for (let i=0;i<data.length;i+=4) {
-        for (let k=0;k<3;k++) {
-          let v=data[i+k];
-          v=((v-128)*c+128)+b;
-          if (v<0) v=0;
-          if (v>255) v=255;
-          data[i+k]=v;
-        }
-      }
-    }
-
-    function boxBlur(imageData,width,height,radius) {
-      if (radius<=0) return;
-      const src=imageData.data;
-      const tmp=new Uint8ClampedArray(src.length);
-      const w4=width*4;
-      const r=Math.floor(radius);
-
-      // horizontal
-      for (let y=0;y<height;y++) {
-        for (let x=0;x<width;x++) {
-          let rs=0,gs=0,bs=0,as=0,count=0;
-          for (let dx=-r;dx<=r;dx++) {
-            const xx=x+dx;
-            if (xx>=0 && xx<width) {
-              const idx=y*w4+xx*4;
-              rs+=src[idx]; gs+=src[idx+1]; bs+=src[idx+2]; as+=src[idx+3];
-              count++;
-            }
-          }
-          const o=y*w4+x*4;
-          tmp[o]=rs/count; tmp[o+1]=gs/count; tmp[o+2]=bs/count; tmp[o+3]=as/count;
-        }
-      }
-      // vertical
-      for (let x=0;x<width;x++) {
-        for (let y=0;y<height;y++) {
-          let rs=0,gs=0,bs=0,as=0,count=0;
-          for (let dy=-r;dy<=r;dy++) {
-            const yy=y+dy;
-            if (yy>=0 && yy<height) {
-              const idx=yy*w4+x*4;
-              rs+=tmp[idx]; gs+=tmp[idx+1]; bs+=tmp[idx+2]; as+=tmp[idx+3];
-              count++;
-            }
-          }
-          const o=y*w4+x*4;
-          src[o]=rs/count; src[o+1]=gs/count; src[o+2]=bs/count; src[o+3]=as/count;
-        }
-      }
-    }
-
-    function sobelEdges(gray,width,height) {
-      const out=new Uint8ClampedArray(gray.length);
-      const w4=width*4;
-      const gx=[-1,0,1,-2,0,2,-1,0,1];
-      const gy=[-1,-2,-1,0,0,0,1,2,1];
-
-      for (let y=1;y<height-1;y++) {
-        for (let x=1;x<width-1;x++) {
-          let sx=0,sy=0,idx=0;
-          for (let ky=-1;ky<=1;ky++) {
-            for (let kx=-1;kx<=1;kx++) {
-              const xx=x+kx,yy=y+ky;
-              const i=yy*w4+xx*4;
-              const v=gray[i];
-              sx+=v*gx[idx]; sy+=v*gy[idx]; idx++;
-            }
-          }
-          const mag=Math.sqrt(sx*sx+sy*sy);
-          const o=y*w4+x*4;
-          const e=mag>255?255:mag;
-          out[o]=out[o+1]=out[o+2]=e;
-          out[o+3]=255;
-        }
-      }
-      return out;
-    }
-
-    function addNoise(data, amount) {
-      const strength = amount*40;
-      if (strength<=0) return;
-      for (let i=0;i<data.length;i+=4) {
-        const n=(Math.random()-0.5)*strength;
-        for (let k=0;k<3;k++) {
-          let v=data[i+k]+n;
-          if (v<0) v=0;
-          if (v>255) v=255;
-          data[i+k]=v;
-        }
-      }
-    }
-
-    function blendEdges(base,edges,strength) {
-      if (strength<=0) return;
-      const s=strength;
-      for (let i=0;i<base.length;i+=4) {
-        const e=edges[i]/255;
-        const edge=e*255;
-        const mixed = base[i]*(1-s*e) + edge*s*e;
-        base[i]=base[i+1]=base[i+2]=mixed;
-      }
-    }
-
-    function colorQuantize(data,levels) {
-      const step=Math.max(2,Math.round(256/levels));
-      for (let i=0;i<data.length;i+=4) {
-        for (let k=0;k<3;k++) {
-          const v=data[i+k];
-          const q=Math.round(v/step)*step;
-          data[i+k]=Math.min(255,q);
-        }
-      }
-    }
-
-    function graphiteSketch(baseGray,width,height,smooth,lineStrength) {
-      const inv = new ImageData(new Uint8ClampedArray(baseGray),width,height);
-      for (let i=0;i<inv.data.length;i+=4) {
-        const v=inv.data[i];
-        const iv=255-v;
-        inv.data[i]=inv.data[i+1]=inv.data[i+2]=iv;
-      }
-      boxBlur(inv,width,height,1+smooth*3);
-
-      const res=new Uint8ClampedArray(baseGray.length);
-      for (let i=0;i<baseGray.length;i+=4) {
-        const b=baseGray[i];
-        const d=255-inv.data[i];
-        const v=d===0?255:Math.min(255,(b*255)/d);
-        res[i]=res[i+1]=res[i+2]=v; res[i+3]=255;
-      }
-
-      const edges=sobelEdges(baseGray,width,height);
-      blendEdges(res,edges,0.4+lineStrength*0.6);
-      addNoise(res,0.25+smooth*0.2);
-      return res;
-    }
-
-    // === PROCESSING ===
-    function processImage() {
-      if (!uploadedImage) { setStatus("Upload an image first."); return; }
-
-      const w=originalCanvas.width, h=originalCanvas.height;
-      if (!w || !h) return;
-
-      const mode=currentMode;
-      const contrast=+sliders.contrast.value;
-      const brightness=+sliders.brightness.value;
-      const smoothness=+sliders.smoothness.value;
-      const lineStrength=+sliders.lineStrength.value;
-      const cartoonDetail=parseInt(sliders.cartoonDetail.value,10);
-
-      pCtx.clearRect(0,0,w,h);
-      pCtx.drawImage(originalCanvas,0,0);
-      const imgData=pCtx.getImageData(0,0,w,h);
-      const data=imgData.data;
-
-      if (mode==="tattoo" || mode==="graphite") {
-        applyGrayscale(data);
-        applyBrightnessContrast(data,brightness,contrast);
-        boxBlur(imgData,w,h,smoothness*3);
-
-        const grayCopy=new Uint8ClampedArray(imgData.data);
-        const edges=sobelEdges(grayCopy,w,h);
-
-        if (mode==="tattoo") {
-          blendEdges(imgData.data,edges,0.25+lineStrength*0.75);
-          addNoise(imgData.data,0.08+smoothness*0.12);
-          pCtx.putImageData(imgData,0,0);
-        } else {
-          const g=graphiteSketch(grayCopy,w,h,smoothness,lineStrength);
-          pCtx.putImageData(new ImageData(g,w,h),0,0);
-        }
-      } else {
-        // cartoon
-        boxBlur(imgData,w,h,1+smoothness*3);
-        const levels=4+Math.round(cartoonDetail/2);
-        colorQuantize(imgData.data,levels);
-
-        const grayCopy=new Uint8ClampedArray(imgData.data);
-        applyGrayscale(grayCopy);
-        const edges=sobelEdges(grayCopy,w,h);
-        const edgeStrength=0.5+lineStrength*0.8;
-
-        for (let i=0;i<imgData.data.length;i+=4) {
-          const e=edges[i]/255;
-          const line = e>0.35 ? 0 : 1;
-          const mix=edgeStrength*e;
-          for (let k=0;k<3;k++) {
-            const base=imgData.data[i+k];
-            const v = base*(1-mix) + 255*(1-line)*mix;
-            imgData.data[i+k]=v;
-          }
-        }
-        applyBrightnessContrast(imgData.data,brightness,0.8+(contrast-1)*0.8);
-        pCtx.putImageData(imgData,0,0);
-      }
-
-      setStatus(`Processed in "${mode==="tattoo" ? "Tattoo Ref" : mode==="graphite" ? "Graphite Sketch" : "Cartoon"}" mode.`);
-      downloadBtn.disabled=false;
-    }
-
-    // === ZOOM ===
-    function applyZoom() {
-      const z = zoomSlider.value / 100;
-      zoomVal.textContent = zoomSlider.value + "%";
-      originalCanvas.style.transform  = `scale(${z})`;
-      processedCanvas.style.transform = `scale(${z})`;
-    }
-
-    // === FILE HANDLING (один upload) ===
-    async function handleFile(file) {
-      try {
-        setStatus("Loading image…");
-        processBtn.disabled = true;
-        downloadBtn.disabled = true;
-
-        uploadedImage = await loadImageToCanvas(file);
-        fitCanvasToImage(uploadedImage);
-        setStatus("Image loaded. Adjust sliders and click “Process image”.");
-        processBtn.disabled = false;
-      } catch (err) {
-        console.error(err);
-        setStatus("Failed to load image.");
-      }
-    }
-
-    // === EVENTS ===
-
-    dropzone.addEventListener("click", () => {
-      // один вызов диалога
-      fileInput.click();
-    });
-
-    dropzone.addEventListener("dragover", e => {
-      e.preventDefault();
-      dropzone.classList.add("dragover");
-    });
-
-    dropzone.addEventListener("dragleave", () => {
-      dropzone.classList.remove("dragover");
-    });
-
-    dropzone.addEventListener("drop", e => {
-      e.preventDefault();
-      dropzone.classList.remove("dragover");
-      const file = e.dataTransfer.files && e.dataTransfer.files[0];
-      if (file) handleFile(file);
-    });
-
-    fileInput.addEventListener("change", e => {
-      const file=e.target.files[0];
-      if (file) handleFile(file);
-    });
-
-    modeInputs.forEach(input => {
-      input.addEventListener("change", () => {
-        currentMode = input.value;
-        if (uploadedImage) processImage();
-      });
-    });
-
-    Object.values(sliders).forEach(slider => {
-      slider.addEventListener("input", updateLabels);
-      slider.addEventListener("change", () => {
-        if (uploadedImage) processImage();
-      });
-    });
-
-    processBtn.addEventListener("click", processImage);
-
-    resetBtn.addEventListener("click", () => {
-      sliders.contrast.value      = defaults.contrast;
-      sliders.brightness.value    = defaults.brightness;
-      sliders.smoothness.value    = defaults.smoothness;
-      sliders.lineStrength.value  = defaults.lineStrength;
-      sliders.cartoonDetail.value = defaults.cartoonDetail;
-      updateLabels();
-      zoomSlider.value = 100;
-      applyZoom();
-      if (uploadedImage) processImage();
-    });
-
-    downloadBtn.addEventListener("click", () => {
-      const link=document.createElement("a");
-      link.download="tattoo_ref.png";
-      link.href=processedCanvas.toDataURL("image/png");
-      link.click();
-    });
-
-    zoomSlider.addEventListener("input", applyZoom);
-
-    // init
-    updateLabels();
-    applyZoom();
-  </script>
+  <script src="tattoo-ref.js"></script>
 </body>
 </html>
