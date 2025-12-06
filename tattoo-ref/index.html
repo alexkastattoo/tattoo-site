@@ -440,7 +440,7 @@
         <div class="preset-note">
           <span>Mode 1 – Tattoo Ref:</span> grayscale, contrast, clarity, light smoothing.<br/>
           <span>Mode 2 – Soft Sketch:</span> убирает мелкие детали, оставляет мягкую светотень под
-          smudge/brush в Procreate.
+          smudge/brush в Procreate. Дополнительно можно добавить лёгкую карандашную текстуру.
         </div>
 
         <div class="modes">
@@ -454,6 +454,7 @@
           </label>
         </div>
 
+        <!-- Tattoo Ref sliders -->
         <div class="sliders" id="slidersTattoo">
           <div class="slider-group">
             <div><strong>Contrast</strong> · global</div>
@@ -472,6 +473,7 @@
           </div>
         </div>
 
+        <!-- Soft Sketch sliders -->
         <div class="sliders" id="slidersSketch" style="margin-top:10px; display:none;">
           <div class="slider-group">
             <div><strong>Detail smoothing</strong> · blur strength</div>
@@ -487,6 +489,11 @@
             <div><strong>Edge strength</strong> · contour</div>
             <div class="slider-value"><span id="edgeStrengthVal">0.35</span></div>
             <input type="range" id="edgeStrength" min="0" max="1" step="0.05" value="0.35" />
+          </div>
+          <div class="slider-group">
+            <div><strong>Pencil grain</strong> · texture</div>
+            <div class="slider-value"><span id="pencilGrainVal">0.35</span></div>
+            <input type="range" id="pencilGrain" min="0" max="1" step="0.05" value="0.35" />
           </div>
         </div>
       </div>
@@ -551,6 +558,8 @@
     const toneStepsValSpan = document.getElementById('toneStepsVal');
     const edgeSlider       = document.getElementById('edgeStrength');
     const edgeValSpan      = document.getElementById('edgeStrengthVal');
+    const pencilSlider     = document.getElementById('pencilGrain');
+    const pencilValSpan    = document.getElementById('pencilGrainVal');
 
     const modeRadios   = document.querySelectorAll('input[name="mode"]');
 
@@ -561,7 +570,8 @@
       smooth: 0.35,
       detailSmooth: 0.70,
       toneSteps: 6,
-      edgeStrength: 0.35
+      edgeStrength: 0.35,
+      pencilGrain: 0.35
     };
 
     // --- state ---------------------------------------------------------------
@@ -635,7 +645,6 @@
     function setProcessedOutput(imageData) {
       lastOutputData = imageData;
       if (currentView === 'before') {
-        // оставляем видимым "before", но можно переключиться на after
         downloadBtn.disabled = true;
       } else {
         renderPreview();
@@ -684,13 +693,14 @@
       setProcessedOutput(out);
     }
 
-    // --- core processing: soft sketch ---------------------------------------
+    // --- core processing: soft sketch + pencil grain ------------------------
     function processSoftSketch() {
       if (!originalData) return;
 
       const smoothStrength = parseFloat(dSmoothSlider.value);
       const toneSteps      = parseInt(toneStepsSlider.value, 10);
       const edgeStrength   = parseFloat(edgeSlider.value);
+      const pencilGrain    = parseFloat(pencilSlider.value);
 
       const src = originalData;
       const w = src.width;
@@ -732,11 +742,21 @@
       const out = new ImageData(w, h);
       const oData = out.data;
       const k = edgeStrength;
+      const grainAmp = 24 * pencilGrain; // сила "карандаша"
 
       for (let i = 0, p = 0; p < work.length; p++, i += 4) {
         let g = work[p];
         const e = edges[p];
+
+        // контурные линии
         g = g - k * 220 * e;
+
+        // лёгкая зернистая текстура по средним тонам
+        if (grainAmp > 0.001 && g > 18 && g < 240) {
+          const rnd = Math.random() - 0.5; // [-0.5; 0.5]
+          g += rnd * grainAmp;
+        }
+
         g = clamp(g, 0, 255);
 
         oData[i]   = g;
@@ -745,7 +765,7 @@
         oData[i+3] = 255;
       }
 
-      modeInfo.textContent = 'Mode: Soft Sketch';
+      modeInfo.textContent = 'Mode: Soft Sketch + pencil grain';
       setProcessedOutput(out);
     }
 
@@ -888,14 +908,16 @@
       dSmoothSlider.value    = defaults.detailSmooth;
       toneStepsSlider.value  = defaults.toneSteps;
       edgeSlider.value       = defaults.edgeStrength;
+      pencilSlider.value     = defaults.pencilGrain;
 
-      // обновить подписи
+      // подписи
       contrastValSpan.textContent  = defaults.contrast.toFixed(2);
       brightValSpan.textContent    = defaults.brightness;
       smoothValSpan.textContent    = defaults.smooth.toFixed(2);
       dSmoothValSpan.textContent   = defaults.detailSmooth.toFixed(2);
       toneStepsValSpan.textContent = defaults.toneSteps;
       edgeValSpan.textContent      = defaults.edgeStrength.toFixed(2);
+      pencilValSpan.textContent    = defaults.pencilGrain.toFixed(2);
 
       currentView = 'after';
       updateViewButtons();
@@ -944,6 +966,7 @@
     hookSlider(dSmoothSlider,  dSmoothValSpan,  v => Number(v).toFixed(2), 'sketch');
     hookSlider(toneStepsSlider,toneStepsValSpan,v => parseInt(v,10),       'sketch');
     hookSlider(edgeSlider,     edgeValSpan,     v => Number(v).toFixed(2), 'sketch');
+    hookSlider(pencilSlider,   pencilValSpan,   v => Number(v).toFixed(2), 'sketch');
 
     function updateViewButtons() {
       if (currentView === 'after') {
