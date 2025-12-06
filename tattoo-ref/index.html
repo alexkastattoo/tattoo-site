@@ -2,235 +2,438 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Tattoo Reference Stylizer</title>
+  <title>Tattoo Stencil Converter | Alex Kas Tattoo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0b0b0d;
+      min-height: 100vh;
+      background: #050509;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
-    .page {
+    .shell {
+      width: 100%;
       max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px 16px 40px;
+      background: radial-gradient(circle at top left, #25253a 0, #101018 50%, #050509 100%);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
     }
     h1 {
-      font-size: 1.6rem;
-      margin: 0 0 6px;
+      margin: 0 0 8px;
+      font-size: 22px;
     }
     p {
-      margin: 0 0 14px;
-      color: #c3c3cc;
-      font-size: 0.95rem;
+      margin: 4px 0 12px;
+      font-size: 14px;
+      color: #c3c3d0;
     }
-    .upload-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
+    .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #8a8aa0;
+      margin-bottom: 4px;
     }
-    .file-label {
-      background: #1b1b20;
-      border-radius: 6px;
-      padding: 8px 14px;
+    .panel {
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(10,10,18,0.9);
+      padding: 14px;
+    }
+    .upload-zone {
+      border: 1px dashed rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
       cursor: pointer;
-      border: 1px solid #34343d;
-      font-size: 0.95rem;
     }
-    .file-label:hover { border-color: #6f6fff; }
-    #fileInput { display: none; }
-    #fileName {
-      font-size: 0.9rem;
-      color: #aaaabb;
+    .upload-zone:hover {
+      border-color: #ff4b4b;
+      background: rgba(255,75,75,0.06);
+    }
+    input[type="file"] { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #ff4b4b;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+    .btn-secondary {
+      background: #252538;
+      margin-left: 10px;
     }
 
     .sliders {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .slider-block {
-      background: #111118;
-      border-radius: 10px;
-      padding: 10px 12px;
-      border: 1px solid #262631;
-    }
-    .slider-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-    }
-    input[type="range"] { width: 100%; }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .btn {
-      border-radius: 999px;
-      padding: 8px 18px;
-      font-size: 0.9rem;
-      border: 1px solid transparent;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: #7265ff;
-      border-color: #a89bff;
-      color: #fff;
-    }
-    .btn-outline {
-      background: #14141a;
-      border-color: #34343f;
-      color: #e0e0f0;
-    }
-    .btn[disabled] {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .zoom-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    .zoom-row span {
-      font-size: 0.85rem;
-      color: #b6b6c6;
-    }
-    .tip {
-      font-size: 0.82rem;
-      color: #a0a0b5;
-      margin-bottom: 14px;
-    }
-
-    .panels {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-    }
-    .panel {
-      background: #111118;
-      border-radius: 10px;
-      border: 1px solid #262631;
-      padding: 10px;
+      margin-top: 14px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
-    .panel-header {
+    .slider-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #8a8aa0;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      font-size: 0.9rem;
+      margin-bottom: 2px;
     }
-    .panel-sub {
-      font-size: 0.8rem;
-      color: #9c9cad;
+    .slider-group input[type="range"] {
+      width: 100%;
     }
-    .canvas-wrapper {
-      position: relative;
-      background: #050506;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #1f1f26;
-      display: flex;
-      justify-content: center;
+
+    .toggle {
+      display: inline-flex;
       align-items: center;
-      padding: 10px;
+      gap: 6px;
+      font-size: 12px;
+      color: #c3c3d0;
+      margin-top: 8px;
+      cursor: pointer;
     }
+    .toggle input {
+      accent-color: #ff4b4b;
+    }
+
     canvas {
-      max-width: 100%;
+      width: 100%;
       max-height: 480px;
-      transform-origin: center center;
-      image-rendering: auto;
+      background: #050509;
+      border-radius: 10px;
+    }
+
+    .previews {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 700px) {
+      .previews { grid-template-columns: 1fr; }
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9797b0;
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <h1>Tattoo Reference Stylizer</h1>
-    <p>Один режим в стиле Graphite: мягкий, живописный референс под тату.</p>
+<div class="shell">
+  <div>
+    <div class="label">Alex Kas Tattoo · Tool</div>
+    <h1>Tattoo Stencil Converter</h1>
+    <p>Upload a reference image and turn it into a clean, high-contrast stencil ready for tattooing. All processing runs locally in your browser – nothing is uploaded to a server.</p>
 
-    <div class="upload-row">
-      <label for="fileInput" class="file-label">Choose file</label>
-      <input id="fileInput" type="file" accept="image/*" />
-      <span id="fileName">No file chosen</span>
-    </div>
-
-    <div class="sliders">
-      <div class="slider-block">
-        <div class="slider-top">
-          <span>Contrast</span>
-          <span id="contrastValue">1.15</span>
-        </div>
-        <input id="contrast" type="range" min="0.7" max="1.8" step="0.05" value="1.15" />
+    <div class="panel">
+      <div class="upload-zone" id="uploadZone">
+        <strong>Drop image here</strong><br/>
+        <span style="font-size:12px;">or click to choose JPG / PNG / WEBP</span>
+        <input type="file" id="fileInput" accept="image/*" />
       </div>
 
-      <div class="slider-block">
-        <div class="slider-top">
-          <span>Brightness</span>
-          <span id="brightnessValue">1.05</span>
+      <div class="sliders">
+        <div class="slider-group">
+          <label for="blur">Smooth / Blur<span id="blurVal">15</span></label>
+          <input id="blur" type="range" min="0" max="25" value="15" />
         </div>
-        <input id="brightness" type="range" min="0.6" max="1.6" step="0.05" value="1.05" />
-      </div>
-
-      <div class="slider-block">
-        <div class="slider-top">
-          <span>Smoothness</span>
-          <span id="smoothnessValue">0.55</span>
+        <div class="slider-group">
+          <label for="threshold">Threshold<span id="thrVal">50</span></label>
+          <input id="threshold" type="range" min="10" max="90" value="50" />
         </div>
-        <input id="smoothness" type="range" min="0" max="1" step="0.02" value="0.55" />
-      </div>
-    </div>
-
-    <div class="actions">
-      <button id="processBtn" class="btn btn-primary">Process</button>
-      <button id="resetBtn" class="btn btn-outline">Reset</button>
-      <button id="downloadBtn" class="btn btn-outline" disabled>Download</button>
-    </div>
-
-    <div class="zoom-row">
-      <span>Zoom preview</span>
-      <input id="zoom" type="range" min="40" max="200" step="5" value="100" />
-      <span id="zoomValue">100%</span>
-    </div>
-
-    <p class="tip">
-      Tip: контраст 1.1–1.3, smoothness 0.5–0.8 дают максимально «graphite»‑эффект.
-    </p>
-
-    <div class="panels">
-      <div class="panel">
-        <div class="panel-header">
-          <span>Original</span>
-          <span class="panel-sub" id="origDims">–</span>
-        </div>
-        <div class="canvas-wrapper">
-          <canvas id="originalCanvas"></canvas>
+        <div class="slider-group">
+          <label for="thick">Line thickness<span id="thickVal">1</span></label>
+          <input id="thick" type="range" min="0" max="4" value="1" />
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span>Processed</span>
-          <span class="panel-sub" id="procDims">–</span>
-        </div>
-        <div class="canvas-wrapper">
-          <canvas id="processedCanvas"></canvas>
-        </div>
+      <label class="toggle">
+        <input type="checkbox" id="invert" />
+        Invert (white lines on black)
+      </label>
+
+      <div>
+        <button class="btn" id="processBtn" disabled>Generate stencil</button>
+        <button class="btn btn-secondary" id="downloadBtn" disabled>Download PNG</button>
+      </div>
+
+      <div style="margin-top:10px;font-size:11px;color:#777791;">
+        Tip: higher blur + mid threshold for portraits; lower blur + higher threshold for sharp objects.
       </div>
     </div>
   </div>
 
-  <script src="tattoo-ref.js"></script>
+  <div>
+    <div class="panel">
+      <div class="label">Preview</div>
+      <div class="previews">
+        <div>
+          <div class="label">Original</div>
+          <canvas id="origCanvas"></canvas>
+        </div>
+        <div>
+          <div class="label">Stencil</div>
+          <canvas id="stencilCanvas"></canvas>
+        </div>
+      </div>
+      <div class="row">
+        <span id="status">Waiting for image…</span>
+        <span id="sizeInfo"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput      = document.getElementById('fileInput');
+  const uploadZone     = document.getElementById('uploadZone');
+  const processBtn     = document.getElementById('processBtn');
+  const downloadBtn    = document.getElementById('downloadBtn');
+  const blurSlider     = document.getElementById('blur');
+  const thrSlider      = document.getElementById('threshold');
+  const thickSlider    = document.getElementById('thick');
+  const invertCheckbox = document.getElementById('invert');
+
+  const blurVal        = document.getElementById('blurVal');
+  const thrVal         = document.getElementById('thrVal');
+  const thickVal       = document.getElementById('thickVal');
+
+  const origCanvas     = document.getElementById('origCanvas');
+  const stencilCanvas  = document.getElementById('stencilCanvas');
+  const origCtx        = origCanvas.getContext('2d');
+  const stencilCtx     = stencilCanvas.getContext('2d');
+  const statusEl       = document.getElementById('status');
+  const sizeInfo       = document.getElementById('sizeInfo');
+
+  let originalImage = null;
+  let stencilDataURL = null;
+
+  function setSlidersLabels() {
+    blurVal.textContent   = blurSlider.value;
+    thrVal.textContent    = thrSlider.value;
+    thickVal.textContent  = thickSlider.value;
+  }
+  setSlidersLabels();
+
+  blurSlider.addEventListener('input', setSlidersLabels);
+  thrSlider.addEventListener('input', setSlidersLabels);
+  thickSlider.addEventListener('input', setSlidersLabels);
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.style.borderColor = '#ff4b4b';
+  });
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.style.borderColor = 'rgba(255,255,255,0.3)';
+  });
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.style.borderColor = 'rgba(255,255,255,0.3)';
+    const file = e.dataTransfer.files[0];
+    if (file) loadImage(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) loadImage(file);
+  });
+
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        originalImage = img;
+
+        const maxW = 900;
+        const maxH = 480;
+        let { width, height } = img;
+        const ratio = Math.min(maxW / width, maxH / height, 1);
+        width *= ratio;
+        height *= ratio;
+
+        origCanvas.width = width;
+        origCanvas.height = height;
+        stencilCanvas.width = width;
+        stencilCanvas.height = height;
+
+        origCtx.drawImage(img, 0, 0, width, height);
+        stencilCtx.clearRect(0, 0, width, height);
+
+        statusEl.textContent = 'Image loaded. Adjust sliders and click "Generate stencil".';
+        sizeInfo.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+        processBtn.disabled = false;
+        downloadBtn.disabled = true;
+        stencilDataURL = null;
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function applyStencil() {
+    if (!originalImage) return;
+    const w = origCanvas.width;
+    const h = origCanvas.height;
+
+    origCtx.drawImage(originalImage, 0, 0, w, h);
+
+    const imgData = origCtx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    // grayscale
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      data[i] = data[i+1] = data[i+2] = gray;
+    }
+
+    const blurRadius = parseInt(blurSlider.value, 10);
+    let blurred = imgData;
+    if (blurRadius > 0) {
+      blurred = boxBlur(blurred, w, h, blurRadius);
+    }
+
+    const thr = parseInt(thrSlider.value, 10);
+    const thrVal255 = thr * 2.55;
+
+    const binData = stencilCtx.createImageData(w, h);
+    const src = blurred.data;
+    const dst = binData.data;
+
+    const invert = invertCheckbox.checked;
+
+    for (let i = 0; i < src.length; i += 4) {
+      const g = src[i];
+      let v = g >= thrVal255 ? 255 : 0;
+      if (invert) v = 255 - v;
+      dst[i] = dst[i+1] = dst[i+2] = v;
+      dst[i+3] = 255;
+    }
+
+    const thickness = parseInt(thickSlider.value, 10);
+    let thickData = binData;
+    if (thickness > 0) {
+      thickData = thicken(thickData, w, h, thickness, invert);
+    }
+
+    stencilCtx.putImageData(thickData, 0, 0);
+
+    stencilDataURL = stencilCanvas.toDataURL('image/png');
+    downloadBtn.disabled = false;
+    statusEl.textContent = 'Stencil generated. You can download the PNG.';
+  }
+
+  function boxBlur(imgData, w, h, radius) {
+    const src = imgData.data;
+    const out = new ImageData(w, h);
+    const dst = out.data;
+
+    const r = Math.max(1, radius);
+    const side = r * 2 + 1;
+    const area = side * side;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let sum = 0;
+        for (let ky = -r; ky <= r; ky++) {
+          const yy = Math.min(h-1, Math.max(0, y+ky));
+          for (let kx = -r; kx <= r; kx++) {
+            const xx = Math.min(w-1, Math.max(0, x+kx));
+            const idx = (yy*w + xx)*4;
+            sum += src[idx];
+          }
+        }
+        const val = sum / area;
+        const i = (y*w + x)*4;
+        dst[i] = dst[i+1] = dst[i+2] = val;
+        dst[i+3] = 255;
+      }
+    }
+    return out;
+  }
+
+  function thicken(imgData, w, h, strength, invert) {
+    const src = imgData.data;
+    const out = new ImageData(w, h);
+    const dst = out.data;
+    const steps = Math.max(1, strength);
+
+    for (let i = 0; i < src.length; i++) dst[i] = src[i];
+
+    const isLine = (val) => invert ? val === 255 : val === 0;
+
+    for (let s = 0; s < steps; s++) {
+      const temp = new Uint8ClampedArray(dst);
+      for (let y = 1; y < h-1; y++) {
+        for (let x = 1; x < w-1; x++) {
+          const idx = (y*w + x)*4;
+          if (isLine(temp[idx])) {
+            const neighbors = [
+              ((y-1)*w + x)*4,
+              ((y+1)*w + x)*4,
+              (y*w + (x-1))*4,
+              (y*w + (x+1))*4
+            ];
+            neighbors.forEach(n => {
+              dst[n] = dst[n+1] = dst[n+2] = invert ? 255 : 0;
+              dst[n+3] = 255;
+            });
+          }
+        }
+      }
+    }
+    return new ImageData(dst, w, h);
+  }
+
+  processBtn.addEventListener('click', () => {
+    statusEl.textContent = 'Processing…';
+    setTimeout(applyStencil, 10);
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!stencilDataURL) return;
+    const a = document.createElement('a');
+    a.href = stencilDataURL;
+    a.download = 'tattoo_stencil_alexkas.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+</script>
 </body>
 </html>
