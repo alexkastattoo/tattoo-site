@@ -3,342 +3,515 @@
 <head>
   <meta charset="UTF-8" />
   <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * { box-sizing: border-box; }
-    body {
+    :root {
+      --bg: #05060a;
+      --bg-card: #10121b;
+      --bg-card-soft: #151827;
+      --accent: #ff5a3c;
+      --accent-soft: rgba(255, 90, 60, 0.18);
+      --text-main: #f5f5f7;
+      --text-muted: #8b8fa1;
+      --border-subtle: #242632;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
+      --shadow-subtle: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151827 0, #05060a 45%, #020308 100%);
+      color: var(--text-main);
       min-height: 100vh;
-      background: #050509;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #f5f5f5;
+      padding: 32px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
     }
-    .card {
+
+    .shell {
+      max-width: 1160px;
       width: 100%;
-      max-width: 1100px;
-      background: radial-gradient(circle at top left, #232334 0, #101018 50%, #06060b 100%);
-      border-radius: 20px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.7);
-      padding: 24px;
+      background: radial-gradient(circle at top left, #181b2b 0, #090a10 55%, #05060a 100%);
+      border-radius: 28px;
+      padding: 28px 32px 32px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-      gap: 20px;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 32px;
     }
+
     @media (max-width: 900px) {
-      .card { grid-template-columns: 1fr; }
+      .shell {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 20px 18px 24px;
+      }
     }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-    p {
-      margin: 4px 0 12px;
-      font-size: 14px;
-      color: #c3c3d0;
-    }
-    .label {
-      font-size: 11px;
-      letter-spacing: 0.12em;
+
+    .header-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: #8a8aa0;
+      color: var(--text-muted);
       margin-bottom: 4px;
     }
-    .panel {
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(10,10,18,0.85);
-      padding: 14px;
+
+    h1 {
+      font-size: 26px;
+      letter-spacing: 0.03em;
+      margin-bottom: 6px;
     }
-    .upload-zone {
-      border: 1px dashed rgba(255,255,255,0.25);
-      border-radius: 12px;
-      padding: 22px;
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 420px;
+      margin-bottom: 20px;
+    }
+
+    .left-card {
+      background: linear-gradient(145deg, #141726, #080915);
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 20px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drop-zone {
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.06) 0, rgba(10, 12, 20, 0.7) 45%, #05060a 100%);
+      padding: 22px 20px;
       text-align: center;
       cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
     }
-    .upload-zone:hover {
-      border-color: #ff4b4b;
-      background: rgba(255,75,75,0.06);
-    }
-    input[type="file"] { display: none; }
 
-    .btn {
+    .drop-zone:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top, rgba(255, 90, 60, 0.32) 0, #060712 55%, #05060a 100%);
+    }
+
+    .drop-main-text {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .drop-sub-text {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border-radius: 999px;
+      padding: 10px 20px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 9px 18px;
-      border-radius: 999px;
-      border: none;
-      background: #ff4b4b;
-      color: #fff;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .btn:disabled {
-      opacity: .4;
-      cursor: default;
-    }
-    .btn-secondary {
-      background: #252538;
-      margin-left: 10px;
+      gap: 8px;
+      white-space: nowrap;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease,
+        color 0.12s ease, opacity 0.12s ease;
     }
 
-    .preview-wrap {
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6a3d, #ff3d68);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(255, 90, 60, 0.45);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(255, 90, 60, 0.6);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .preset-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .sliders {
+      margin-top: 6px;
+      border-radius: 12px;
+      background: rgba(4, 6, 16, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 10px 12px 10px;
       display: flex;
       flex-direction: column;
+      gap: 8px;
+    }
+
+    .sliders-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
       gap: 10px;
-      height: 100%;
     }
-    canvas, img {
-      width: 100%;
-      max-height: 450px;
-      object-fit: contain;
-      border-radius: 10px;
-      background: #050509;
+
+    .slider-row label {
+      font-size: 12px;
+      min-width: 74px;
+      color: var(--text-muted);
     }
-    .row {
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: #262939;
+      outline: none;
+    }
+
+    .slider-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ff6a3d;
+      box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.35);
+      cursor: pointer;
+      border: none;
+    }
+
+    .slider-row input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ff6a3d;
+      box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.35);
+      cursor: pointer;
+      border: none;
+    }
+
+    .slider-value {
+      font-size: 11px;
+      min-width: 36px;
+      text-align: right;
+      color: var(--text-muted);
+    }
+
+    /* Preview side */
+
+    .preview-card {
+      background: radial-gradient(circle at top, #141827 0, #05060a 55%, #020205 100%);
+      border-radius: var(--radius-lg);
+      padding: 16px 16px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .preview-header {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .preview-frame {
+      position: relative;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #1a1d2b 0, #05060a 55%, #010103 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px;
+      flex: 1;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 14px;
+      background: #05060a;
+    }
+
+    .preview-footer {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      margin-top: 6px;
+      align-items: baseline;
       font-size: 11px;
-      color: #9797b0;
+      color: var(--text-muted);
+    }
+
+    .dim-label {
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-<div class="card">
-  <div>
-    <div class="label">Alex Kas Tattoo · Tool</div>
-    <h1>Pic → Tattoo Reference</h1>
-    <p>Upload any photo and convert it into a clean, high-contrast black & grey tattoo reference. All processing runs locally in your browser.</p>
+  <div class="shell">
+    <!-- LEFT SIDE -->
+    <div>
+      <div class="header-label">Alex Kas Tattoo · Tool</div>
+      <h1>Pic → Tattoo Reference</h1>
+      <p class="subtitle">
+        Upload any photo and convert it into a clean, high-contrast black &amp; grey
+        tattoo reference. All processing runs locally in your browser.
+      </p>
 
-    <div class="panel">
-      <div class="upload-zone" id="uploadZone">
-        <strong>Drop image here</strong><br/>
-        <span style="font-size:12px;">or click to choose JPG / PNG / WEBP</span>
-        <input type="file" id="fileInput" accept="image/*" />
+      <div class="left-card">
+        <div
+          class="drop-zone"
+          id="dropZone"
+        >
+          <div class="drop-main-text">Drop image here</div>
+          <div class="drop-sub-text">or click to choose JPG / PNG / WEBP</div>
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            style="display:none"
+          />
+        </div>
+
+        <div class="controls-row">
+          <button class="btn-primary" id="processBtn" disabled>
+            Process to Tattoo Ref
+          </button>
+          <button class="btn-ghost" id="downloadBtn" disabled>
+            Download result
+          </button>
+        </div>
+
+        <div class="sliders">
+          <div class="sliders-header">Fine tuning</div>
+
+          <div class="slider-row">
+            <label for="contrastSlider">Contrast</label>
+            <input
+              type="range"
+              id="contrastSlider"
+              min="80"
+              max="220"
+              value="160"
+            />
+            <div class="slider-value" id="contrastValue">160%</div>
+          </div>
+
+          <div class="slider-row">
+            <label for="brightnessSlider">Brightness</label>
+            <input
+              type="range"
+              id="brightnessSlider"
+              min="60"
+              max="140"
+              value="100"
+            />
+            <div class="slider-value" id="brightnessValue">100%</div>
+          </div>
+
+          <div class="slider-row">
+            <label for="blurSlider">Smooth</label>
+            <input
+              type="range"
+              id="blurSlider"
+              min="0"
+              max="3"
+              step="0.1"
+              value="0.5"
+            />
+            <div class="slider-value" id="blurValue">0.5px</div>
+          </div>
+        </div>
+
+        <div class="preset-note">
+          Preset: grayscale, +contrast, light smoothing — tuned for tattoo reference work.
+        </div>
       </div>
+    </div>
 
-      <button class="btn" id="processBtn" disabled>Process to Tattoo Ref</button>
-      <button class="btn btn-secondary" id="downloadBtn" disabled>Download result</button>
-
-      <div style="margin-top:10px;font-size:11px;color:#777791;">
-        Preset: grayscale, +contrast, +clarity, light smooth – tuned for tattoo reference work.
+    <!-- RIGHT SIDE -->
+    <div>
+      <div class="preview-card">
+        <div class="preview-header">Preview</div>
+        <div class="preview-frame">
+          <canvas id="canvas"></canvas>
+        </div>
+        <div class="preview-footer">
+          <span>Processed for tattoo reference. You can download the result.</span>
+          <span class="dim-label" id="dimensionLabel"></span>
+        </div>
       </div>
     </div>
   </div>
 
-  <div>
-    <div class="panel preview-wrap">
-      <div class="label">Preview</div>
-      <canvas id="canvas"></canvas>
-      <div class="row">
-        <span id="status">Waiting for image…</span>
-        <span id="sizeInfo"></span>
-      </div>
-    </div>
-  </div>
-</div>
+  <script>
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const processBtn = document.getElementById("processBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const dimLabel = document.getElementById("dimensionLabel");
 
-<script>
-  const fileInput   = document.getElementById('fileInput');
-  const uploadZone  = document.getElementById('uploadZone');
-  const processBtn  = document.getElementById('processBtn');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const canvas      = document.getElementById('canvas');
-  const ctx         = canvas.getContext('2d');
-  const statusEl    = document.getElementById('status');
-  const sizeInfo    = document.getElementById('sizeInfo');
+    const contrastSlider = document.getElementById("contrastSlider");
+    const brightnessSlider = document.getElementById("brightnessSlider");
+    const blurSlider = document.getElementById("blurSlider");
 
-  let originalImage = null;
-  let processedDataURL = null;
+    const contrastValue = document.getElementById("contrastValue");
+    const brightnessValue = document.getElementById("brightnessValue");
+    const blurValue = document.getElementById("blurValue");
 
-  uploadZone.addEventListener('click', () => fileInput.click());
+    let originalImage = null;
 
-  uploadZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    uploadZone.style.borderColor = '#ff4b4b';
-  });
-  uploadZone.addEventListener('dragleave', () => {
-    uploadZone.style.borderColor = 'rgba(255,255,255,0.25)';
-  });
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.style.borderColor = 'rgba(255,255,255,0.25)';
-    const file = e.dataTransfer.files[0];
-    if (file) loadImage(file);
-  });
+    // --- helpers ---
+    function updateSliderLabels() {
+      contrastValue.textContent = contrastSlider.value + "%";
+      brightnessValue.textContent = brightnessSlider.value + "%";
+      blurValue.textContent = blurSlider.value + "px";
+    }
 
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (file) loadImage(file);
-  });
-
-  function loadImage(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
+    function loadImage(file) {
+      if (!file) return;
       const img = new Image();
       img.onload = () => {
         originalImage = img;
-
-        const maxW = 900;
-        const maxH = 450;
-        let { width, height } = img;
-        const ratio = Math.min(maxW / width, maxH / height, 1);
-        width *= ratio;
-        height *= ratio;
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-
-        statusEl.textContent = 'Image loaded. Click “Process to Tattoo Ref”.';
-        sizeInfo.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+        canvas.width = img.width;
+        canvas.height = img.height;
+        dimLabel.textContent = img.width + "×" + img.height;
+        processImage(); // сразу применить текущие настройки
         processBtn.disabled = false;
-        downloadBtn.disabled = true;
-        processedDataURL = null;
+        downloadBtn.disabled = false;
       };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function applyTattooPreset() {
-    if (!originalImage) return;
-
-    const maxW = 900;
-    const maxH = 450;
-    let { width, height } = originalImage;
-    const ratio = Math.min(maxW / width, maxH / height, 1);
-    width *= ratio;
-    height *= ratio;
-
-    canvas.width = width;
-    canvas.height = height;
-    ctx.drawImage(originalImage, 0, 0, width, height);
-
-    let imgData = ctx.getImageData(0, 0, width, height);
-    let data = imgData.data;
-
-    // Настройки пресета (можно потом подстроить под твой вкус)
-    const contrastBoost = 30;   // примерно +30%
-    const brightnessBoost = 10; // примерно +10
-    const sharpBoost = 25;      // примерно +25%
-
-    // 1) Grayscale + лёгкая коррекция яркости/контраста
-    const c = contrastBoost;
-    const factor = (259 * (c + 255)) / (255 * (259 - c));
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i];
-      let g = data[i+1];
-      let b = data[i+2];
-
-      // luminance
-      let gray = 0.299*r + 0.587*g + 0.114*b;
-
-      // контраст + яркость
-      gray = factor * (gray - 128) + 128 + brightnessBoost;
-      gray = Math.max(0, Math.min(255, gray));
-
-      // лёгкая S-кривая
-      let x = gray / 255;
-      x = Math.pow(x, 0.9); // немного поднимаем тени
-      gray = Math.max(0, Math.min(255, x * 255));
-
-      data[i] = data[i+1] = data[i+2] = gray;
+      img.onerror = () => {
+        alert("Could not load image. Please try another file.");
+      };
+      img.src = URL.createObjectURL(file);
     }
 
-    ctx.putImageData(imgData, 0, 0);
+    function processImage() {
+      if (!originalImage) return;
 
-    // 2) Лёгкое повышение резкости по принципу “clarity”
-    if (sharpBoost !== 0) {
-      const amount = sharpBoost / 100; // 0..0.25
-      const srcData = ctx.getImageData(0, 0, width, height);
-      const src = srcData.data;
-      const dstData = ctx.getImageData(0, 0, width, height);
-      const dst = dstData.data;
+      const contrast = contrastSlider.value;
+      const brightness = brightnessSlider.value;
+      const blur = blurSlider.value;
 
-      const w = width;
-      const h = height;
-      function idx(x, y) { return (y*w + x)*4; }
+      // формируем filter-цепочку для canvas
+      ctx.filter =
+        `grayscale(100%) contrast(${contrast}%) brightness(${brightness}%) blur(${blur}px)`;
 
-      for (let y = 1; y < h-1; y++) {
-        for (let x = 1; x < w-1; x++) {
-          const i0 = idx(x, y);
-          const c0 = src[i0];
-
-          const up    = src[idx(x, y-1)];
-          const down  = src[idx(x, y+1)];
-          const left  = src[idx(x-1, y)];
-          const right = src[idx(x+1, y)];
-          const blur  = (c0 + up + down + left + right) / 5;
-
-          const highpass = c0 - blur;
-          let val = c0 + highpass * (amount * 2.5);
-
-          val = Math.max(0, Math.min(255, val));
-          dst[i0] = dst[i0+1] = dst[i0+2] = val;
-          dst[i0+3] = 255;
-        }
-      }
-
-      ctx.putImageData(dstData, 0, 0);
+      ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+      ctx.filter = "none"; // сбрасываем, чтобы не влияло на будущее
     }
 
-    // 3) Лёгкое сглаживание шума
-    const smoothPasses = 1;
-    for (let s = 0; s < smoothPasses; s++) {
-      const srcData = ctx.getImageData(0, 0, width, height);
-      const src = srcData.data;
-      const dstData = ctx.getImageData(0, 0, width, height);
-      const dst = dstData.data;
-      const w = width;
-      const h = height;
-      function idx(x, y) { return (y*w + x)*4; }
-      for (let y = 1; y < h-1; y++) {
-        for (let x = 1; x < w-1; x++) {
-          const i0 = idx(x, y);
-          const c0 = src[i0];
-          const up    = src[idx(x, y-1)];
-          const down  = src[idx(x, y+1)];
-          const left  = src[idx(x-1, y)];
-          const right = src[idx(x+1, y)];
-          const avg = (c0 + up + down + left + right) / 5;
-          dst[i0] = dst[i0+1] = dst[i0+2] = avg;
-          dst[i0+3] = 255;
-        }
-      }
-      ctx.putImageData(dstData, 0, 0);
-    }
+    // --- drag & drop / file select ---
+    dropZone.addEventListener("click", () => fileInput.click());
 
-    processedDataURL = canvas.toDataURL('image/jpeg', 0.95);
-    statusEl.textContent = 'Processed for tattoo reference. You can download the result.';
-    downloadBtn.disabled = false;
-  }
+    ["dragenter", "dragover"].forEach(evt =>
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("dragover");
+      })
+    );
 
-  processBtn.addEventListener('click', () => {
-    statusEl.textContent = 'Processing…';
-    setTimeout(applyTattooPreset, 10);
-  });
+    ["dragleave", "drop"].forEach(evt =>
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("dragover");
+      })
+    );
 
-  downloadBtn.addEventListener('click', () => {
-    if (!processedDataURL) return;
-    const a = document.createElement('a');
-    a.href = processedDataURL;
-    a.download = 'tattoo_reference_alexkas.jpg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-</script>
+    dropZone.addEventListener("drop", e => {
+      const file = e.dataTransfer.files[0];
+      if (file) loadImage(file);
+    });
+
+    fileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) loadImage(file);
+    });
+
+    // --- buttons ---
+    processBtn.addEventListener("click", processImage);
+
+    downloadBtn.addEventListener("click", () => {
+      if (!canvas.width || !canvas.height) return;
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "tattoo_ref.png";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }, "image/png");
+    });
+
+    // --- sliders ---
+    [contrastSlider, brightnessSlider, blurSlider].forEach(slider => {
+      slider.addEventListener("input", () => {
+        updateSliderLabels();
+        if (originalImage) processImage();
+      });
+    });
+
+    updateSliderLabels();
+  </script>
 </body>
 </html>
