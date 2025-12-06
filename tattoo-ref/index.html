@@ -1,517 +1,881 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
+      color-scheme: dark;
       --bg: #05060a;
-      --bg-card: #10121b;
-      --bg-card-soft: #151827;
+      --panel: #101119;
+      --panel-soft: #171826;
       --accent: #ff5a3c;
-      --accent-soft: rgba(255, 90, 60, 0.18);
-      --text-main: #f5f5f7;
-      --text-muted: #8b8fa1;
-      --border-subtle: #242632;
+      --accent-soft: rgba(255,90,60,0.16);
+      --border: #2a2b3c;
+      --text-main: #f5f5fa;
+      --text-muted: #a1a2ba;
       --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
-      --shadow-subtle: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius-md: 11px;
+      --radius-sm: 8px;
+      --shadow-soft: 0 18px 45px rgba(0,0,0,0.6);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
-      font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #151827 0, #05060a 45%, #020308 100%);
-      color: var(--text-main);
+      margin: 0;
       min-height: 100vh;
-      padding: 32px 16px;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #171829 0, #05060a 50%);
+      color: var(--text-main);
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
+      padding: 32px 16px;
     }
 
     .shell {
-      max-width: 1160px;
       width: 100%;
-      background: radial-gradient(circle at top left, #181b2b 0, #090a10 55%, #05060a 100%);
+      max-width: 1180px;
+      background: radial-gradient(circle at top left, #1f2135 0, #05060a 55%);
       border-radius: 28px;
-      padding: 28px 32px 32px;
       box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 28px 28px 26px;
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-      gap: 32px;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr);
+      gap: 24px;
     }
 
     @media (max-width: 900px) {
       .shell {
-        grid-template-columns: minmax(0, 1fr);
-        padding: 20px 18px 24px;
+        grid-template-columns: minmax(0,1fr);
+        padding: 20px 16px 18px;
+        border-radius: 22px;
       }
     }
 
-    .header-label {
-      font-size: 10px;
-      font-weight: 600;
+    header {
+      grid-column: 1 / -1;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .brand {
+      font-size: 13px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 4px;
     }
 
     h1 {
-      font-size: 26px;
+      margin: 4px 0 4px;
+      font-size: 24px;
       letter-spacing: 0.03em;
-      margin-bottom: 6px;
     }
 
     .subtitle {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
-      line-height: 1.5;
       max-width: 420px;
-      margin-bottom: 20px;
+      line-height: 1.5;
     }
 
-    .left-card {
-      background: linear-gradient(145deg, #141726, #080915);
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: radial-gradient(circle at left, rgba(255,255,255,0.14), rgba(0,0,0,0.5));
+      white-space: nowrap;
+    }
+
+    .col {
+      background: linear-gradient(145deg, var(--panel) 0, #05060a 100%);
+      border-radius: 20px;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .col::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 55%);
+      pointer-events: none;
+    }
+
+    .col-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .label-muted {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .dropzone {
       border-radius: var(--radius-lg);
-      padding: 18px 18px 20px;
-      border: 1px solid var(--border-subtle);
-      box-shadow: var(--shadow-subtle);
+      border: 1px dashed rgba(255,255,255,0.25);
+      background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(9,10,16,0.95));
+      padding: 32px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .drop-zone {
-      border-radius: var(--radius-md);
-      border: 1px dashed rgba(255, 255, 255, 0.18);
-      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.06) 0, rgba(10, 12, 20, 0.7) 45%, #05060a 100%);
-      padding: 22px 20px;
-      text-align: center;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       cursor: pointer;
-      transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
     }
 
-    .drop-zone:hover {
-      border-color: rgba(255, 255, 255, 0.35);
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top, rgba(255,90,60,0.20), rgba(3,4,8,0.96));
       transform: translateY(-1px);
     }
 
-    .drop-zone.dragover {
-      border-color: var(--accent);
-      background: radial-gradient(circle at top, rgba(255, 90, 60, 0.32) 0, #060712 55%, #05060a 100%);
-    }
-
-    .drop-main-text {
+    .dropzone-title {
       font-size: 15px;
       font-weight: 600;
-      margin-bottom: 4px;
     }
 
-    .drop-sub-text {
+    .dropzone-sub {
       font-size: 12px;
       color: var(--text-muted);
     }
 
-    .controls-row {
+    input[type="file"] {
+      display: none;
+    }
+
+    .buttons {
       display: flex;
       gap: 10px;
-      margin-top: 2px;
+      margin-top: 18px;
       flex-wrap: wrap;
     }
 
     button {
       border-radius: 999px;
-      padding: 10px 20px;
       border: none;
-      font-size: 13px;
-      font-weight: 600;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 14px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease,
+        opacity 0.12s ease;
       white-space: nowrap;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease,
-        color 0.12s ease, opacity 0.12s ease;
     }
 
     button:disabled {
-      opacity: 0.5;
+      opacity: 0.45;
       cursor: default;
       transform: none;
       box-shadow: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #ff6a3d, #ff3d68);
-      color: #fff;
-      box-shadow: 0 10px 25px rgba(255, 90, 60, 0.45);
+      background: radial-gradient(circle at top left, #ff7652 0, var(--accent) 55%);
+      color: #120809;
+      font-weight: 600;
+      box-shadow: 0 12px 26px rgba(255,90,60,0.4);
     }
 
-    .btn-primary:hover:not(:disabled) {
+    .btn-primary:not(:disabled):hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 32px rgba(255, 90, 60, 0.6);
+      box-shadow: 0 16px 40px rgba(255,90,60,0.55);
     }
 
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.02);
+    .btn-secondary {
+      background: rgba(255,255,255,0.03);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255,255,255,0.12);
     }
 
-    .btn-ghost:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.06);
+    .btn-secondary:not(:disabled):hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-1px);
     }
 
     .preset-note {
+      margin-top: 10px;
       font-size: 11px;
       color: var(--text-muted);
-      margin-top: 6px;
+    }
+
+    .preset-note span {
+      color: #f5f5fa;
+    }
+
+    .modes {
+      margin-top: 18px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: rgba(10,11,18,0.9);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+
+    .mode-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-label input {
+      margin: 0;
+      accent-color: var(--accent);
     }
 
     .sliders {
-      margin-top: 6px;
-      border-radius: 12px;
-      background: rgba(4, 6, 16, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 10px 12px 10px;
+      margin-top: 14px;
+      padding: 10px 12px 2px;
+      border-radius: 14px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(255,255,255,0.05);
+      display: grid;
+      grid-template-columns: minmax(0,1fr);
+      gap: 8px;
+    }
+
+    .slider-group {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      column-gap: 8px;
+      row-gap: 2px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .slider-group strong {
+      font-size: 11px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .slider-value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: #242537;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+      cursor: pointer;
+      border: none;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      box-shadow: 0 0 0 4px var(--accent-soft);
+      cursor: pointer;
+    }
+
+    .preview-wrapper {
+      border-radius: 18px;
+      padding: 10px;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.04), rgba(3,4,8,0.96));
+      border: 1px solid rgba(255,255,255,0.06);
+      min-height: 260px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .sliders-header {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-    }
-
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .slider-row label {
-      font-size: 12px;
-      min-width: 74px;
-      color: var(--text-muted);
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      border-radius: 999px;
-      background: #262939;
-      outline: none;
-    }
-
-    .slider-row input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ff6a3d;
-      box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.35);
-      cursor: pointer;
-      border: none;
-    }
-
-    .slider-row input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ff6a3d;
-      box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.35);
-      cursor: pointer;
-      border: none;
-    }
-
-    .slider-value {
-      font-size: 11px;
-      min-width: 36px;
-      text-align: right;
-      color: var(--text-muted);
-    }
-
-    /* Preview side */
-
-    .preview-card {
-      background: radial-gradient(circle at top, #141827 0, #05060a 55%, #020205 100%);
-      border-radius: var(--radius-lg);
-      padding: 16px 16px 20px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow: var(--shadow-subtle);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
     .preview-header {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 11px;
       color: var(--text-muted);
     }
 
-    .preview-frame {
+    .preview-header span {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 10px;
+    }
+
+    .preview-area {
       position: relative;
-      border-radius: 18px;
-      background: radial-gradient(circle at top, #1a1d2b 0, #05060a 55%, #010103 100%);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 14px;
       flex: 1;
-      min-height: 280px;
+      border-radius: 14px;
+      background: #05060a;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
     canvas {
       max-width: 100%;
       max-height: 100%;
-      border-radius: 14px;
-      background: #05060a;
+      display: block;
     }
 
-    .preview-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+    .preview-placeholder {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 24px 12px;
+    }
+
+    .preview-placeholder .icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+      opacity: 0.9;
+    }
+
+    .meta {
+      margin-top: 4px;
       font-size: 11px;
       color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
     }
 
-    .dim-label {
-      opacity: 0.9;
+    .meta strong {
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
   <div class="shell">
-    <!-- LEFT SIDE -->
-    <div>
-      <div class="header-label">Alex Kas Tattoo · Tool</div>
-      <h1>Pic → Tattoo Reference</h1>
-      <p class="subtitle">
-        Upload any photo and convert it into a clean, high-contrast black &amp; grey
-        tattoo reference. All processing runs locally in your browser.
-      </p>
-
-      <div class="left-card">
-        <div
-          class="drop-zone"
-          id="dropZone"
-        >
-          <div class="drop-main-text">Drop image here</div>
-          <div class="drop-sub-text">or click to choose JPG / PNG / WEBP</div>
-          <input
-            type="file"
-            id="fileInput"
-            accept="image/*"
-            style="display:none"
-          />
+    <header>
+      <div>
+        <div class="brand">Alex Kas Tattoo • Tool</div>
+        <h1>Pic → Tattoo Reference</h1>
+        <div class="subtitle">
+          Upload any photo and convert it into a clean, high-contrast black &amp; grey tattoo reference.
+          All processing runs locally in your browser.
         </div>
+      </div>
+      <div class="pill">Preset tuned for soft black &amp; grey realism</div>
+    </header>
 
-        <div class="controls-row">
-          <button class="btn-primary" id="processBtn" disabled>
-            Process to Tattoo Ref
-          </button>
-          <button class="btn-ghost" id="downloadBtn" disabled>
-            Download result
-          </button>
-        </div>
+    <!-- LEFT: controls -->
+    <section class="col">
+      <div class="col-inner">
+        <div class="label-muted">Input</div>
 
-        <div class="sliders">
-          <div class="sliders-header">Fine tuning</div>
+        <label class="dropzone" id="dropzone">
+          <div class="dropzone-title">Drop image here</div>
+          <div class="dropzone-sub">or click to choose JPG / PNG / WEBP</div>
+          <input type="file" id="fileInput" accept="image/*" />
+        </label>
 
-          <div class="slider-row">
-            <label for="contrastSlider">Contrast</label>
-            <input
-              type="range"
-              id="contrastSlider"
-              min="80"
-              max="220"
-              value="160"
-            />
-            <div class="slider-value" id="contrastValue">160%</div>
-          </div>
-
-          <div class="slider-row">
-            <label for="brightnessSlider">Brightness</label>
-            <input
-              type="range"
-              id="brightnessSlider"
-              min="60"
-              max="140"
-              value="100"
-            />
-            <div class="slider-value" id="brightnessValue">100%</div>
-          </div>
-
-          <div class="slider-row">
-            <label for="blurSlider">Smooth</label>
-            <input
-              type="range"
-              id="blurSlider"
-              min="0"
-              max="3"
-              step="0.1"
-              value="0.5"
-            />
-            <div class="slider-value" id="blurValue">0.5px</div>
-          </div>
+        <div class="buttons">
+          <button class="btn-primary" id="processBtn" disabled>Process to Tattoo Ref</button>
+          <button class="btn-secondary" id="downloadBtn" disabled>Download result</button>
         </div>
 
         <div class="preset-note">
-          Preset: grayscale, +contrast, light smoothing — tuned for tattoo reference work.
+          <span>Mode 1 – Tattoo Ref:</span> grayscale, contrast, clarity, light smoothing.<br/>
+          <span>Mode 2 – Soft Sketch:</span> убирает мелкие детали, оставляет мягкую светотень под
+          smudge/brush в Procreate.
         </div>
-      </div>
-    </div>
 
-    <!-- RIGHT SIDE -->
-    <div>
-      <div class="preview-card">
-        <div class="preview-header">Preview</div>
-        <div class="preview-frame">
-          <canvas id="canvas"></canvas>
+        <div class="modes">
+          <label class="mode-label">
+            <input type="radio" name="mode" value="tattoo" checked />
+            Tattoo Ref
+          </label>
+          <label class="mode-label">
+            <input type="radio" name="mode" value="sketch" />
+            Soft Sketch (simplified tones)
+          </label>
         </div>
-        <div class="preview-footer">
-          <span>Processed for tattoo reference. You can download the result.</span>
-          <span class="dim-label" id="dimensionLabel"></span>
+
+        <div class="sliders" id="slidersTattoo">
+          <div class="slider-group">
+            <div><strong>Contrast</strong> · global</div>
+            <div class="slider-value"><span id="contrastVal">1.25</span>x</div>
+            <input type="range" id="contrast" min="0.8" max="1.8" step="0.05" value="1.25" />
+          </div>
+          <div class="slider-group">
+            <div><strong>Brightness</strong></div>
+            <div class="slider-value"><span id="brightnessVal">0</span></div>
+            <input type="range" id="brightness" min="-40" max="40" step="2" value="0" />
+          </div>
+          <div class="slider-group">
+            <div><strong>Smoothness</strong> · reduce noise</div>
+            <div class="slider-value"><span id="smoothVal">0.35</span></div>
+            <input type="range" id="smooth" min="0" max="1" step="0.05" value="0.35" />
+          </div>
+        </div>
+
+        <div class="sliders" id="slidersSketch" style="margin-top:10px; display:none;">
+          <div class="slider-group">
+            <div><strong>Detail smoothing</strong> · blur strength</div>
+            <div class="slider-value"><span id="dSmoothVal">0.70</span></div>
+            <input type="range" id="detailSmooth" min="0" max="1" step="0.05" value="0.70" />
+          </div>
+          <div class="slider-group">
+            <div><strong>Tone steps</strong> · levels</div>
+            <div class="slider-value"><span id="toneStepsVal">6</span></div>
+            <input type="range" id="toneSteps" min="3" max="9" step="1" value="6" />
+          </div>
+          <div class="slider-group">
+            <div><strong>Edge strength</strong> · contour</div>
+            <div class="slider-value"><span id="edgeStrengthVal">0.35</span></div>
+            <input type="range" id="edgeStrength" min="0" max="1" step="0.05" value="0.35" />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- RIGHT: preview -->
+    <section class="col">
+      <div class="col-inner">
+        <div class="label-muted">Preview</div>
+        <div class="preview-wrapper">
+          <div class="preview-header">
+            <span>Processed reference</span>
+            <div id="sizeInfo">No image loaded</div>
+          </div>
+          <div class="preview-area">
+            <canvas id="previewCanvas"></canvas>
+            <div class="preview-placeholder" id="placeholder">
+              <div class="icon">🖼️</div>
+              Drop a photo on the left to see the tattoo reference here.
+            </div>
+          </div>
+          <div class="meta">
+            <div id="modeInfo">Mode: —</div>
+            <div id="hintInfo">Tip: keep large forms, kill micro-detail.</div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("fileInput");
-    const processBtn = document.getElementById("processBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const dimLabel = document.getElementById("dimensionLabel");
+    // --- DOM elements --------------------------------------------------------
+    const fileInput      = document.getElementById('fileInput');
+    const dropzone       = document.getElementById('dropzone');
+    const processBtn     = document.getElementById('processBtn');
+    const downloadBtn    = document.getElementById('downloadBtn');
+    const previewCanvas  = document.getElementById('previewCanvas');
+    const placeholder    = document.getElementById('placeholder');
+    const sizeInfo       = document.getElementById('sizeInfo');
+    const modeInfo       = document.getElementById('modeInfo');
+    const hintInfo       = document.getElementById('hintInfo');
+    const slidersTattoo  = document.getElementById('slidersTattoo');
+    const slidersSketch  = document.getElementById('slidersSketch');
 
-    const contrastSlider = document.getElementById("contrastSlider");
-    const brightnessSlider = document.getElementById("brightnessSlider");
-    const blurSlider = document.getElementById("blurSlider");
+    // sliders – tattoo mode
+    const contrastSlider   = document.getElementById('contrast');
+    const contrastValSpan  = document.getElementById('contrastVal');
+    const brightSlider     = document.getElementById('brightness');
+    const brightValSpan    = document.getElementById('brightnessVal');
+    const smoothSlider     = document.getElementById('smooth');
+    const smoothValSpan    = document.getElementById('smoothVal');
 
-    const contrastValue = document.getElementById("contrastValue");
-    const brightnessValue = document.getElementById("brightnessValue");
-    const blurValue = document.getElementById("blurValue");
+    // sliders – soft sketch mode
+    const dSmoothSlider    = document.getElementById('detailSmooth');
+    const dSmoothValSpan   = document.getElementById('dSmoothVal');
+    const toneStepsSlider  = document.getElementById('toneSteps');
+    const toneStepsValSpan = document.getElementById('toneStepsVal');
+    const edgeSlider       = document.getElementById('edgeStrength');
+    const edgeValSpan      = document.getElementById('edgeStrengthVal');
 
-    let originalImage = null;
+    const modeRadios   = document.querySelectorAll('input[name="mode"]');
 
-    // --- helpers ---
-    function updateSliderLabels() {
-      contrastValue.textContent = contrastSlider.value + "%";
-      brightnessValue.textContent = brightnessSlider.value + "%";
-      blurValue.textContent = blurSlider.value + "px";
+    // --- state ---------------------------------------------------------------
+    let originalImage = null;      // HTMLImageElement
+    let originalData  = null;      // ImageData
+    let originalW     = 0;
+    let originalH     = 0;
+
+    const workCanvas = document.createElement('canvas');
+    const workCtx    = workCanvas.getContext('2d');
+
+    // --- helpers -------------------------------------------------------------
+    function loadImageToCanvas(img) {
+      const maxSide = 1600; // limit so it doesn't explode memory
+      let { width, height } = img;
+
+      const ratio = width / height;
+      if (width > height && width > maxSide) {
+        width  = maxSide;
+        height = Math.round(maxSide / ratio);
+      } else if (height >= width && height > maxSide) {
+        height = maxSide;
+        width  = Math.round(maxSide * ratio);
+      }
+
+      workCanvas.width  = width;
+      workCanvas.height = height;
+      workCtx.clearRect(0, 0, width, height);
+      workCtx.drawImage(img, 0, 0, width, height);
+      originalData = workCtx.getImageData(0, 0, width, height);
+      originalW = width;
+      originalH = height;
+      sizeInfo.textContent = `${width}×${height}px loaded`;
     }
 
-    function loadImage(file) {
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        originalImage = img;
-        canvas.width = img.width;
-        canvas.height = img.height;
-        dimLabel.textContent = img.width + "×" + img.height;
-        processImage(); // сразу применить текущие настройки
-        processBtn.disabled = false;
-        downloadBtn.disabled = false;
+    function drawToPreview(imageData) {
+      const ctxPrev = previewCanvas.getContext('2d');
+      previewCanvas.width  = imageData.width;
+      previewCanvas.height = imageData.height;
+      ctxPrev.putImageData(imageData, 0, 0);
+      placeholder.style.display = 'none';
+      downloadBtn.disabled = false;
+    }
+
+    function getSelectedMode() {
+      for (const r of modeRadios) if (r.checked) return r.value;
+      return 'tattoo';
+    }
+
+    function clamp(v, min, max) {
+      return v < min ? min : (v > max ? max : v);
+    }
+
+    // --- core processing: tattoo ref ----------------------------------------
+    function processTattooRef() {
+      if (!originalData) return;
+      const contrast = parseFloat(contrastSlider.value);  // 0.8–1.8
+      const bright   = parseInt(brightSlider.value, 10);  // -40..40
+      const smooth   = parseFloat(smoothSlider.value);    // 0..1
+
+      const src = originalData;
+      const w = src.width;
+      const h = src.height;
+      const out = new ImageData(w, h);
+      const sData = src.data;
+      const oData = out.data;
+
+      // 1) grayscale + contrast + brightness in один проход
+      const factor = contrast;
+      const bShift = bright;
+
+      for (let i = 0; i < sData.length; i += 4) {
+        const r = sData[i];
+        const g = sData[i+1];
+        const b = sData[i+2];
+
+        let gray = 0.299*r + 0.587*g + 0.114*b;
+
+        gray = (gray - 128) * factor + 128 + bShift;
+        gray = clamp(gray, 0, 255);
+
+        oData[i]   = gray;
+        oData[i+1] = gray;
+        oData[i+2] = gray;
+        oData[i+3] = 255;
+      }
+
+      // 2) optional smoothing (simple box blur with strength mapped from slider)
+      const strength = smooth; // 0..1
+      if (strength > 0.01) {
+        const radius = 1 + Math.round(strength * 2); // 1..3
+        boxBlurGrayscale(oData, w, h, radius, 1 + Math.round(strength * 2));
+      }
+
+      drawToPreview(out);
+      modeInfo.textContent = 'Mode: Tattoo Ref';
+      hintInfo.textContent = 'Tip: use this as a clean black & grey reference.';
+    }
+
+    // --- core processing: soft sketch ---------------------------------------
+    function processSoftSketch() {
+      if (!originalData) return;
+      const smoothStrength = parseFloat(dSmoothSlider.value); // 0..1
+      const toneSteps      = parseInt(toneStepsSlider.value, 10); // 3..9
+      const edgeStrength   = parseFloat(edgeSlider.value); // 0..1
+
+      const src = originalData;
+      const w = src.width;
+      const h = src.height;
+      const grayBase = new Float32Array(w*h); // base grayscale for edges
+      const sData = src.data;
+
+      // 1) grayscale base
+      for (let i = 0, p = 0; i < sData.length; i += 4, p++) {
+        const r = sData[i];
+        const g = sData[i+1];
+        const b = sData[i+2];
+        grayBase[p] = 0.299*r + 0.587*g + 0.114*b;
+      }
+
+      // 2) copy to output buffer for smoothing / posterize
+      const work = new Float32Array(grayBase);
+
+      // 3) blur to remove detail
+      if (smoothStrength > 0.01) {
+        const radius = 1 + Math.round(smoothStrength * 4); // 1..5
+        const passes = 1 + Math.round(smoothStrength * 2); // 1..3
+        blurMono(work, w, h, radius, passes);
+      }
+
+      // 4) posterization (tone steps)
+      const levels = toneSteps;
+      const step = 255 / (levels - 1);
+      for (let i = 0; i < work.length; i++) {
+        let g = work[i];
+        g = Math.round(g / step) * step;
+        work[i] = clamp(g, 0, 255);
+      }
+
+      // 5) edge detection on original grayscale (Sobel)
+      const edges = new Float32Array(w*h);
+      sobelEdges(grayBase, w, h, edges);
+
+      // normalize edge map 0..1
+      let maxE = 0;
+      for (let i = 0; i < edges.length; i++) if (edges[i] > maxE) maxE = edges[i];
+      const invMaxE = maxE ? 1 / maxE : 1;
+      for (let i = 0; i < edges.length; i++) {
+        edges[i] = edges[i] * invMaxE; // 0..1
+      }
+
+      // 6) blend edges into posterized image
+      const k = edgeStrength; // 0..1
+      const out = new ImageData(w, h);
+      const oData = out.data;
+
+      for (let i = 0, p = 0; p < work.length; p++, i += 4) {
+        let g = work[p];
+        const e = edges[p];
+
+        // darken along edges (like pencil strokes)
+        g = g - k * 220 * e;
+        g = clamp(g, 0, 255);
+
+        oData[i]   = g;
+        oData[i+1] = g;
+        oData[i+2] = g;
+        oData[i+3] = 255;
+      }
+
+      drawToPreview(out);
+      modeInfo.textContent = 'Mode: Soft Sketch';
+      hintInfo.textContent = 'Tip: use smudge/soft brushes to refine shapes & transitions.';
+    }
+
+    // --- simple blur & sobel helpers ----------------------------------------
+    function blurMono(buf, w, h, radius, passes) {
+      const tmp = new Float32Array(buf.length);
+      for (let p = 0; p < passes; p++) {
+        // horizontal
+        for (let y = 0; y < h; y++) {
+          let acc = 0;
+          let count = 0;
+          const row = y * w;
+          for (let x = -radius; x < w; x++) {
+            const addX = x + radius;
+            const subX = x - radius - 1;
+            if (addX >= 0 && addX < w) {
+              acc += buf[row + addX];
+              count++;
+            }
+            if (subX >= 0 && subX < w) {
+              acc -= buf[row + subX];
+              count--;
+            }
+            if (x >= 0) {
+              tmp[row + x] = acc / count;
+            }
+          }
+        }
+        // vertical
+        for (let x = 0; x < w; x++) {
+          let acc = 0;
+          let count = 0;
+          for (let y = -radius; y < h; y++) {
+            const addY = y + radius;
+            const subY = y - radius - 1;
+            if (addY >= 0 && addY < h) {
+              acc += tmp[addY * w + x];
+              count++;
+            }
+            if (subY >= 0 && subY < h) {
+              acc -= tmp[subY * w + x];
+              count--;
+            }
+            if (y >= 0) {
+              buf[y * w + x] = acc / count;
+            }
+          }
+        }
+      }
+    }
+
+    function sobelEdges(src, w, h, out) {
+      const gxKernel = [-1,0,1,-2,0,2,-1,0,1];
+      const gyKernel = [-1,-2,-1,0,0,0,1,2,1];
+
+      for (let y = 1; y < h-1; y++) {
+        for (let x = 1; x < w-1; x++) {
+          let gx = 0, gy = 0;
+          let k = 0;
+          for (let j = -1; j <= 1; j++) {
+            for (let i = -1; i <= 1; i++, k++) {
+              const idx = (y+j)*w + (x+i);
+              const v = src[idx];
+              gx += v * gxKernel[k];
+              gy += v * gyKernel[k];
+            }
+          }
+          const mag = Math.sqrt(gx*gx + gy*gy);
+          out[y*w + x] = mag;
+        }
+      }
+    }
+
+    function boxBlurGrayscale(data, w, h, radius, passes) {
+      // data is Uint8ClampedArray (grayscale repeated in all rgb channels)
+      const mono = new Float32Array(w*h);
+      for (let i = 0, p = 0; p < mono.length; p++, i += 4) {
+        mono[p] = data[i];
+      }
+      blurMono(mono, w, h, radius, passes);
+      for (let i = 0, p = 0; p < mono.length; p++, i += 4) {
+        const g = clamp(mono[p], 0, 255);
+        data[i] = data[i+1] = data[i+2] = g;
+      }
+    }
+
+    // --- event handlers ------------------------------------------------------
+    function handleFiles(files) {
+      if (!files || !files.length) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          originalImage = img;
+          loadImageToCanvas(img);
+          processBtn.disabled = false;
+          modeChange(); // auto-process with current mode
+        };
+        img.src = e.target.result;
       };
-      img.onerror = () => {
-        alert("Could not load image. Please try another file.");
+      reader.readAsDataURL(file);
+    }
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    processBtn.addEventListener('click', () => {
+      if (!originalData) return;
+      if (getSelectedMode() === 'tattoo') {
+        processTattooRef();
+      } else {
+        processSoftSketch();
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!previewCanvas.width || !previewCanvas.height) return;
+      const link = document.createElement('a');
+      link.download = 'tattoo-reference.png';
+      link.href = previewCanvas.toDataURL('image/png');
+      link.click();
+    });
+
+    // mode switch – show/hide sliders + auto re-process
+    function modeChange() {
+      const mode = getSelectedMode();
+      if (mode === 'tattoo') {
+        slidersTattoo.style.display = 'grid';
+        slidersSketch.style.display = 'none';
+      } else {
+        slidersTattoo.style.display = 'grid'; // можно оставить базовые или скрыть
+        slidersSketch.style.display = 'grid';
+      }
+      if (originalData) {
+        if (mode === 'tattoo') processTattooRef();
+        else processSoftSketch();
+      }
+    }
+    modeRadios.forEach(r => r.addEventListener('change', modeChange));
+
+    // update labels + live reprocess on slider move
+    function hookSlider(slider, span, format, mode) {
+      const update = () => {
+        span.textContent = typeof format === 'function' ? format(slider.value) : slider.value;
+        if (!originalData) return;
+        if (getSelectedMode() === mode) {
+          if (mode === 'tattoo') processTattooRef();
+          else processSoftSketch();
+        }
       };
-      img.src = URL.createObjectURL(file);
+      slider.addEventListener('input', update);
+      update();
     }
 
-    function processImage() {
-      if (!originalImage) return;
+    hookSlider(contrastSlider, contrastValSpan, v => Number(v).toFixed(2), 'tattoo');
+    hookSlider(brightSlider, brightValSpan, v => parseInt(v,10), 'tattoo');
+    hookSlider(smoothSlider, smoothValSpan, v => Number(v).toFixed(2), 'tattoo');
 
-      const contrast = contrastSlider.value;
-      const brightness = brightnessSlider.value;
-      const blur = blurSlider.value;
-
-      // формируем filter-цепочку для canvas
-      ctx.filter =
-        `grayscale(100%) contrast(${contrast}%) brightness(${brightness}%) blur(${blur}px)`;
-
-      ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-      ctx.filter = "none"; // сбрасываем, чтобы не влияло на будущее
-    }
-
-    // --- drag & drop / file select ---
-    dropZone.addEventListener("click", () => fileInput.click());
-
-    ["dragenter", "dragover"].forEach(evt =>
-      dropZone.addEventListener(evt, e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.add("dragover");
-      })
-    );
-
-    ["dragleave", "drop"].forEach(evt =>
-      dropZone.addEventListener(evt, e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.remove("dragover");
-      })
-    );
-
-    dropZone.addEventListener("drop", e => {
-      const file = e.dataTransfer.files[0];
-      if (file) loadImage(file);
-    });
-
-    fileInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (file) loadImage(file);
-    });
-
-    // --- buttons ---
-    processBtn.addEventListener("click", processImage);
-
-    downloadBtn.addEventListener("click", () => {
-      if (!canvas.width || !canvas.height) return;
-      canvas.toBlob(blob => {
-        if (!blob) return;
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "tattoo_ref.png";
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }, "image/png");
-    });
-
-    // --- sliders ---
-    [contrastSlider, brightnessSlider, blurSlider].forEach(slider => {
-      slider.addEventListener("input", () => {
-        updateSliderLabels();
-        if (originalImage) processImage();
-      });
-    });
-
-    updateSliderLabels();
+    hookSlider(dSmoothSlider, dSmoothValSpan, v => Number(v).toFixed(2), 'sketch');
+    hookSlider(toneStepsSlider, toneStepsValSpan, v => parseInt(v,10), 'sketch');
+    hookSlider(edgeSlider, edgeValSpan, v => Number(v).toFixed(2), 'sketch');
   </script>
 </body>
 </html>
