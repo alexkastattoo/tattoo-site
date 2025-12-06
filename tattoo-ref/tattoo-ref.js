@@ -1,4 +1,4 @@
-// Tattoo Reference Stylizer – два режима: Realistic и Cartoon
+// Tattoo Reference Stylizer – один режим Graphite
 
 (() => {
   const fileInput = document.getElementById("fileInput");
@@ -18,7 +18,6 @@
   const processBtn = document.getElementById("processBtn");
   const resetBtn = document.getElementById("resetBtn");
   const downloadBtn = document.getElementById("downloadBtn");
-  const modeBtn = document.getElementById("modeBtn");
 
   const origDims = document.getElementById("origDims");
   const procDims = document.getElementById("procDims");
@@ -33,8 +32,6 @@
   let workingHeight = 0;
 
   const MAX_SIZE = 1600;
-
-  let currentMode = "real"; // "real" | "toon"
 
   function updateSliderLabels() {
     contrastVal.textContent = parseFloat(contrastSlider.value).toFixed(2);
@@ -54,21 +51,14 @@
   zoomSlider.addEventListener("input", setZoomFromSlider);
 
   function resetSliders() {
-    contrastSlider.value = "1.10";
+    contrastSlider.value = "1.15";
     brightnessSlider.value = "1.05";
-    smoothnessSlider.value = "0.35";
+    smoothnessSlider.value = "0.55";
     zoomSlider.value = "100";
     updateSliderLabels();
     setZoomFromSlider();
   }
   resetSliders();
-
-  modeBtn.addEventListener("click", () => {
-    currentMode = currentMode === "real" ? "toon" : "real";
-    modeBtn.textContent =
-      currentMode === "real" ? "Mode: Realistic" : "Mode: Cartoon";
-    if (originalImageData) processImage();
-  });
 
   resetBtn.addEventListener("click", () => {
     resetSliders();
@@ -229,14 +219,14 @@
     }
 
     // blur для sketch
-    const blurRadius = 1 + Math.round(smoothness * 6); // 1..7
+    const blurRadius = 2 + Math.round(smoothness * 8); // 2..10
     const inverted = new Float32Array(total);
     for (let i = 0; i < total; i++) {
       inverted[i] = 255 - gray[i];
     }
     const blurredInv = boxBlurGray(inverted, width, height, blurRadius);
 
-    // classic sketch
+    // classic pencil sketch
     const sketch = new Float32Array(total);
     for (let i = 0; i < total; i++) {
       const g = gray[i];
@@ -253,34 +243,20 @@
     for (let i = 0, j = 0; j < total; j++, i += 4) {
       const g = gray[j];
       const s = sketch[j];
-      let v;
 
-      if (currentMode === "real") {
-        // мягкий реализм
-        const mix = 0.60; // фиксированная смесь gray/sketch
-        v = g * (1 - mix) + s * mix;
+      // Graphite‑микс
+      let v = g * 0.4 + s * 0.6;
 
-        const mid = 128;
-        const t = (v - mid) / 128;
-        const boost = 0.5 + 0.3 * (contrast - 1.0);
-        v = mid + t * 128 * (1 + boost * 0.3);
+      // локальный мягкий контраст
+      const mid = 128;
+      let t = (v - mid) / 128;
+      const localBoost = 1.1 + (contrast - 1.0) * 0.4;
+      v = mid + t * 128 * localBoost;
 
-        if (v < 35) v = 35 + (v - 35) * 0.4;
-      } else {
-        // CARTOON / ANIME
-        const mid = 128;
-        let t = (g - mid) / 128;
-        const localBoost = 1.3 + (contrast - 1.0) * 0.8;
-        v = mid + t * 128 * localBoost;
+      // смягчение глубоких теней
+      if (v < 40) v = 40 + (v - 40) * 0.6;
 
-        const levels = 5; // крупные пятна
-        const step = 255 / (levels - 1);
-        v = Math.round(v / step) * step;
-
-        v = 0.7 * v + 0.3 * s; // чуть линий
-      }
-
-      // общий контраст
+      // глобальный контраст
       const mid2 = 128;
       v = clamp((v - mid2) * contrast + mid2, 0, 255);
 
