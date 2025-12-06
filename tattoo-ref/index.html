@@ -2,179 +2,547 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pic → Tattoo Reference</title>
+  <title>Pic → Tattoo Reference | Alex Kas Tattoo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" />
   <style>
+    :root {
+      --bg: #05060a;
+      --panel: #11131b;
+      --panel-soft: #181b24;
+      --accent: #ff4b4b;
+      --accent-soft: #ff6b6b;
+      --text: #f4f4f7;
+      --muted: #9ca3af;
+      --border: #262837;
+      --slider-track: #262a3b;
+      --slider-thumb: #3b82f6;
+    }
+
     * {
       box-sizing: border-box;
-    }
-    body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #090909;
-      color: #f5f5f5;
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0 10px;
-      font-size: 28px;
-    }
-    #top-bar {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    #top-bar input[type="file"] {
-      margin: 5px 0 10px;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        Roboto, sans-serif;
     }
 
-    #controls {
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto 10px;
-      padding: 12px 16px;
-      background: #181818;
-      border-radius: 10px;
+    body {
+      background: radial-gradient(circle at top, #141824 0, #05060a 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: linear-gradient(145deg, #10121b, #0a0c12);
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      padding: 18px 20px 16px;
+      box-shadow: 0 22px 40px rgba(0, 0, 0, 0.55);
+      margin-bottom: 16px;
+    }
+
+    .top-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px 24px;
-      justify-content: center;
+      gap: 12px;
       align-items: center;
-    }
-    .slider-block {
-      min-width: 180px;
-    }
-    .slider-block label {
-      font-size: 13px;
-      margin-bottom: 2px;
-      display: block;
-    }
-    .slider-block input[type="range"] {
-      width: 100%;
-    }
-    button {
-      padding: 9px 18px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 0 4px;
-    }
-    .process-btn {
-      background: #ff4444;
-      color: #fff;
-    }
-    .reset-btn {
-      background: #555;
-      color: #fff;
-    }
-    .download-btn {
-      background: #3a8be4;
-      color: #fff;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
+      justify-content: space-between;
     }
 
-    /* Две большие области превью */
-    #previews {
-      display: flex;
-      width: 100%;
-      height: calc(100vh - 210px);
-      min-height: 300px;
+    .file-input-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
-    .pane {
+
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #1f2937, #111827);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.08s ease,
+        box-shadow 0.15s ease;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.65);
+    }
+
+    .file-label:hover {
+      background: linear-gradient(135deg, #273549, #111827);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.9);
+    }
+
+    .file-label span {
+      font-weight: 500;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .file-name {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls-and-modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: flex-end;
       flex: 1;
-      border-top: 1px solid #222;
-      border-left: 1px solid #222;
+    }
+
+    .mode-group {
+      display: flex;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 2px;
+      border: 1px solid rgba(75, 85, 99, 0.7);
+    }
+
+    .mode-button {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.06s ease;
+      white-space: nowrap;
+    }
+
+    .mode-button span {
+      font-size: 10px;
+      opacity: 0.85;
+    }
+
+    .mode-button.active {
+      background: radial-gradient(circle at top, #f97373, #ef4444);
+      color: #0b0b10;
+      font-weight: 600;
+      transform: translateY(-0.5px);
+      box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.35),
+        0 10px 18px rgba(239, 68, 68, 0.5);
+    }
+
+    .slider-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
+      border: 1px solid rgba(30, 64, 175, 0.45);
+    }
+
+    .slider-group {
+      flex: 1 1 210px;
+      min-width: 180px;
       display: flex;
       flex-direction: column;
-      background: #050505;
-    }
-    .pane:first-child {
-      border-left: none;
-    }
-    .pane-header {
-      padding: 8px 12px;
-      font-size: 14px;
-      background: #111;
-      border-bottom: 1px solid #222;
-    }
-    .pane-body {
-      flex: 1;
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .pane-body img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      background: #000;
-      border-radius: 6px;
+      gap: 6px;
     }
 
-    @media (max-width: 900px) {
-      #previews {
-        flex-direction: column;
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .slider-label-row strong {
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .slider-value {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      color: rgba(209, 213, 219, 0.9);
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--slider-track);
+      border-radius: 999px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--slider-thumb);
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--slider-thumb);
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      background: var(--slider-track);
+      border-radius: 999px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      font-size: 13px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.08s ease,
+        box-shadow 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      color: #0b0b10;
+      font-weight: 600;
+      box-shadow: 0 14px 28px rgba(248, 113, 113, 0.6);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 36px rgba(248, 113, 113, 0.8);
+    }
+
+    .btn-secondary {
+      background: #111827;
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .btn-secondary:hover {
+      background: #1f2937;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px dashed rgba(75, 85, 99, 0.8);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .zoom-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .zoom-row input[type="range"] {
+      max-width: 180px;
+    }
+
+    .zoom-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      color: #e5e7eb;
+    }
+
+    .preview-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+      height: calc(100vh - 260px);
+      min-height: 320px;
+    }
+
+    .preview-column {
+      background: #050711;
+      border-radius: 18px;
+      border: 1px solid rgba(30, 64, 175, 0.45);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preview-header span.label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+    }
+
+    .preview-header span.dimensions {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      overflow: auto;
+      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      padding: 12px;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border-radius: 12px;
+      background: #020617;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+      transform-origin: top left;
+    }
+
+    .helper-text {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 880px) {
+      .preview-row {
+        grid-template-columns: 1fr;
         height: auto;
       }
-      .pane {
-        height: 50vh;
+      body {
+        padding: 16px 10px 28px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Pic → Tattoo Reference</h1>
+  <div class="container">
+    <header>
+      <h1>Pic → Tattoo Reference</h1>
+      <p class="subtitle">
+        Upload any photo and turn it into a clean, high-contrast black &amp; grey tattoo reference,
+        plus 4 pencil modes for sketch-style prep. All processing runs locally in your browser.
+      </p>
+    </header>
 
-  <div id="top-bar">
-    <input type="file" id="imageLoader" accept="image/*" />
-  </div>
+    <div class="card">
+      <div class="top-row">
+        <div class="file-input-wrapper">
+          <label for="fileInput" class="file-label">
+            <span>Choose file</span>
+          </label>
+          <input type="file" id="fileInput" accept="image/*" />
+          <div class="file-name" id="fileName">No file chosen</div>
+        </div>
 
-  <div id="controls">
-    <div class="slider-block">
-      <label for="contrast">Contrast</label>
-      <input id="contrast" type="range" min="0.5" max="2.0" step="0.01" value="1.30" />
-    </div>
-    <div class="slider-block">
-      <label for="brightness">Brightness</label>
-      <input id="brightness" type="range" min="0.3" max="2.0" step="0.01" value="1.00" />
-    </div>
-    <div class="slider-block">
-      <label for="smoothness">Smoothness</label>
-      <input id="smoothness" type="range" min="0" max="1.0" step="0.01" value="0.40" />
-    </div>
-    <div class="slider-block">
-      <label for="lineStrength">Line Strength (Pencil)</label>
-      <input id="lineStrength" type="range" min="0" max="1.0" step="0.01" value="0.40" />
-    </div>
+        <div class="controls-and-modes">
+          <div class="mode-group" id="modeGroup">
+            <button class="mode-button active" data-mode="soft">
+              Soft<br /><span>Graphite</span>
+            </button>
+            <button class="mode-button" data-mode="hard">
+              Hard<br /><span>Sketch</span>
+            </button>
+            <button class="mode-button" data-mode="smudge">
+              Smudge<br /><span>Base</span>
+            </button>
+            <button class="mode-button" data-mode="photo">
+              Photo<br /><span>Pencil</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <div>
-      <button class="process-btn" id="processBtn">Process</button>
-      <button class="reset-btn" id="resetBtn">Reset</button>
-      <button class="download-btn" id="downloadBtn" disabled>Download</button>
-    </div>
-  </div>
+      <div class="slider-row">
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <strong>Contrast</strong>
+            <span class="slider-value" id="contrastValue">1.30</span>
+          </div>
+          <input
+            type="range"
+            id="contrast"
+            min="0.5"
+            max="2.0"
+            step="0.01"
+            value="1.30"
+          />
+        </div>
 
-  <div id="previews">
-    <div class="pane">
-      <div class="pane-header">Original</div>
-      <div class="pane-body">
-        <img id="originalPreview" alt="Original" />
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <strong>Brightness</strong>
+            <span class="slider-value" id="brightnessValue">1.00</span>
+          </div>
+          <input
+            type="range"
+            id="brightness"
+            min="0.4"
+            max="1.8"
+            step="0.01"
+            value="1.00"
+          />
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <strong>Smoothness</strong>
+            <span class="slider-value" id="smoothnessValue">0.40</span>
+          </div>
+          <input
+            type="range"
+            id="smoothness"
+            min="0.0"
+            max="1.0"
+            step="0.01"
+            value="0.40"
+          />
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label-row">
+            <strong>Pencil Strength</strong>
+            <span class="slider-value" id="pencilValue">0.60</span>
+          </div>
+          <input
+            type="range"
+            id="pencilStrength"
+            min="0.0"
+            max="1.0"
+            step="0.01"
+            value="0.60"
+          />
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn btn-primary" id="processBtn">Process</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset</button>
+        <button class="btn btn-ghost" id="downloadBtn" disabled>Download</button>
+      </div>
+
+      <div class="zoom-row">
+        <span>Zoom preview</span>
+        <input
+          type="range"
+          id="zoom"
+          min="50"
+          max="200"
+          step="5"
+          value="100"
+        />
+        <span class="zoom-value" id="zoomValue">100%</span>
+      </div>
+
+      <div class="helper-text">
+        Tip: choose a photo, tweak sliders &amp; modes, then long-press / hold to zoom
+        the preview area with the slider for fine tattoo detail.
       </div>
     </div>
-    <div class="pane">
-      <div class="pane-header">Processed</div>
-      <div class="pane-body">
-        <img id="processedPreview" alt="Processed" />
+
+    <div class="preview-row">
+      <div class="preview-column">
+        <div class="preview-header">
+          <span class="label">Original</span>
+          <span class="dimensions" id="origDims">–</span>
+        </div>
+        <div class="canvas-wrapper" id="origWrapper">
+          <canvas id="originalCanvas"></canvas>
+        </div>
+      </div>
+      <div class="preview-column">
+        <div class="preview-header">
+          <span class="label">Processed</span>
+          <span class="dimensions" id="procDims">–</span>
+        </div>
+        <div class="canvas-wrapper" id="procWrapper">
+          <canvas id="processedCanvas"></canvas>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- скрытый canvas для обработки -->
-  <canvas id="workCanvas" style="display:none;"></canvas>
 
   <script src="tattoo-ref.js"></script>
 </body>

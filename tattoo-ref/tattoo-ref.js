@@ -1,258 +1,351 @@
-// ---------- ЭЛЕМЕНТЫ ----------
+// tattoo-ref.js
+// Pic → Tattoo Reference with 4 pencil modes
+// All processing is client-side, using Canvas.
 
-const fileInput      = document.getElementById('imageLoader');
-const originalImg    = document.getElementById('originalPreview');
-const processedImg   = document.getElementById('processedPreview');
+(() => {
+  const fileInput = document.getElementById("fileInput");
+  const fileNameEl = document.getElementById("fileName");
 
-const contrastSlider   = document.getElementById('contrast');
-const brightnessSlider = document.getElementById('brightness');
-const smoothSlider     = document.getElementById('smoothness');
-const lineSlider       = document.getElementById('lineStrength');
+  const contrastSlider = document.getElementById("contrast");
+  const brightnessSlider = document.getElementById("brightness");
+  const smoothnessSlider = document.getElementById("smoothness");
+  const pencilSlider = document.getElementById("pencilStrength");
 
-const processBtn  = document.getElementById('processBtn');
-const resetBtn    = document.getElementById('resetBtn');
-const downloadBtn = document.getElementById('downloadBtn');
+  const contrastVal = document.getElementById("contrastValue");
+  const brightnessVal = document.getElementById("brightnessValue");
+  const smoothnessVal = document.getElementById("smoothnessValue");
+  const pencilVal = document.getElementById("pencilValue");
 
-const workCanvas = document.getElementById('workCanvas');
-const ctx = workCanvas.getContext('2d');
+  const zoomSlider = document.getElementById("zoom");
+  const zoomVal = document.getElementById("zoomValue");
+  const origWrapper = document.getElementById("origWrapper");
+  const procWrapper = document.getElementById("procWrapper");
 
-let originalImageData = null;   // исходные пиксели (после ресайза)
-let lastProcessedDataUrl = null;
+  const modeButtons = document.querySelectorAll(".mode-button");
+  let currentMode = "soft"; // soft | hard | smudge | photo
 
+  const processBtn = document.getElementById("processBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
 
-// ---------- ЗАГРУЗКА ИЗОБРАЖЕНИЯ ----------
+  const origDims = document.getElementById("origDims");
+  const procDims = document.getElementById("procDims");
 
-fileInput.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const origCanvas = document.getElementById("originalCanvas");
+  const procCanvas = document.getElementById("processedCanvas");
+  const origCtx = origCanvas.getContext("2d");
+  const procCtx = procCanvas.getContext("2d");
 
-  const reader = new FileReader();
-  reader.onload = evt => {
-    const img = new Image();
-    img.onload = () => {
-      const maxSide = 1600;
-      let w = img.width;
-      let h = img.height;
-      const scale = Math.min(1, maxSide / Math.max(w, h));
-      w = Math.round(w * scale);
-      h = Math.round(h * scale);
+  let originalImageData = null; // ImageData of working image
+  let workingWidth = 0;
+  let workingHeight = 0;
+  const MAX_SIZE = 1600; // max dimension for processing (performance)
 
-      workCanvas.width = w;
-      workCanvas.height = h;
-      ctx.drawImage(img, 0, 0, w, h);
-      originalImageData = ctx.getImageData(0, 0, w, h);
-
-      // показываем оригинал
-      originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
-      processedImg.src = '';
-      lastProcessedDataUrl = null;
-      downloadBtn.disabled = true;
-    };
-    img.src = evt.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-
-// ---------- ОБРАБОТКА ----------
-
-function processImage() {
-  if (!originalImageData) return;
-
-  const contrast    = parseFloat(contrastSlider.value);   // 0.5–2.0
-  const brightness  = parseFloat(brightnessSlider.value); // 0.3–2.0
-  const smoothness  = parseFloat(smoothSlider.value);     // 0–1
-  const lineStrength = parseFloat(lineSlider.value);      // 0–1
-
-  // копия исходных пикселей
-  const imgData = new ImageData(
-    new Uint8ClampedArray(originalImageData.data),
-    originalImageData.width,
-    originalImageData.height
-  );
-
-  const { width, height, data } = imgData;
-
-  // 1) в ч/б + яркость + контраст (аккуратная формула)
-  // gray в диапазоне 0..1, потом обратно 0..255
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-
-    let gray = 0.299 * r + 0.587 * g + 0.114 * b; // 0..255
-    gray /= 255.0;                                // 0..1
-
-    // яркость – просто множитель
-    gray *= brightness;
-
-    // контраст вокруг 0.5
-    gray = (gray - 0.5) * contrast + 0.5;
-
-    // кламп
-    gray = Math.max(0, Math.min(1, gray));
-    const v = gray * 255;
-
-    data[i] = data[i + 1] = data[i + 2] = v;
+  function updateSliderLabels() {
+    contrastVal.textContent = parseFloat(contrastSlider.value).toFixed(2);
+    brightnessVal.textContent = parseFloat(brightnessSlider.value).toFixed(2);
+    smoothnessVal.textContent = parseFloat(smoothnessSlider.value).toFixed(2);
+    pencilVal.textContent = parseFloat(pencilSlider.value).toFixed(2);
   }
 
-  // 2) лёгкое размытие (смягчить переходы)
-  if (smoothness > 0.01) {
-    boxBlur(imgData, Math.round(1 + smoothness * 3));
+  updateSliderLabels();
+
+  function setZoomFromSlider() {
+    const z = parseInt(zoomSlider.value, 10) / 100;
+    zoomVal.textContent = `${zoomSlider.value}%`;
+    origCanvas.style.transform = `scale(${z})`;
+    procCanvas.style.transform = `scale(${z})`;
   }
 
-  // 3) «карандаш» — делаем края чуть темнее (без дикого стенсила)
-  if (lineStrength > 0.01) {
-    const edges = sobelEdges(imgData);
-    const ed = edges.data;
+  setZoomFromSlider();
 
-    for (let i = 0; i < data.length; i += 4) {
-      const base = data[i];     // серый 0..255
-      const e    = ed[i];       // сила края 0..255
+  zoomSlider.addEventListener("input", () => {
+    setZoomFromSlider();
+  });
 
-      // вычитаем часть границы из базы => тёмные линии
-      const mixed = base - lineStrength * e;
+  modeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modeButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode || "soft";
+      if (originalImageData) {
+        processImage();
+      }
+    });
+  });
 
-      const v = Math.max(0, Math.min(255, mixed));
-      data[i] = data[i + 1] = data[i + 2] = v;
-      // alpha оставляем как есть
-    }
+  function resetSliders() {
+    contrastSlider.value = "1.30";
+    brightnessSlider.value = "1.00";
+    smoothnessSlider.value = "0.40";
+    pencilSlider.value = "0.60";
+    zoomSlider.value = "100";
+    updateSliderLabels();
+    setZoomFromSlider();
   }
 
-  // кладём результат
-  ctx.putImageData(imgData, 0, 0);
-  const url = workCanvas.toDataURL('image/jpeg', 0.95);
-  processedImg.src = url;
-  lastProcessedDataUrl = url;
-  downloadBtn.disabled = false;
-}
-
-processBtn.addEventListener('click', processImage);
-
-
-// ---------- LIVE-ОБНОВЛЕНИЕ ПРИ ДВИЖЕНИИ СЛАЙДЕРОВ ----------
-
-[contrastSlider, brightnessSlider, smoothSlider, lineSlider].forEach(sl => {
-  sl.addEventListener('input', () => {
+  resetBtn.addEventListener("click", () => {
+    resetSliders();
     if (originalImageData) {
       processImage();
     }
   });
-});
 
-
-// ---------- RESET ----------
-
-function resetSettings() {
-  contrastSlider.value   = 1.30;
-  brightnessSlider.value = 1.00;
-  smoothSlider.value     = 0.40;
-  lineSlider.value       = 0.40;
-
-  if (originalImageData) {
-    ctx.putImageData(originalImageData, 0, 0);
-    originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
-    processedImg.src = '';
-    lastProcessedDataUrl = null;
-    downloadBtn.disabled = true;
-  }
-}
-resetBtn.addEventListener('click', resetSettings);
-
-
-// ---------- DOWNLOAD ----------
-
-downloadBtn.addEventListener('click', () => {
-  if (!lastProcessedDataUrl) return;
-  const a = document.createElement('a');
-  a.href = lastProcessedDataUrl;
-  a.download = 'tattoo_ref.jpg';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-});
-
-
-// ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
-
-// Простое боксовое размытие
-function boxBlur(imgData, radius) {
-  const { width, height, data } = imgData;
-  const tmp = new Uint8ClampedArray(data.length);
-
-  // по X
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      let sum = 0;
-      let count = 0;
-      for (let k = -radius; k <= radius; k++) {
-        const xx = x + k;
-        if (xx < 0 || xx >= width) continue;
-        const idx = (y * width + xx) * 4;
-        sum += data[idx];
-        count++;
-      }
-      const val = sum / count;
-      const idx0 = (y * width + x) * 4;
-      tmp[idx0] = tmp[idx0 + 1] = tmp[idx0 + 2] = val;
-      tmp[idx0 + 3] = data[idx0 + 3];
+  [contrastSlider, brightnessSlider, smoothnessSlider, pencilSlider].forEach(
+    (slider) => {
+      slider.addEventListener("input", () => {
+        updateSliderLabels();
+        if (originalImageData) {
+          processImage();
+        }
+      });
     }
-  }
+  );
 
-  // по Y
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      let sum = 0;
-      let count = 0;
-      for (let k = -radius; k <= radius; k++) {
-        const yy = y + k;
-        if (yy < 0 || yy >= height) continue;
-        const idx = (yy * width + x) * 4;
-        sum += tmp[idx];
-        count++;
+  processBtn.addEventListener("click", () => {
+    if (!originalImageData) return;
+    processImage();
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!workingWidth || !workingHeight) return;
+    procCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tattoo-reference.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  });
+
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    fileNameEl.textContent = file.name;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        prepareImage(img);
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function prepareImage(img) {
+    const ratio = img.width / img.height;
+    let w = img.width;
+    let h = img.height;
+    if (w > MAX_SIZE || h > MAX_SIZE) {
+      if (w > h) {
+        w = MAX_SIZE;
+        h = Math.round(MAX_SIZE / ratio);
+      } else {
+        h = MAX_SIZE;
+        w = Math.round(MAX_SIZE * ratio);
       }
-      const val = sum / count;
-      const idx0 = (y * width + x) * 4;
-      data[idx0] = data[idx0 + 1] = data[idx0 + 2] = val;
-      // alpha уже есть
     }
+    workingWidth = w;
+    workingHeight = h;
+
+    origCanvas.width = w;
+    origCanvas.height = h;
+    procCanvas.width = w;
+    procCanvas.height = h;
+
+    origCtx.clearRect(0, 0, w, h);
+    procCtx.clearRect(0, 0, w, h);
+
+    origCtx.drawImage(img, 0, 0, w, h);
+    originalImageData = origCtx.getImageData(0, 0, w, h);
+
+    origDims.textContent = `${w}×${h}`;
+    procDims.textContent = `${w}×${h}`;
+
+    processImage();
+    downloadBtn.disabled = false;
   }
-}
 
-// Sobel для границ
-function sobelEdges(imgData) {
-  const { width, height, data } = imgData;
-  const out = new ImageData(width, height);
-  const d = out.data;
+  // --- Image processing helpers ---
 
-  const gxKernel = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-  const gyKernel = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+  function clamp(v, min, max) {
+    return v < min ? min : v > max ? max : v;
+  }
 
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
-      let gx = 0;
-      let gy = 0;
-      let k = 0;
+  // Simple separable box blur for grayscale array
+  function boxBlurGray(src, width, height, radius) {
+    if (radius <= 0) return src.slice();
+    const tmp = new Float32Array(width * height);
+    const dst = new Float32Array(width * height);
+    const r = radius;
+    const w = width;
+    const h = height;
+    const iarr = 1 / (2 * r + 1);
 
-      for (let j = -1; j <= 1; j++) {
-        for (let i = -1; i <= 1; i++) {
-          const xx = x + i;
-          const yy = y + j;
-          const idx = (yy * width + xx) * 4;
-          const gray = data[idx];
-          gx += gxKernel[k] * gray;
-          gy += gyKernel[k] * gray;
-          k++;
+    // Horizontal
+    for (let y = 0; y < h; y++) {
+      let ti = y * w;
+      let li = ti;
+      let ri = ti + r;
+      let fv = src[ti];
+      let lv = src[ti + w - 1];
+      let val = (r + 1) * fv;
+      for (let j = 0; j < r; j++) val += src[ti + j];
+      for (let x = 0; x < w; x++) {
+        val += src[ri] - src[li];
+        tmp[ti] = val * iarr;
+        ri++;
+        li++;
+        ti++;
+      }
+    }
+
+    // Vertical
+    for (let x = 0; x < w; x++) {
+      let ti = x;
+      let li = ti;
+      let ri = ti + r * w;
+      let fv = tmp[ti];
+      let lv = tmp[ti + w * (h - 1)];
+      let val = (r + 1) * fv;
+      for (let j = 0; j < r; j++) val += tmp[ti + j * w];
+      for (let y = 0; y < h; y++) {
+        val += tmp[ri] - tmp[li];
+        dst[ti] = val * iarr;
+        ri += w;
+        li += w;
+        ti += w;
+      }
+    }
+    return dst;
+  }
+
+  function processImage() {
+    if (!originalImageData) return;
+
+    const contrast = parseFloat(contrastSlider.value);
+    const brightness = parseFloat(brightnessSlider.value);
+    const smoothness = parseFloat(smoothnessSlider.value); // 0 - 1
+    const pencilStrength = parseFloat(pencilSlider.value); // 0 - 1
+
+    const { data, width, height } = originalImageData;
+    const total = width * height;
+
+    // 1) Convert to grayscale
+    const gray = new Float32Array(total);
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      let y = 0.299 * r + 0.587 * g + 0.114 * b;
+      y *= brightness;
+      gray[j] = clamp(y, 0, 255);
+    }
+
+    // 2) Base blur amount from smoothness + mode
+    let blurRadiusBase = 1 + Math.round(smoothness * 6); // 1..7
+
+    if (currentMode === "hard") blurRadiusBase = Math.max(1, blurRadiusBase - 1);
+    if (currentMode === "smudge") blurRadiusBase += 2;
+    if (currentMode === "photo") blurRadiusBase = 2 + Math.round(smoothness * 4);
+
+    const inverted = new Float32Array(total);
+    for (let i = 0; i < total; i++) {
+      inverted[i] = 255 - gray[i];
+    }
+
+    const blurredInv = boxBlurGray(inverted, width, height, blurRadiusBase);
+
+    // 3) Classic pencil sketch: color dodge of gray with blurred inverted gray
+    const sketch = new Float32Array(total);
+    for (let i = 0; i < total; i++) {
+      const g = gray[i];
+      const b = blurredInv[i];
+      const denom = 255 - b;
+      let val;
+      if (denom <= 0) {
+        val = 255;
+      } else {
+        val = clamp((g * 255) / denom, 0, 255);
+      }
+      sketch[i] = val;
+    }
+
+    // 4) Mix modes
+
+    const out = new Uint8ClampedArray(total * 4);
+
+    // Contrast factor
+    const cFactor = contrast;
+
+    // Helper to apply contrast to a value 0–255
+    function applyContrast(v) {
+      const mid = 128;
+      return clamp((v - mid) * cFactor + mid, 0, 255);
+    }
+
+    for (let i = 0, j = 0; j < total; j++, i += 4) {
+      const g = gray[j];
+      const s = sketch[j];
+
+      let finalVal;
+
+      switch (currentMode) {
+        case "soft": {
+          // Soft Graphite: смесь gray и sketch, мягкий
+          const mix = 0.5 + 0.4 * pencilStrength; // 0.5..0.9
+          finalVal = g * (1 - mix) + s * mix;
+          break;
+        }
+        case "hard": {
+          // Hard Sketch: почти одни линии, высокий контраст
+          const mix = 0.7 + 0.3 * pencilStrength; // 0.7..1
+          finalVal = s * mix + g * (1 - mix);
+          // Дополнительное усиление
+          if (pencilStrength > 0.3) {
+            finalVal = finalVal * (1 + pencilStrength * 0.6);
+          }
+          break;
+        }
+        case "smudge": {
+          // Smudge Base: сильно размыто, мягкий диапазон
+          const mix = 0.4 + 0.4 * pencilStrength; // 0.4..0.8
+          finalVal = g * (1 - mix) + s * mix;
+          // немного "подрезать" контраст, чтобы легко смаджить
+          finalVal = 30 + (finalVal - 30) * 0.9;
+          break;
+        }
+        case "photo": {
+          // Photo Pencil: ближе к фото, но с карандашной фактурой
+          const mix = 0.3 + 0.4 * pencilStrength; // 0.3..0.7
+          finalVal = g * (1 - mix) + s * mix;
+          break;
+        }
+        default: {
+          finalVal = s;
         }
       }
 
-      const mag = Math.sqrt(gx * gx + gy * gy);
-      const v = Math.max(0, Math.min(255, mag));
-      const idx0 = (y * width + x) * 4;
-      d[idx0] = d[idx0 + 1] = d[idx0 + 2] = v;
-      d[idx0 + 3] = 255;
+      finalVal = applyContrast(finalVal);
+
+      out[i] = finalVal;
+      out[i + 1] = finalVal;
+      out[i + 2] = finalVal;
+      out[i + 3] = 255;
     }
+
+    const outImageData = new ImageData(out, width, height);
+    procCtx.putImageData(outImageData, 0, 0);
+
+    procDims.textContent = `${width}×${height}`;
   }
 
-  return out;
-}
+  // Expose reset for debugging, if needed
+  window._tattooRefReset = resetSliders;
+})();
