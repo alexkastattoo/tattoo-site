@@ -1,4 +1,4 @@
-// Pic → Tattoo Reference / Cartoon
+// Pic → Tattoo Reference / Cartoon (updated Cartoon: lighter, softer)
 (() => {
   const fileInput  = document.getElementById("fileInput");
   const fileNameEl = document.getElementById("fileName");
@@ -295,10 +295,19 @@
 
         let y = gray[j];
         let q = Math.round(y / step) * step;
-        let v = y * (1 - pencil) + q * pencil;
 
+        // ослабленный вклад pencil
+        const pMix = 0.6 * pencil;          // максимум 0.6
+        let v = y * (1 - pMix) + q * pMix;  // базовый тон
+
+        // мягкий контраст
         const mid = 128;
-        v = clamp((v - mid) * contrast + mid, 0, 255);
+        const cMix = 0.4; // 40% силы контраста
+        v = (v - mid) * (1 + (contrast - 1) * cMix) + mid;
+
+        // лёгкий подъём общей яркости
+        v = v * 1.08 + 6;
+        v = clamp(v, 0, 255);
 
         const eps = 1e-3;
         const len = r + gC + b + eps;
