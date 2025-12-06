@@ -317,7 +317,7 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       position: relative;
       z-index: 1;
     }
@@ -334,6 +334,32 @@
       font-size: 11px;
       color: var(--text-soft);
       opacity: 0.85;
+    }
+
+    .zoom-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .zoom-row span.label {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .zoom-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    .zoom-row span.value {
+      width: 40px;
+      text-align: right;
     }
 
     .preview-grid {
@@ -368,11 +394,16 @@
       letter-spacing: 0.14em;
     }
 
-    canvas {
-      width: 100%;
-      height: auto;
+    .canvas-scroll {
       border-radius: 10px;
+      overflow: auto;
+      max-height: 520px;
       background: radial-gradient(circle at center, #020617 0, #000 70%);
+    }
+
+    canvas {
+      display: block;
+      transform-origin: top left;
     }
 
     .status {
@@ -519,14 +550,24 @@
         <span>Left: original · Right: processed</span>
       </div>
 
+      <div class="zoom-row">
+        <span class="label">Zoom</span>
+        <input id="zoomSlider" type="range" min="50" max="200" step="10" value="100" />
+        <span class="value" id="zoomVal">100%</span>
+      </div>
+
       <div class="preview-grid">
         <div class="canvas-wrap">
           <small>Original</small>
-          <canvas id="originalCanvas"></canvas>
+          <div class="canvas-scroll">
+            <canvas id="originalCanvas"></canvas>
+          </div>
         </div>
         <div class="canvas-wrap">
           <small>Processed</small>
-          <canvas id="processedCanvas"></canvas>
+          <div class="canvas-scroll">
+            <canvas id="processedCanvas"></canvas>
+          </div>
         </div>
       </div>
 
@@ -568,6 +609,9 @@
       cartoonDetail: document.getElementById("cartoonVal"),
     };
 
+    const zoomSlider = document.getElementById("zoomSlider");
+    const zoomVal = document.getElementById("zoomVal");
+
     const defaults = {
       contrast: 1.3,
       brightness: 1.0,
@@ -600,8 +644,9 @@
     }
 
     function fitCanvasToImage(img) {
-      const maxW = 520;
-      const maxH = 520;
+      // увеличил до 900 px максимум
+      const maxW = 900;
+      const maxH = 900;
 
       let w = img.naturalWidth || img.width;
       let h = img.naturalHeight || img.height;
@@ -1001,6 +1046,8 @@
       sliders.lineStrength.value = defaults.lineStrength;
       sliders.cartoonDetail.value = defaults.cartoonDetail;
       updateLabels();
+      zoomSlider.value = 100;
+      applyZoom();
       if (uploadedImage) processImage();
     });
 
@@ -1011,8 +1058,18 @@
       link.click();
     });
 
+    function applyZoom() {
+      const z = zoomSlider.value / 100;
+      zoomVal.textContent = zoomSlider.value + "%";
+      originalCanvas.style.transform = `scale(${z})`;
+      processedCanvas.style.transform = `scale(${z})`;
+    }
+
+    zoomSlider.addEventListener("input", applyZoom);
+
     // init
     updateLabels();
+    applyZoom();
   </script>
 </body>
 </html>
