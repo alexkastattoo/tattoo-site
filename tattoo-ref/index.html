@@ -1,123 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Pic → Tattoo Reference</title>
-<style>
+  <meta charset="UTF-8" />
+  <title>Pic → Tattoo Reference</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #111;
-        color: #eee;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #090909;
+      color: #f5f5f5;
     }
     h1 {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 28px;
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 28px;
     }
-    #upload-area {
-        width: 100%;
-        text-align: center;
-        padding: 25px;
+    #top-bar {
+      text-align: center;
+      margin-bottom: 10px;
     }
+    #top-bar input[type="file"] {
+      margin: 5px 0 10px;
+    }
+
     #controls {
-        text-align: center;
-        margin: 20px auto;
-        width: 90%;
-        max-width: 900px;
-        background: #222;
-        padding: 15px;
-        border-radius: 10px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 10px;
+      padding: 12px 16px;
+      background: #181818;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: center;
+      align-items: center;
     }
     .slider-block {
-        margin: 10px 0;
+      min-width: 180px;
     }
-    label {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 14px;
+    .slider-block label {
+      font-size: 13px;
+      margin-bottom: 2px;
+      display: block;
     }
-    .preview-container {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
-        width: 100%;
-    }
-    .preview-box {
-        width: 50%;
-        padding: 10px;
-    }
-    .preview-box img {
-        width: 100%;
-        border-radius: 10px;
-        background: #000;
+    .slider-block input[type="range"] {
+      width: 100%;
     }
     button {
-        padding: 12px 22px;
-        margin: 10px;
-        border: none;
-        border-radius: 6px;
-        font-size: 15px;
-        cursor: pointer;
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0 4px;
     }
-    .process-button {
-        background: #ff4444;
-        color: #fff;
+    .process-btn {
+      background: #ff4444;
+      color: #fff;
     }
-    .reset-button {
-        background: #555;
-        color: #fff;
+    .reset-btn {
+      background: #555;
+      color: #fff;
     }
-    .download-button {
-        background: #3a8be4;
-        color: #fff;
+    .download-btn {
+      background: #3a8be4;
+      color: #fff;
     }
-</style>
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* Две большие области превью */
+    #previews {
+      display: flex;
+      width: 100%;
+      height: calc(100vh - 210px);
+      min-height: 300px;
+    }
+    .pane {
+      flex: 1;
+      border-top: 1px solid #222;
+      border-left: 1px solid #222;
+      display: flex;
+      flex-direction: column;
+      background: #050505;
+    }
+    .pane:first-child {
+      border-left: none;
+    }
+    .pane-header {
+      padding: 8px 12px;
+      font-size: 14px;
+      background: #111;
+      border-bottom: 1px solid #222;
+    }
+    .pane-body {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .pane-body img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      background: #000;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 900px) {
+      #previews {
+        flex-direction: column;
+        height: auto;
+      }
+      .pane {
+        height: 50vh;
+      }
+    }
+  </style>
 </head>
 <body>
+  <h1>Pic → Tattoo Reference</h1>
 
-<h1>Pic → Tattoo Reference</h1>
+  <div id="top-bar">
+    <input type="file" id="imageLoader" accept="image/*" />
+  </div>
 
-<div id="upload-area">
-    <input type="file" id="imageLoader">
-</div>
-
-<div id="controls">
+  <div id="controls">
     <div class="slider-block">
-        <label>Contrast</label>
-        <input id="contrast" type="range" min="0.5" max="2.0" step="0.01" value="1.30">
-    </div>
-    <div class="slider-block">
-        <label>Brightness</label>
-        <input id="brightness" type="range" min="0.3" max="2.0" step="0.01" value="1.00">
+      <label for="contrast">Contrast</label>
+      <input id="contrast" type="range" min="0.5" max="2.0" step="0.01" value="1.30" />
     </div>
     <div class="slider-block">
-        <label>Smoothness</label>
-        <input id="smoothness" type="range" min="0" max="1.0" step="0.01" value="0.40">
+      <label for="brightness">Brightness</label>
+      <input id="brightness" type="range" min="0.3" max="2.0" step="0.01" value="1.00" />
     </div>
     <div class="slider-block">
-        <label>Line Strength (Pencil Effect)</label>
-        <input id="lineStrength" type="range" min="0" max="1.0" step="0.01" value="0.40">
+      <label for="smoothness">Smoothness</label>
+      <input id="smoothness" type="range" min="0" max="1.0" step="0.01" value="0.40" />
+    </div>
+    <div class="slider-block">
+      <label for="lineStrength">Line Strength (Pencil)</label>
+      <input id="lineStrength" type="range" min="0" max="1.0" step="0.01" value="0.40" />
     </div>
 
-    <button class="process-button" onclick="processImage()">Process</button>
-    <button class="reset-button" onclick="resetSettings()">Reset</button>
-    <button class="download-button" id="downloadBtn" disabled>Download</button>
-</div>
-
-<div class="preview-container">
-    <div class="preview-box">
-        <h3 style="text-align:center;">Original</h3>
-        <img id="originalPreview">
+    <div>
+      <button class="process-btn" id="processBtn">Process</button>
+      <button class="reset-btn" id="resetBtn">Reset</button>
+      <button class="download-btn" id="downloadBtn" disabled>Download</button>
     </div>
+  </div>
 
-    <div class="preview-box">
-        <h3 style="text-align:center;">Processed</h3>
-        <img id="processedPreview">
+  <div id="previews">
+    <div class="pane">
+      <div class="pane-header">Original</div>
+      <div class="pane-body">
+        <img id="originalPreview" alt="Original" />
+      </div>
     </div>
-</div>
+    <div class="pane">
+      <div class="pane-header">Processed</div>
+      <div class="pane-body">
+        <img id="processedPreview" alt="Processed" />
+      </div>
+    </div>
+  </div>
 
-<script src="tattoo-ref.js"></script>
+  <!-- скрытый canvas для обработки -->
+  <canvas id="workCanvas" style="display:none;"></canvas>
 
+  <script src="tattoo-ref.js"></script>
 </body>
 </html>

@@ -1,352 +1,240 @@
-// tattoo-ref.js
-let originalImg = null;
-let imgNaturalWidth = 0;
-let imgNaturalHeight = 0;
-let zoomFactor = 1;
+// Получаем элементы
+const fileInput = document.getElementById('imageLoader');
+const originalImg = document.getElementById('originalPreview');
+const processedImg = document.getElementById('processedPreview');
 
-const fileInput = document.getElementById("fileInput");
-const dropzone = document.getElementById("dropzone");
+const contrastSlider   = document.getElementById('contrast');
+const brightnessSlider = document.getElementById('brightness');
+const smoothSlider     = document.getElementById('smoothness');
+const lineSlider       = document.getElementById('lineStrength');
 
-const contrastSlider = document.getElementById("contrast");
-const brightnessSlider = document.getElementById("brightness");
-const smoothnessSlider = document.getElementById("smoothness");
-const lineStrengthSlider = document.getElementById("lineStrength");
+const processBtn  = document.getElementById('processBtn');
+const resetBtn    = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 
-const contrastVal = document.getElementById("contrastVal");
-const brightnessVal = document.getElementById("brightnessVal");
-const smoothnessVal = document.getElementById("smoothnessVal");
-const lineStrengthVal = document.getElementById("lineStrengthVal");
+const workCanvas = document.getElementById('workCanvas');
+const ctx = workCanvas.getContext('2d');
 
-const processBtn = document.getElementById("processBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const resetBtn = document.getElementById("resetBtn");
+let originalImageData = null;   // исходные пиксели (после ресайза)
+let lastProcessedDataUrl = null;
 
-const zoomInBtn = document.getElementById("zoomInBtn");
-const zoomOutBtn = document.getElementById("zoomOutBtn");
-const zoomResetBtn = document.getElementById("zoomResetBtn");
-const zoomInfo = document.getElementById("zoomInfo");
+// ---------- ЗАГРУЗКА ИЗОБРАЖЕНИЯ ----------
 
-const metaInfo = document.getElementById("metaInfo");
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-const originalCanvas = document.getElementById("originalCanvas");
-const processedCanvas = document.getElementById("processedCanvas");
-const ctxOrig = originalCanvas.getContext("2d");
-const ctxProc = processedCanvas.getContext("2d");
-
-// ---------- FILE LOAD ----------
-
-dropzone.addEventListener("click", () => fileInput.click());
-
-fileInput.addEventListener("change", (e) => {
-  const file = e.target.files?.[0];
-  if (file) loadImage(file);
-});
-
-["dragenter", "dragover"].forEach((eventName) => {
-  dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.add("dragover");
-  });
-});
-
-["dragleave", "drop"].forEach((eventName) => {
-  dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.remove("dragover");
-  });
-});
-
-dropzone.addEventListener("drop", (e) => {
-  const file = e.dataTransfer?.files?.[0];
-  if (file) {
-    fileInput.files = e.dataTransfer.files;
-    loadImage(file);
-  }
-});
-
-function loadImage(file) {
   const reader = new FileReader();
-  reader.onload = (ev) => {
+  reader.onload = evt => {
     const img = new Image();
     img.onload = () => {
-      originalImg = img;
-      imgNaturalWidth = img.width;
-      imgNaturalHeight = img.height;
-      zoomFactor = 1;
-      updateZoomInfo();
+      // приводим к разумному размеру, чтобы браузер не умирал
+      const maxSide = 1600;
+      let w = img.width;
+      let h = img.height;
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
 
-      fitAndDrawOriginal();
-      processImage();
-      processBtn.disabled = false;
-      downloadBtn.disabled = false;
+      workCanvas.width = w;
+      workCanvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      originalImageData = ctx.getImageData(0, 0, w, h);
 
-      metaInfo.textContent = `Loaded ${file.name} · ${img.width}×${img.height}px`;
+      // покажем оригинал сразу
+      originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
+      processedImg.src = '';  // пока пусто
+      lastProcessedDataUrl = null;
+      downloadBtn.disabled = true;
     };
-    img.src = ev.target.result;
+    img.src = evt.target.result;
   };
   reader.readAsDataURL(file);
-}
+});
 
-// ---------- CANVAS SIZING ----------
-
-function fitAndDrawOriginal() {
-  if (!originalImg) return;
-  const container = originalCanvas.parentElement;
-  const maxW = container.clientWidth - 12;
-  const maxH = Math.max(container.clientHeight - 12, 260);
-
-  const imgRatio = imgNaturalWidth / imgNaturalHeight;
-  const boxRatio = maxW / maxH;
-
-  let drawW, drawH;
-  if (imgRatio > boxRatio) {
-    drawW = maxW;
-    drawH = maxW / imgRatio;
-  } else {
-    drawH = maxH;
-    drawW = maxH * imgRatio;
-  }
-
-  originalCanvas.width = drawW * zoomFactor;
-  originalCanvas.height = drawH * zoomFactor;
-  processedCanvas.width = drawW * zoomFactor;
-  processedCanvas.height = drawH * zoomFactor;
-
-  ctxOrig.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
-  ctxOrig.drawImage(
-    originalImg,
-    0,
-    0,
-    imgNaturalWidth,
-    imgNaturalHeight,
-    0,
-    0,
-    originalCanvas.width,
-    originalCanvas.height
-  );
-}
-
-// ---------- SLIDERS UI ----------
-
-function updateSliderLabels() {
-  contrastVal.textContent = Number(contrastSlider.value).toFixed(2);
-  brightnessVal.textContent = Number(brightnessSlider.value).toFixed(2);
-  smoothnessVal.textContent = Number(smoothnessSlider.value).toFixed(2);
-  lineStrengthVal.textContent = Number(lineStrengthSlider.value).toFixed(2);
-}
-
-[contrastSlider, brightnessSlider, smoothnessSlider, lineStrengthSlider].forEach(
-  (sl) => {
-    sl.addEventListener("input", () => {
-      updateSliderLabels();
-      if (originalImg) processImage();
-    });
-  }
-);
-
-updateSliderLabels();
-
-// ---------- CORE PROCESSING (TATTOO REF) ----------
+// ---------- ОБРАБОТКА ----------
 
 function processImage() {
-  if (!originalImg) return;
+  if (!originalImageData) return;
 
-  fitAndDrawOriginal();
+  const contrast   = parseFloat(contrastSlider.value);
+  const brightness = parseFloat(brightnessSlider.value);
+  const smoothness = parseFloat(smoothSlider.value);
+  const lineStrength = parseFloat(lineSlider.value);
 
-  const w = originalCanvas.width;
-  const h = originalCanvas.height;
-  const src = ctxOrig.getImageData(0, 0, w, h);
-  const dst = ctxProc.createImageData(w, h);
+  // копия исходных пикселей
+  const imgData = new ImageData(
+    new Uint8ClampedArray(originalImageData.data),
+    originalImageData.width,
+    originalImageData.height
+  );
 
-  const contrast = parseFloat(contrastSlider.value); // 0.6–1.8
-  const brightness = parseFloat(brightnessSlider.value); // 0.7–1.4
-  const smoothness = parseFloat(smoothnessSlider.value); // 0–1
-  const lineStrength = parseFloat(lineStrengthSlider.value); // 0–1
+  const { width, height, data } = imgData;
 
-  const data = src.data;
-  const out = dst.data;
+  // 1) перевод в ч/б + яркость/контраст
+  // формула: gray = 0.299 R + 0.587 G + 0.114 B
+  const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
 
-  // 1) grayscale + basic contrast/brightness in one pass
-  const c = contrast;
-  const b = brightness;
   for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const bch = data[i + 2];
+    let r = data[i];
+    let g = data[i + 1];
+    let b = data[i + 2];
 
-    let gray = 0.299 * r + 0.587 * g + 0.114 * bch;
+    let gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-    // normalize to 0..1, apply contrast/brightness, then back
-    let n = gray / 255;
-    n = (n - 0.5) * c + 0.5;
-    n *= b;
-    n = Math.min(1, Math.max(0, n));
-    gray = n * 255;
+    // brightness (умножение)
+    gray *= brightness;
 
-    out[i] = gray;
-    out[i + 1] = gray;
-    out[i + 2] = gray;
-    out[i + 3] = 255;
+    // contrast
+    gray = factor * (gray - 128) + 128;
+
+    gray = Math.max(0, Math.min(255, gray));
+
+    data[i] = data[i + 1] = data[i + 2] = gray;
   }
 
-  // 2) light smoothing (box blur, strength based on slider)
-  const smoothPasses = Math.round(smoothness * 4); // 0..4 простых прохода
-  if (smoothPasses > 0) {
-    boxBlurGray(out, w, h, smoothPasses);
+  // 2) лёгкое размытие (smoothness)
+  if (smoothness > 0.01) {
+    boxBlur(imgData, Math.round(1 + smoothness * 3));
   }
 
-  // 3) edge detection (Sobel) + смешивание как "карандашные" линии
+  // 3) эффект "карандаш" — детекция границ (Sobel) + смешивание с базой
   if (lineStrength > 0.01) {
-    const edge = sobelEdges(out, w, h); // 0..255
-    for (let i = 0; i < out.length; i += 4) {
-      const base = out[i];
-      const e = edge[i] / 255; // 0..1
-      const k = 1 + lineStrength * 1.5;
-      let v = base * (1 - lineStrength * 0.8) + (base * (1 - e)) * lineStrength * k;
-      v = Math.max(0, Math.min(255, v));
-      out[i] = out[i + 1] = out[i + 2] = v;
+    const edges = sobelEdges(imgData);
+    const ed = edges.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const e = ed[i]; // 0..255
+      const base = data[i];
+      // invert edges, чтобы линии были тёмными
+      const line = 255 - e;
+      const mixed = base * (1 - lineStrength) + line * lineStrength;
+      const v = Math.max(0, Math.min(255, mixed));
+      data[i] = data[i + 1] = data[i + 2] = v;
     }
   }
 
-  ctxProc.putImageData(dst, 0, 0);
+  // положим результат на canvas
+  ctx.putImageData(imgData, 0, 0);
+
+  const url = workCanvas.toDataURL('image/jpeg', 0.95);
+  processedImg.src = url;
+  lastProcessedDataUrl = url;
+  downloadBtn.disabled = false;
 }
 
-// ----- simple box blur for grayscale image -----
+processBtn.addEventListener('click', processImage);
 
-function boxBlurGray(arr, w, h, iterations) {
-  const tmp = new Uint8ClampedArray(arr.length);
-  for (let it = 0; it < iterations; it++) {
-    // horizontal
-    for (let y = 0; y < h; y++) {
+// ---------- RESET ----------
+
+function resetSettings() {
+  contrastSlider.value   = 1.30;
+  brightnessSlider.value = 1.00;
+  smoothSlider.value     = 0.40;
+  lineSlider.value       = 0.40;
+
+  if (originalImageData) {
+    // вернуть исходный preview
+    ctx.putImageData(originalImageData, 0, 0);
+    originalImg.src = workCanvas.toDataURL('image/jpeg', 0.9);
+    processedImg.src = '';
+    lastProcessedDataUrl = null;
+    downloadBtn.disabled = true;
+  }
+}
+resetBtn.addEventListener('click', resetSettings);
+
+// ---------- DOWNLOAD ----------
+
+downloadBtn.addEventListener('click', () => {
+  if (!lastProcessedDataUrl) return;
+  const a = document.createElement('a');
+  a.href = lastProcessedDataUrl;
+  a.download = 'tattoo_ref.jpg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+
+// Простое боксовое размытие
+function boxBlur(imgData, radius) {
+  const { width, height, data } = imgData;
+  const tmp = new Uint8ClampedArray(data.length);
+
+  // по X
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
       let sum = 0;
-      for (let x = 0; x < w; x++) {
-        const idx = (y * w + x) * 4;
-        const gray = arr[idx]; // r=g=b
-        sum += gray;
-        const idx3 = (y * w + Math.max(0, x - 3)) * 4;
-        if (x >= 3) sum -= arr[idx3];
-        const radius = Math.min(3, x + 1);
-        const avg = sum / radius;
-        const tIdx = (y * w + x) * 4;
-        tmp[tIdx] = tmp[tIdx + 1] = tmp[tIdx + 2] = avg;
-        tmp[tIdx + 3] = 255;
+      let count = 0;
+      for (let k = -radius; k <= radius; k++) {
+        const xx = x + k;
+        if (xx < 0 || xx >= width) continue;
+        const idx = (y * width + xx) * 4;
+        sum += data[idx]; // gray
+        count++;
       }
+      const val = sum / count;
+      const idx0 = (y * width + x) * 4;
+      tmp[idx0] = tmp[idx0 + 1] = tmp[idx0 + 2] = val;
+      tmp[idx0 + 3] = data[idx0 + 3];
     }
-    // vertical
-    for (let x = 0; x < w; x++) {
+  }
+
+  // по Y
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
       let sum = 0;
-      for (let y = 0; y < h; y++) {
-        const idx = (y * w + x) * 4;
-        const gray = tmp[idx];
-        sum += gray;
-        const idx3 = (Math.max(0, y - 3) * w + x) * 4;
-        if (y >= 3) sum -= tmp[idx3];
-        const radius = Math.min(3, y + 1);
-        const avg = sum / radius;
-        const aIdx = (y * w + x) * 4;
-        arr[aIdx] = arr[aIdx + 1] = arr[aIdx + 2] = avg;
-        arr[aIdx + 3] = 255;
+      let count = 0;
+      for (let k = -radius; k <= radius; k++) {
+        const yy = y + k;
+        if (yy < 0 || yy >= height) continue;
+        const idx = (yy * width + x) * 4;
+        sum += tmp[idx];
+        count++;
       }
+      const val = sum / count;
+      const idx0 = (y * width + x) * 4;
+      data[idx0] = data[idx0 + 1] = data[idx0 + 2] = val;
+      // alpha уже есть
     }
   }
 }
 
-// ----- Sobel edge detection on grayscale (in RGBA array) -----
+// Sobel для границ
+function sobelEdges(imgData) {
+  const { width, height, data } = imgData;
+  const out = new ImageData(width, height);
+  const d = out.data;
 
-function sobelEdges(arr, w, h) {
-  const out = new Uint8ClampedArray(arr.length);
-  const gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-  const gy = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+  const gxKernel = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+  const gyKernel = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
 
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      let sumX = 0;
-      let sumY = 0;
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      let gx = 0;
+      let gy = 0;
       let k = 0;
-      for (let yy = -1; yy <= 1; yy++) {
-        for (let xx = -1; xx <= 1; xx++) {
-          const idx = ((y + yy) * w + (x + xx)) * 4;
-          const gray = arr[idx]; // r=g=b
-          sumX += gx[k] * gray;
-          sumY += gy[k] * gray;
+
+      for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+          const xx = x + i;
+          const yy = y + j;
+          const idx = (yy * width + xx) * 4;
+          const gray = data[idx]; // уже ч/б
+          gx += gxKernel[k] * gray;
+          gy += gyKernel[k] * gray;
           k++;
         }
       }
-      const mag = Math.min(
-        255,
-        Math.sqrt(sumX * sumX + sumY * sumY)
-      );
-      const oIdx = (y * w + x) * 4;
-      out[oIdx] = out[oIdx + 1] = out[oIdx + 2] = mag;
-      out[oIdx + 3] = 255;
+
+      const mag = Math.sqrt(gx * gx + gy * gy);
+      const v = Math.max(0, Math.min(255, mag));
+      const idx0 = (y * width + x) * 4;
+      d[idx0] = d[idx0 + 1] = d[idx0 + 2] = v;
+      d[idx0 + 3] = 255;
     }
   }
+
   return out;
 }
-
-// ---------- BUTTONS ----------
-
-processBtn.addEventListener("click", () => {
-  if (!originalImg) return;
-  processImage();
-});
-
-downloadBtn.addEventListener("click", () => {
-  if (!processedCanvas.width || !processedCanvas.height) return;
-  const link = document.createElement("a");
-  link.download = "tattoo-ref.png";
-  link.href = processedCanvas.toDataURL("image/png");
-  link.click();
-});
-
-resetBtn.addEventListener("click", () => {
-  contrastSlider.value = "1.3";
-  brightnessSlider.value = "1.0";
-  smoothnessSlider.value = "0.4";
-  lineStrengthSlider.value = "0.35";
-  updateSliderLabels();
-  zoomFactor = 1;
-  updateZoomInfo();
-  if (originalImg) {
-    fitAndDrawOriginal();
-    processImage();
-  } else {
-    ctxOrig.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
-    ctxProc.clearRect(0, 0, processedCanvas.width, processedCanvas.height);
-    metaInfo.textContent = "No image loaded yet.";
-  }
-});
-
-// ---------- ZOOM ----------
-
-function updateZoomInfo() {
-  zoomInfo.textContent = `Zoom: ${Math.round(zoomFactor * 100)}%`;
-}
-
-zoomInBtn.addEventListener("click", () => {
-  if (!originalImg) return;
-  zoomFactor = Math.min(3, zoomFactor * 1.2);
-  updateZoomInfo();
-  processImage();
-});
-
-zoomOutBtn.addEventListener("click", () => {
-  if (!originalImg) return;
-  zoomFactor = Math.max(0.4, zoomFactor / 1.2);
-  updateZoomInfo();
-  processImage();
-});
-
-zoomResetBtn.addEventListener("click", () => {
-  if (!originalImg) return;
-  zoomFactor = 1;
-  updateZoomInfo();
-  processImage();
-});
-
-// resize handling
-window.addEventListener("resize", () => {
-  if (originalImg) processImage();
-});
