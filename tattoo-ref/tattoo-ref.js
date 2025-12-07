@@ -66,13 +66,33 @@
     sharpenSlider.value = 0.00;
     updateSliderLabels();
     setZoomFromSlider();
-    if (originalImageData) processImage();
+    if (originalImageData) processOrVector();
   });
 
   [contrastSlider, brightnessSlider, smoothSlider, sharpenSlider].forEach(slider => {
     slider.addEventListener("input", () => {
       updateSliderLabels();
+      if (originalImageData) processOrVector();
     });
+  });
+
+  modeRadios.forEach(r => {
+    r.addEventListener("change", () => {
+      if (originalImageData) processOrVector();
+    });
+  });
+
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    fileNameEl.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => prepareImage(img);
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 
   processBtn.addEventListener("click", () => {
@@ -84,10 +104,9 @@
     if (!workingWidth || !workingHeight) return;
     const mode = currentMode();
     if (mode === "vector") {
-      // Векторизация и скачка
       const svg = ImageTracer.imagedataToSVG(
         procCtx.getImageData(0, 0, workingWidth, workingHeight),
-        { scale: 1, pathomit: 8 } // можно поиграть с параметрами
+        { scale: 1, pathomit: 8 }
       );
       const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -109,19 +128,6 @@
         URL.revokeObjectURL(url);
       }, "image/png");
     }
-  });
-
-  fileInput.addEventListener("change", (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    fileNameEl.textContent = file.name;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const img = new Image();
-      img.onload = () => prepareImage(img);
-      img.src = evt.target.result;
-    };
-    reader.readAsDataURL(file);
   });
 
   function prepareImage(img) {
@@ -179,7 +185,9 @@
       let li = ti;
       let ri = ti + r;
       const fv = src[ti];
-      const lv = src[ti + w - 1];
+      for (let j = 0; j < r; j++) {
+        // nothing
+      }
       let val = (r + 1) * fv;
       for (let j = 0; j < r; j++) val += src[ti + j];
       for (let x = 0; x < w; x++) {
@@ -195,13 +203,15 @@
       let ti = x;
       let li = ti;
       let ri = ti + r * w;
-      const fv = tmp[ti];
-      const lv = tmp[ti + w * (h - 1)];
-      let val = (r + 1) * fv;
-      for (let j = 0; j < r; j++) val += tmp[ti + j * w];
+      const fv2 = tmp[ti];
+      for (let j = 0; j < r; j++) {
+        // nothing
+      }
+      let val2 = (r + 1) * fv2;
+      for (let j = 0; j < r; j++) val2 += tmp[ti + j * w];
       for (let y = 0; y < h; y++) {
-        val += tmp[ri] - tmp[li];
-        dst[ti] = val * iarr;
+        val2 += tmp[ri] - tmp[li];
+        dst[ti] = val2 * iarr;
         ri += w;
         li += w;
         ti += w;
@@ -218,61 +228,49 @@
     const dst = new Uint8ClampedArray(src.length);
 
     const { contrast, brightness, smoothness, sharpen } = params;
+    const total = width * height;
 
     // grayscale + brightness + contrast
-    for (let i = 0; i < src.length; i += 4) {
-      let r = src[i], g = src[i + 1], b = src[i + 2];
-      let gray = 0.299 * r + 0.587 * g + 0.114 * b;
-      gray = gray * brightness;
+    const gray = new Float32Array(total);
+    for (let i = 0, j = 0; i < src.length; i += 4, j++) {
+      const r = src[i], g = src[i + 1], b = src[i + 2];
+      let v = 0.299 * r + 0.587 * g + 0.114 * b;
+      v = v * brightness;
       const mid = 128;
-      gray = (gray - mid) * contrast + mid;
-      gray = clamp(gray, 0, 255);
-      dst[i] = dst[i + 1] = dst[i + 2] = gray;
-      dst[i + 3] = src[i + 3];
+      v = (v - mid) * contrast + mid;
+      v = clamp(v, 0, 255);
+      gray[j] = v;
     }
 
+    // blur if needed
+    let blurred = gray;
     if (smoothness > 0.001) {
-      const grayArr = new Float32Array(width * height);
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          grayArr[y * width + x] = dst[(y * width + x) * 4];
-        }
-      }
-      const blurred = boxBlurGray(grayArr, width, height, Math.round(smoothness * 4));
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = (y * width + x) * 4;
-          const v = blurred[y * width + x];
-          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
-        }
+      blurred = boxBlurGray(gray, width, height, Math.round(smoothness * 4));
+    }
+
+    // sharpen if needed
+    if (sharpen > 0.001) {
+      const blur2 = boxBlurGray(blurred, width, height, 1);
+      for (let i = 0; i < total; i++) {
+        const orig = blurred[i];
+        const b = blur2[i];
+        let v = orig + (orig - b) * sharpen;
+        v = clamp(v, 0, 255);
+        blurred[i] = v;
       }
     }
 
-    if (sharpen > 0.001) {
-      const grayArr = new Float32Array(width * height);
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          grayArr[y * width + x] = dst[(y * width + x) * 4];
-        }
-      }
-      const blurred = boxBlurGray(grayArr, width, height, 1);
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = (y * width + x) * 4;
-          const orig = dst[idx];
-          const blur = blurred[y * width + x];
-          let v = orig + (orig - blur) * sharpen;
-          v = clamp(v, 0, 255);
-          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
-        }
-      }
+    // fill dst
+    for (let i = 0, j = 0; j < total; j++, i += 4) {
+      const v = blurred[j];
+      dst[i] = dst[i + 1] = dst[i + 2] = v;
+      dst[i + 3] = src[i + 3];
     }
 
     return new ImageData(dst, width, height);
   }
 
   function processOrVector() {
-    // сначала — фильтры + блэк-энд-вайт
     const filtered = applyFiltersToImageData(originalImageData, {
       contrast: parseFloat(contrastSlider.value),
       brightness: parseFloat(brightnessSlider.value),
@@ -284,7 +282,7 @@
     procDims.textContent = `${workingWidth}×${workingHeight}`;
 
     if (currentMode() === "vector") {
-      // ничего сразу не делать, ждём download кнопки
+      // ничего сразу, SVG генерируется при Download
     }
   }
 
