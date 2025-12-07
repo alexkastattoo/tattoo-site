@@ -1,4 +1,5 @@
-// Pic → Tattoo Reference / Cartoon (updated Cartoon: lighter, softer)
+// Pic → Tattoo Reference + Vectorize filter
+
 (() => {
   const fileInput  = document.getElementById("fileInput");
   const fileNameEl = document.getElementById("fileName");
@@ -6,17 +7,14 @@
   const contrastSlider   = document.getElementById("contrast");
   const brightnessSlider = document.getElementById("brightness");
   const smoothSlider     = document.getElementById("smoothness");
-  const pencilSlider     = document.getElementById("pencil");
-  const cartoonSlider    = document.getElementById("cartoonLevels");
+  const sharpenSlider    = document.getElementById("sharpen");
 
   const contrastVal   = document.getElementById("contrastValue");
   const brightnessVal = document.getElementById("brightnessValue");
   const smoothVal     = document.getElementById("smoothnessValue");
-  const pencilVal     = document.getElementById("pencilValue");
-  const cartoonVal    = document.getElementById("cartoonValue");
+  const sharpenVal    = document.getElementById("sharpenValue");
 
   const modeRadios   = document.querySelectorAll('input[name="mode"]');
-  const cartoonBlock = document.getElementById("cartoonBlock");
 
   const zoomSlider = document.getElementById("zoom");
   const zoomVal    = document.getElementById("zoomValue");
@@ -48,8 +46,7 @@
     contrastVal.textContent   = parseFloat(contrastSlider.value).toFixed(2);
     brightnessVal.textContent = parseFloat(brightnessSlider.value).toFixed(2);
     smoothVal.textContent     = parseFloat(smoothSlider.value).toFixed(2);
-    pencilVal.textContent     = parseFloat(pencilSlider.value).toFixed(2);
-    cartoonVal.textContent    = cartoonSlider.value;
+    sharpenVal.textContent    = parseFloat(sharpenSlider.value).toFixed(2);
   }
   updateSliderLabels();
 
@@ -62,60 +59,56 @@
   setZoomFromSlider();
   zoomSlider.addEventListener("input", setZoomFromSlider);
 
-  modeRadios.forEach(r => {
-    r.addEventListener("change", () => {
-      cartoonBlock.style.display = currentMode() === "cartoon" ? "block" : "none";
-      if (originalImageData) processImage();
-    });
-  });
-  cartoonBlock.style.display = "none";
-
-  function resetSliders() {
-    contrastSlider.value   = "1.30";
-    brightnessSlider.value = "1.00";
-    smoothSlider.value     = "0.40";
-    pencilSlider.value     = "0.40";
-    cartoonSlider.value    = "7";
-    zoomSlider.value       = "100";
+  resetBtn.addEventListener("click", () => {
+    contrastSlider.value = 1.30;
+    brightnessSlider.value = 1.00;
+    smoothSlider.value = 0.00;
+    sharpenSlider.value = 0.00;
     updateSliderLabels();
     setZoomFromSlider();
-  }
-  resetSliders();
-
-  resetBtn.addEventListener("click", () => {
-    resetSliders();
     if (originalImageData) processImage();
   });
 
-  [contrastSlider, brightnessSlider, smoothSlider, pencilSlider, cartoonSlider]
-    .forEach(slider => {
-      slider.addEventListener("input", () => {
-        updateSliderLabels();
-        if (originalImageData) processImage();
-      });
+  [contrastSlider, brightnessSlider, smoothSlider, sharpenSlider].forEach(slider => {
+    slider.addEventListener("input", () => {
+      updateSliderLabels();
     });
+  });
 
   processBtn.addEventListener("click", () => {
     if (!originalImageData) return;
-    processImage();
+    processOrVector();
   });
 
   downloadBtn.addEventListener("click", () => {
     if (!workingWidth || !workingHeight) return;
-    procCanvas.toBlob(
-      (blob) => {
+    const mode = currentMode();
+    if (mode === "vector") {
+      // Векторизация и скачка
+      const svg = ImageTracer.imagedataToSVG(
+        procCtx.getImageData(0, 0, workingWidth, workingHeight),
+        { scale: 1, pathomit: 8 } // можно поиграть с параметрами
+      );
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tattoo_vector.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      procCanvas.toBlob((blob) => {
         if (!blob) return;
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "alexkas_tattoo_ref.png";
+        a.download = "tattoo_ref.png";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      },
-      "image/png"
-    );
+      }, "image/png");
+    }
   });
 
   fileInput.addEventListener("change", (e) => {
@@ -164,7 +157,7 @@
     origDims.textContent = `${w}×${h}`;
     procDims.textContent = `${w}×${h}`;
 
-    processImage();
+    processOrVector();
     downloadBtn.disabled = false;
   }
 
@@ -218,114 +211,81 @@
     return dst;
   }
 
-  function processImage() {
-    if (!originalImageData) return;
+  function applyFiltersToImageData(srcImageData, params) {
+    const width = srcImageData.width;
+    const height = srcImageData.height;
+    const src = srcImageData.data;
+    const dst = new Uint8ClampedArray(src.length);
 
-    const mode        = currentMode();
-    const contrast    = parseFloat(contrastSlider.value);
-    const brightness  = parseFloat(brightnessSlider.value);
-    const smoothness  = parseFloat(smoothSlider.value);
-    const pencil      = parseFloat(pencilSlider.value);
-    const toonLevels  = parseInt(cartoonSlider.value, 10);
+    const { contrast, brightness, smoothness, sharpen } = params;
 
-    const { data, width, height } = originalImageData;
-    const total = width * height;
-
-    const gray = new Float32Array(total);
-    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      let y = 0.299 * r + 0.587 * g + 0.114 * b;
-      y *= brightness;
-      gray[j] = clamp(y, 0, 255);
+    // grayscale + brightness + contrast
+    for (let i = 0; i < src.length; i += 4) {
+      let r = src[i], g = src[i + 1], b = src[i + 2];
+      let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+      gray = gray * brightness;
+      const mid = 128;
+      gray = (gray - mid) * contrast + mid;
+      gray = clamp(gray, 0, 255);
+      dst[i] = dst[i + 1] = dst[i + 2] = gray;
+      dst[i + 3] = src[i + 3];
     }
 
-    let blurRadius = 1 + Math.round(smoothness * 6);
-    if (mode === "cartoon") blurRadius = 1 + Math.round(smoothness * 4);
-
-    const inverted = new Float32Array(total);
-    for (let i = 0; i < total; i++) {
-      inverted[i] = 255 - gray[i];
-    }
-    const blurredInv = boxBlurGray(inverted, width, height, blurRadius);
-
-    const sketch = new Float32Array(total);
-    for (let i = 0; i < total; i++) {
-      const g = gray[i];
-      const b = blurredInv[i];
-      const denom = 255 - b;
-      let val;
-      if (denom <= 0) val = 255;
-      else val = clamp((g * 255) / denom, 0, 255);
-      sketch[i] = val;
-    }
-
-    const out = new Uint8ClampedArray(total * 4);
-
-    if (mode === "ref") {
-      for (let i = 0, j = 0; j < total; j++, i += 4) {
-        const g = gray[j];
-        const s = sketch[j];
-
-        const mix = 0.4 + 0.4 * pencil;
-        let v = g * (1 - mix) + s * mix;
-
-        const mid = 128;
-        const t = (v - mid) / 128;
-        const localBoost = 1.0 + (contrast - 1.0) * 0.6;
-        v = mid + t * 128 * localBoost;
-
-        if (v < 35) v = 35 + (v - 35) * 0.5;
-
-        const mid2 = 128;
-        v = clamp((v - mid2) * contrast + mid2, 0, 255);
-
-        out[i] = out[i + 1] = out[i + 2] = v;
-        out[i + 3] = 255;
+    if (smoothness > 0.001) {
+      const grayArr = new Float32Array(width * height);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          grayArr[y * width + x] = dst[(y * width + x) * 4];
+        }
       }
-    } else {
-      const levels = toonLevels;
-      const step = 255 / (levels - 1);
-
-      for (let i = 0, j = 0; j < total; j++, i += 4) {
-        let r = data[i];
-        let gC = data[i + 1];
-        let b = data[i + 2];
-
-        let y = gray[j];
-        let q = Math.round(y / step) * step;
-
-        // ослабленный вклад pencil
-        const pMix = 0.6 * pencil;          // максимум 0.6
-        let v = y * (1 - pMix) + q * pMix;  // базовый тон
-
-        // мягкий контраст
-        const mid = 128;
-        const cMix = 0.4; // 40% силы контраста
-        v = (v - mid) * (1 + (contrast - 1) * cMix) + mid;
-
-        // лёгкий подъём общей яркости
-        v = v * 1.08 + 6;
-        v = clamp(v, 0, 255);
-
-        const eps = 1e-3;
-        const len = r + gC + b + eps;
-        const nr = (r / len) * v;
-        const ng = (gC / len) * v;
-        const nb = (b / len) * v;
-
-        out[i]     = clamp(nr, 0, 255);
-        out[i + 1] = clamp(ng, 0, 255);
-        out[i + 2] = clamp(nb, 0, 255);
-        out[i + 3] = 255;
+      const blurred = boxBlurGray(grayArr, width, height, Math.round(smoothness * 4));
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = (y * width + x) * 4;
+          const v = blurred[y * width + x];
+          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
+        }
       }
     }
 
-    const outImageData = new ImageData(out, width, height);
-    procCtx.putImageData(outImageData, 0, 0);
-    procDims.textContent = `${width}×${height}`;
+    if (sharpen > 0.001) {
+      const grayArr = new Float32Array(width * height);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          grayArr[y * width + x] = dst[(y * width + x) * 4];
+        }
+      }
+      const blurred = boxBlurGray(grayArr, width, height, 1);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = (y * width + x) * 4;
+          const orig = dst[idx];
+          const blur = blurred[y * width + x];
+          let v = orig + (orig - blur) * sharpen;
+          v = clamp(v, 0, 255);
+          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
+        }
+      }
+    }
+
+    return new ImageData(dst, width, height);
   }
 
-  window._tattooRefReset = resetSliders;
+  function processOrVector() {
+    // сначала — фильтры + блэк-энд-вайт
+    const filtered = applyFiltersToImageData(originalImageData, {
+      contrast: parseFloat(contrastSlider.value),
+      brightness: parseFloat(brightnessSlider.value),
+      smoothness: parseFloat(smoothSlider.value),
+      sharpen: parseFloat(sharpenSlider.value),
+    });
+
+    procCtx.putImageData(filtered, 0, 0);
+    procDims.textContent = `${workingWidth}×${workingHeight}`;
+
+    if (currentMode() === "vector") {
+      // ничего сразу не делать, ждём download кнопки
+    }
+  }
+
 })();
