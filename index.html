@@ -1,311 +1,211 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<!-- PHOTO SETUP: replace images/hero.jpg, about.jpg, work-01.jpg … work-20.jpg and healed-01.jpg … healed-04.jpg with your own optimized JPGs. Update alt text and actual healed intervals below. Keep filenames, or update all matching paths. -->
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Black & Grey realism tattoos by Alex Kas, Woodbridge, Ontario See portfolio & book via Instagram.">
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YGX8MN893X"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-YGX8MN893X');
-</script>
-  <title>Alex Kas Tattoo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <style>
-    body { font-family: 'Montserrat', sans-serif; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101010">
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23101010'/%3E%3Ctext x='32' y='43' text-anchor='middle' fill='white' font-family='serif' font-size='34'%3EAK%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Alex Kas | Black and Grey Realism Tattoo Richmond Hill Ontario</title>
+  <meta name="description" content="Black and grey realism tattoo Richmond Hill by Alex Kas. Dark realism in a private Ontario studio. Explore the portfolio and request a session.">
+  <link rel="canonical" href="https://alexkastattoo.ca/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_CA">
+  <meta property="og:site_name" content="Alex Kas Tattoo">
+  <meta property="og:url" content="https://alexkastattoo.ca/">
+  <meta property="og:title" content="Alex Kas | Black and Grey Realism Tattoo Richmond Hill">
+  <meta property="og:description" content="Black & grey. Dark realism. Private studio in Richmond Hill, Ontario. Explore the work and book a session.">
+  <!-- Before launch: add og:image with an absolute URL to your own 1200x630 social preview photograph. -->
+  <script src="script.js" defer></script>
 </head>
-<body class="bg-neutral-900 text-white">
+<body>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <!-- Логотип по центру -->
-<!--<header class="w-full flex justify-start items-center px-6 pt-4 pb-2">
-  <img src="img/logo.png" alt="Alex Kas Tattoo Logo" class="h-12" />
-</header> -->
-
- <!-- Главный блок с фоном -->
-<section class="h-screen bg-cover bg-center relative" style="background-image: url('./img/alex_work.jpg');">
-  <div class="absolute inset-0 bg-black/70"></div> <!-- затемнение -->
-  <div class="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
-    <h1 class="text-4xl md:text-6xl font-bold tracking-wide text-white drop-shadow-lg">
-      Black & Grey Realism Tattoos
-    </h1>
-    <p class="mt-4 text-lg md:text-xl text-gray-200 max-w-xl drop-shadow-md">
-      Timeless tattoos crafted with detail, depth and meaning. Based in Ontario Canada. Book your next piece with Alex Kas.
-    </p>
-    <a href="#contact" class="mt-6 inline-block bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition">
-      Book Now
+  <header class="header">
+    <a class="brand" href="#home" aria-label="Alex Kas home">
+      <img class="brand-logo" src="images/AK_White.png" alt="Alex Kas logo" width="56" height="56" fetchpriority="high">
+      <span>ALEX KAS<br><small>TATTOO ARTIST</small></span>
     </a>
-  </div>
-</section>
+    <nav aria-label="Main navigation">
+      <a href="#portfolio">Work</a>
+      <a href="#about">About</a>
+      <a class="nav-book" href="#booking">Book a session <span>↗</span></a>
+    </nav>
+  </header>
 
-  <!-- О Алексее -->
-  <section class="py-16 px-6 max-w-6xl mx-auto text-center">
-    <h2 class="text-3xl font-semibold mb-4">About Alex</h2>
-    <p class="text-gray-300 text-lg mb-8">
-      With over 10 years of experience in black &amp; grey realism, I specialize in high-contrast, storytelling tattoos. From mythological figures to wildlife, each piece is crafted with precision and emotion.
-    </p>
-  </section>
-
-  <!-- Портфолио -->
-  <section class="bg-neutral-800 py-16 px-6">
-    <h2 class="text-3xl font-semibold text-center mb-10">Portfolio</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-      <img src="img/sample1.jpeg" alt="Jaguar anf jungle tattoo" class="rounded-lg shadow-lg" />
-      <img src="img/sample2.jpeg" alt="Angel tattoo" class="rounded-lg shadow-lg" />
-      <img src="img/sample3.jpeg" alt="Dog and mounths tattoo" class="rounded-lg shadow-lg" />
-    </div>
-   <p class="text-center text-gray-400 mt-6 text-lg">
-  👉 <a href="https://instagram.com/alexkastattoo" target="_blank" class="underline hover:text-white transition">
-    See more works on Instagram
-  </a>
-</p>
-  </section>
-
-
-  <!-- Отзывы -->
-  <section class="py-16 px-6 max-w-4xl mx-auto">
-    <h2 class="text-3xl font-semibold text-center mb-10">What Clients Say</h2>
-    <div class="space-y-6">
-      <div class="bg-neutral-800 p-6 rounded-lg shadow">
-        <p class="italic text-gray-200">“Alex is one of the best artist I have came across so far. I have gone to Ontario and back and no one has been able to do the style I like until I came across him. Would recommend him to anyone! 10/10 artistry, 10/10 politeness, 10/10 cleanliness, and super understanding. Amazing work and amazing personality!!”</p>
-        <p class="mt-2 text-sm text-gray-400">— Jessie Sharp</p>
+  <main id="main">
+    <section class="hero" id="home">
+      <img class="hero-image" src="images/alex_work.jpg" alt="Alex Kas Tattoo" width="1800" height="1200" fetchpriority="high">
+      <div class="hero-shade"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">PRIVATE STUDIO / RICHMOND HILL, ON</p>
+        <h1>ALEX KAS<span>BLACK &amp; GREY.<br>DARK REALISM.</span></h1>
+        <p>Depth. Contrast. Detail.<br>Tattoos with a presence of their own.</p>
+        <a class="button" href="#booking">Book a session <span>↗</span></a>
+        <a class="text-link" href="#portfolio">Explore the work ↓</a>
       </div>
-      <div class="bg-neutral-800 p-6 rounded-lg shadow">
-        <p class="italic text-gray-200">“I’m sitting with my son watching him get his first big tattoo, and all I can say is WOW! Alex does fantastic work.”</p>
-        <p class="mt-2 text-sm text-gray-400">— John Glionna</p>
+      <div class="hero-bottom"><span>TATTOOING SINCE 2009</span><span>ONTARIO, CANADA</span></div>
+    </section>
+
+    <section class="section" id="portfolio">
+      <div class="section-top">
+        <div>
+          <p class="eyebrow">01 / PORTFOLIO</p>
+          <h2>Selected work.</h2>
+        </div>
+        <p>Black &amp; grey realism.<br>A study in light and shadow.</p>
       </div>
-      <div class="bg-neutral-800 p-6 rounded-lg shadow">
-        <p class="italic text-gray-200">“I have had several pieces done by Alex now, and he is not just an amazing and talented artist, but he is a super nice person as well. Always cares about your comfort, and makes you feel right at home.”</p>
-        <p class="mt-2 text-sm text-gray-400">— Lisa Sullivan</p>
+      <div class="gallery">
+        <a class="work" href="images/sample1.jpeg" data-lightbox data-caption="Selected work 01" aria-label="View work 01"><img src="images/sample1.jpeg" alt="Portfolio photo placeholder 01 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample2.jpeg" data-lightbox data-caption="Selected work 02" aria-label="View work 02"><img src="images/sample2.jpeg" alt="Portfolio photo placeholder 02 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample3.jpeg" data-lightbox data-caption="Selected work 03" aria-label="View work 03"><img src="images/sample3.jpeg" alt="Portfolio photo placeholder 03 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample4.jpg" data-lightbox data-caption="Selected work 04" aria-label="View work 04"><img src="images/sample4.jpg" alt="Portfolio photo placeholder 04 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample5.jpg" data-lightbox data-caption="Selected work 05" aria-label="View work 05"><img src="images/sample5.jpg" alt="Portfolio photo placeholder 05 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample6.jpg" data-lightbox data-caption="Selected work 06" aria-label="View work 06"><img src="images/sample6.jpg" alt="Portfolio photo placeholder 06 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample7.jpg" data-lightbox data-caption="Selected work 07" aria-label="View work 07"><img src="images/sample7.jpg" alt="Portfolio photo placeholder 07 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample8.jpg" data-lightbox data-caption="Selected work 08" aria-label="View work 08"><img src="images/sample8.jpg" alt="Portfolio photo placeholder 08 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
+        <a class="work" href="images/sample9.jpg" data-lightbox data-caption="Selected work 09" aria-label="View work 09"><img src="images/sample9.jpg" alt="Portfolio photo placeholder 09 — replace with a description of the tattoo" width="360" height="450" loading="lazy"></a>
       </div>
-    </div>
-  </section>
+      <p class="gallery-more"><a class="text-link" href="https://www.instagram.com/alexkastattoo/" target="_blank" rel="noopener noreferrer">You can find more work on Instagram ↗</a></p>
+    </section>
 
-  <!-- Информация о бронировании -->
-  <section class="py-16 px-6 max-w-3xl mx-auto">
-      <section id="faq" class="bg-neutral-900 py-16 px-6">
-  <div class="max-w-4xl mx-auto">
-    <h2 class="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
-    <div class="space-y-6">
-      <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">How much does a tattoo cost?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-    It depends on the size, complexity and placement. My minimum is $200/hour or $1000 per session.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">How do I book an appointment?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     To book a tattoo session, please fill out the booking form on this website or send me a message on Instagram <a href="https://instagram.com/alexkastattoo">@alexkastattoo</a>. I usually respond within 1–3 days.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">Do I need to leave a deposit?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Yes. A non-refundable deposit is required to secure your booking. The deposit goes toward the final cost of your tattoo.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">Can I reschedule my appointment?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Yes, but please notify me at least 48 hours in advance. Short-notice reschedules may result in losing your deposit.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">Does it hurt?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Yes, tattoos involve discomfort — but it’s manageable. Everyone feels it differently, and I always make sure you’re as comfortable as possible throughout the session.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">Can I bring my own design or idea?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Absolutely. You can send me your idea or reference — I’ll create a custom design based on it, in my signature style.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">How should I prepare for my tattoo session?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Get a good night’s sleep, eat a solid meal, and stay hydrated. Don’t drink alcohol or take painkillers 24 hours before the session. Wear comfortable clothes and bring snacks if it’s a long one.
-  </div>
-</div>
-        <div x-data="{ open: false }" class="border-b border-gray-700 pb-4 mb-4">
-  <button @click="open = !open" class="flex justify-between items-center w-full text-left text-white text-lg font-semibold">
-    <h3 class="text-xl font-semibold">What’s your cancellation policy?</h3>
-    <svg :class="{ 'rotate-180': open }" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-  <div x-show="open" x-transition class="mt-2 text-gray-400">
-     Cancellations made less than 48 hours before your appointment will result in a lost deposit. Please respect my time — no-shows are not tolerated.
-  </div>
-</div>
-  </div>
-</section>
-    </div>
-     <!-- Соц.сети — иконки с подписями -->
-<div class="flex flex-wrap justify-center gap-6 mt-12 text-white">
-  <a href="https://instagram.com/alexkastattoo" target="_blank" class="flex items-center gap-2 hover:text-pink-500 transition">
-    <img src="img/ig.png" alt="Instagram" class="w-6 h-6" />
-    <span class="text-lg">Instagram</span>
-  </a>
+      <section class="section about" id="about"><p class="eyebrow">02 / THE ARTIST</p><br>
+        <img src="images/30.jpg" alt="Alex Kas portrait placeholder" width="900" height="1100" loading="lazy"><div><h2>Intent in<br>every detail.</h2>
+          <p class="intro">I'm Alex Kasparov, a tattoo artist working from a private studio in Richmond Hill, Ontario.</p><p>Tattooing since 2009. 6+ years of professional studio experience in black & grey realism.</p><p>My focus is black & grey realism and dark realism, with attention to contrast, depth and the way a design sits on the body. Each project starts with a conversation, so we can shape your idea into a piece that feels personal and considered.</p><a class="text-link" href="https://www.instagram.com/alexkastattoo/" target="_blank" rel="noopener noreferrer">More on Instagram ↗</a></div></section>
 
-  <a href="https://www.facebook.com/share/1AUNESRY8v/?mibextid=wwXIfr" target="_blank" class="flex items-center gap-2 hover:text-blue-500 transition">
-    <img src="img/fb.png" alt="Facebook" class="w-6 h-6" />
-    <span class="text-lg">Facebook</span>
-  </a>
-
-  <a href="mailto:alexkastattoo@gmail.com" class="flex items-center gap-2 hover:text-gray-300 transition">
-    <img src="img/email.png" alt="Email" class="w-6 h-6" />
-    <span class="text-lg">Email</span>
-  </a>
-</div>
-  </section>
-
-  <!-- Контактная форма -->
-<section id="contact" class="py-16 px-6 max-w-3xl mx-auto">
-    <h2 class="text-3xl font-bold text-center mb-6">Booking & Reference Upload</h2>
-      <p class="text-gray-400 text-center mb-8">Send your idea, contact info and upload reference images for your next tattoo.</p>
-
-    <form
-      action="https://formsubmit.co/alexkastattoo@gmail.com"
-      method="POST"
-      enctype="multipart/form-data"
-      class="space-y-6 p-6 rounded-lg shadow-lg"
-    >
-      <input type="hidden" name="_redirect" value="https://alexkastattoo.ca/thanks" />
-      <input type="hidden" name="_append" value="false" />
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_template" value="table">
-
+    <section class="section faq" id="faq">
       <div>
-        <label for="name" class="block text-gray-300 mb-1">Full Name</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          required
-          placeholder="Your name"
-          class="w-full p-3 rounded bg-[#2b2b2b] text-white border border-gray-700 focus:outline-none"
-        />
+        <p class="eyebrow">03 / GOOD TO KNOW</p>
+        <h2>Before the ink.</h2>
       </div>
-
       <div>
-        <label for="email" class="block text-gray-300 mb-1">Email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          placeholder="your@email.com"
-          class="w-full p-3 rounded bg-[#2b2b2b] text-white border border-gray-700 focus:outline-none"
-        />
+        <details>
+          <summary>How much does a tattoo cost?<span aria-hidden="true">+</span></summary>
+          <p>Pricing depends on the size, placement, level of detail and time needed. Send your idea and references for an individual estimate before booking. My minimum is $200/hour or $1000 per session.</p>
+        </details>
+        <details>
+          <summary>How do I book an appointment?<span aria-hidden="true">+</span></summary>
+          <p>To book a tattoo session, please fill out the booking form on this website or send me a message on Instagram <a href="https://instagram.com/alexkastattoo">@alexkastattoo</a>. You also can email to alexkastattoo@gmail.com. I usually respond within 1–3 days.</p>
+        </details>
+        <details>
+          <summary>Do I need to leave a deposit?<span aria-hidden="true">+</span></summary>
+          <p>Yes. A non-refundable deposit is required to secure your booking. The deposit goes toward the final cost of your tattoo.</p>
+        </details>
+        <details>
+          <summary>Can I reschedule my appointment?<span aria-hidden="true">+</span></summary>
+          <p>Yes, but please notify me at least 48 hours in advance. Short-notice reschedules may result in losing your deposit.</p>
+        </details>
+        <details>
+          <summary>How long does a session take?<span aria-hidden="true">+</span></summary>
+          <p>Session length depends on the project and placement. Larger or more detailed pieces may need multiple appointments. We will discuss the estimated time before booking.</p>
+        </details>
+        <details>
+          <summary>Does it hurt?<span aria-hidden="true">+</span></summary>
+          <p>Yes, tattoos involve discomfort — but it’s manageable. Everyone feels it differently, and I always make sure you’re as comfortable as possible throughout the session.</p>
+        </details>
       </div>
+    </section>
 
+    <section class="section reviews" id="reviews">
+      <div class="reviews-copy">
+        <p class="eyebrow">04 / REVIEWS</p>
+        <h2>What clients say</h2>
+        <div class="reviews-grid">
+          <div class="review">
+            <blockquote>“Alex is one of the best artist I have came across so far. I have gone to Ontario and back and no one has been able to do the style I like until I came across him. Would recommend him to anyone! 10/10 artistry, 10/10 politeness, 10/10 cleanliness, and super understanding. Amazing work and amazing personality!!”</blockquote>
+            <cite>— Jessie Sharp</cite>
+          </div>
+          <div class="review">
+            <blockquote>“I’m sitting with my son watching him get his first big tattoo, and all I can say is WOW! Alex does fantastic work.”</blockquote>
+            <cite>— John Glionna</cite>
+          </div>
+          <div class="review">
+            <blockquote>“I have had several pieces done by Alex now, and he is not just an amazing and talented artist, but he is a super nice person as well. Always cares about your comfort, and makes you feel right at home.”</blockquote>
+            <cite>— Lisa Sullivan</cite>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section booking" id="booking">
+      <div class="booking-copy">
+        <p class="eyebrow">05 / LET'S MAKE IT REAL</p>
+        <h2>Your idea.<br>Our next session.</h2>
+        <p>Tell me what you have in mind.<br>We'll work out the details together.</p>
+        <dl>
+          <dt>RESERVE YOUR DATE</dt>
+          <dd>A deposit secures your appointment and is deducted from the final price.</dd>
+          <dt>PRIVATE STUDIO</dt>
+          <dd>Richmond Hill, Ontario, Canada.<br>By appointment only.</dd>
+        </dl>
+        <a class="text-link" href="https://www.instagram.com/alexkastattoo/" target="_blank" rel="noopener noreferrer">Prefer a DM? @alexkastattoo ↗</a>
+      </div>
+      <form action="https://formsubmit.co/alexkastattoo@gmail.com" method="POST" enctype="multipart/form-data" id="booking-form">
+        <input type="hidden" name="_subject" value="New tattoo session request — Alex Kas">
+        <input type="hidden" name="_template" value="table">
+        <!-- script.js creates the absolute thanks.html URL, including a GitHub Pages repository path. -->
+        <input type="hidden" name="_next" id="next-url" disabled>
+        <input class="honeypot" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="form-row">
+          <label>Your name<input name="name" autocomplete="name" placeholder="Your full name" maxlength="100" required></label>
+          <label>Email<input type="email" name="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required></label>
+        </div>
+        <label>Your idea<textarea name="idea" rows="4" placeholder="Subject, mood, details that matter to you…" maxlength="5000" required></textarea></label>
+        <div class="form-row">
+          <label>Placement<input name="placement" placeholder="e.g. Outer forearm" maxlength="150" required></label>
+          <label>Approximate size<input name="size" placeholder="e.g. 3 x 5 inch" maxlength="100" required></label>
+        </div>
+        <fieldset class="uploads">
+          <legend>Reference images <span>(optional)</span></legend>
+          <p id="file-help">Up to 3 JPG or PNG files. Maximum 9 MB combined.</p>
+          <label class="file-label">Reference 1<input type="file" name="attachment" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
+          <label class="file-label">Reference 2<input type="file" name="attachment2" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
+          <label class="file-label">Reference 3<input type="file" name="attachment3" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
+          <p id="file-status" role="status" aria-live="polite"></p>
+        </fieldset>
+        <label class="checkbox"><input type="checkbox" name="available_spots_updates" value="Yes — I want to receive updates about available spots"><span>I want to receive updates about available spots</span></label>
+        <p class="form-note">Your details and references are sent through FormSubmit to Alex Kas to discuss your request. Updates are optional; you can opt out by email at any time.</p>
+        <noscript><p class="form-note">Without JavaScript, FormSubmit shows its own confirmation page. Please keep attachments under 9 MB combined.</p></noscript>
+        <button class="button" type="submit">Send booking request <span>↗</span></button>
+        <p class="form-note">This is a request. Your session is confirmed after we agree on a date and deposit. If the form cannot send, email <a href="mailto:alexkastattoo@gmail.com">alexkastattoo@gmail.com</a>.</p>
+      </form>
+    </section>
+
+    <section class="section contact" id="contact">
+      <p class="eyebrow">06 / GET IN TOUCH</p>
+      <h2>Let's start a conversation.</h2>
       <div>
-        <label for="message" class="block text-gray-300 mb-1">Tell me about your idea</label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          placeholder="Tattoo idea, size, placement, availability..."
-          rows="5"
-          class="w-full p-3 rounded bg-[#2b2b2b] text-white border border-gray-700 focus:outline-none"
-        ></textarea>
+        <a href="https://www.instagram.com/alexkastattoo/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+        <a href="https://www.facebook.com/share/1AUNESRY8v/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
+        <a href="mailto:alexkastattoo@gmail.com">Email ↗</a>
       </div>
+    </section>
+  </main>
 
-      <div>
-        <label class="text-gray-300 block mb-2">Verification</label>
-        <div class="g-recaptcha" data-sitekey="6LfaK5UrAAAAAIQXeqDtX-rDuoRa6umZ-myr4LVZ"></div>
-      </div>
+  <iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2677.280096217292!2d-79.4416322!3d43.882024799999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b2a45f813a87d%3A0xf6c8d6d8f013c3d0!2s40%20Levendale%20Rd%2C%20Richmond%20Hill%2C%20ON%20L4C%204H2!5e1!3m2!1sen!2sca!4v1790644348489!5m2!1sen!2sca" title="Map — 40 Levendale Road, Richmond Hill, ON" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 
-      <button
-        type="submit"
-        class="w-full bg-white hover:bg-gray-300 text-black font-bold py-3 px-4 rounded transition duration-300"
-      >
-        Send Request
-      </button>
-    </form>
-  </div>
-</section>
-
-<!-- Google reCAPTCHA v2 script -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  </section>
-
-
-  <!-- MAP SCRIPT -->
-  <section id="location" class="py-16 bg-neutral-900 text-center text-white">
-    <h2 class="text-3xl font-semibold mb-6">📍 Location</h2>
-
-    <div class="w-full">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.257388842679!2d-79.5524049240784!3d43.80902027109521!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b2fa361261965%3A0x89afaa4068ba38c2!2sPiranha%20Tattoo%20%26%20Piercing!5e0!3m2!1sen!2sca!4v1785948515031!5m2!1sen!2sca"
-            class="w-full h-[500px]"
-            style="border:0;"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="strict-origin-when-cross-origin">
-        </iframe>
-    </div>
-
-    <a href="https://maps.app.goo.gl/rxS71Mxy9fj9t4HE7"
-       target="_blank"
-       class="block mt-6 text-blue-400 underline hover:text-blue-200">
-        Resident artist at Piranha Tattoo<br>
-        3650 Langstaff Rd #9, Woodbridge, ON L4L 9A8
-    </a>
-</section>
-
-  <!-- Футер -->
-  <footer class="bg-neutral-950 py-6 text-center text-gray-500 text-sm">
-    &copy; 2025 Alex Kas Tattoo. All rights reserved.
+  <footer>
+    <a class="footer-brand" href="#home"><img class="brand-logo" src="images/AK_White.png" alt="Alex Kas logo" width="56" height="56" fetchpriority="high"></a>
+    <p>© 2026 Alex Kas, Richmond Hill, ON</p>
+    <a href="#home">Back to top ↑</a>
   </footer>
 
+  <dialog id="lightbox" aria-label="Tattoo portfolio viewer">
+    <button class="close" type="button" aria-label="Close image">✕</button>
+    <div class="lightbox-content">
+      <img id="lightbox-image" alt="">
+      <p id="lightbox-caption"></p>
+      <div class="lightbox-controls">
+        <button type="button" id="previous" aria-label="Previous image">←</button>
+        <span id="image-count" aria-live="polite"></span>
+        <button type="button" id="next" aria-label="Next image">→</button>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>
