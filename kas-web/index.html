@@ -1,2 +1,250 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#171717"><title>Alex Kas Studio — Calendar Prototype</title><style>*{box-sizing:border-box}body{font:15px system-ui,-apple-system,sans-serif;background:#f6f6f5;color:#222;margin:0}header{background:#171717;color:white;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:19px;margin:0}main{max-width:950px;margin:auto;padding:22px}button,input,select,textarea{font:inherit}button{border:1px solid #ccc;background:white;padding:10px 14px;border-radius:9px;cursor:pointer}button.primary{background:#171717;color:white;border-color:#171717}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:18px}.toolbar>div{display:flex;gap:7px;align-items:center}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.weekday{text-align:center;font-size:12px;color:#666;padding:10px 0}.day{min-height:100px;background:white;border:1px solid #e2e2e2;border-radius:8px;padding:8px;overflow:hidden;cursor:pointer}.day.muted{background:#eee;color:#999}.day.today{outline:2px solid #222}.date{font-weight:650;margin-bottom:6px}.event{background:#e8e8e8;border-radius:5px;padding:5px;margin:3px 0;font-size:11px;overflow-wrap:anywhere}.event.consultation{background:#e4edff}.event.session{background:#e5f1e8}.event.other{background:#f1e9dc}dialog{border:0;border-radius:14px;padding:24px;width:min(95vw,480px);box-shadow:0 20px 80px #0004}dialog::backdrop{background:#0007}form{display:grid;gap:12px}label{display:grid;gap:5px;font-size:13px}input,select,textarea{width:100%;border:1px solid #ccc;border-radius:8px;padding:10px;background:white}.actions{display:flex;justify-content:flex-end;gap:8px}.hint{color:#666;font-size:13px;line-height:1.5}.list{margin-top:20px} .item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;background:white;border:1px solid #ddd;border-radius:8px;margin:7px 0}.item small{color:#666}@media(max-width:600px){main{padding:12px}.day{min-height:72px;padding:4px}.event{font-size:9px;padding:3px}.date{font-size:12px}header{padding:14px}.weekday{font-size:10px}}</style></head><body><header><h1>Alex Kas Studio</h1><span style="font-size:12px">Calendar · Local prototype</span></header><main><div class="toolbar"><div><button id="prev" aria-label="Previous month">‹</button><strong id="month"></strong><button id="next" aria-label="Next month">›</button></div><div><button id="export">Export backup</button><button id="importBtn">Import backup</button><input id="importFile" type="file" accept="application/json" hidden><button class="primary" id="add">+ Booking</button></div></div><div class="calendar" id="calendar"></div><p class="hint">Times are stored exactly as entered, with no automatic time-zone conversion. This first prototype saves data only in this browser, not in the cloud. Export backups regularly; clearing browser data may erase entries.</p><section class="list"><h2 style="font-size:17px">Upcoming bookings</h2><div id="upcoming"></div></section></main><dialog id="dialog"><form id="form"><h2 style="margin:0;font-size:20px">Booking</h2><input type="hidden" id="id"><label>Client name<input id="client" required maxlength="120"></label><label>Date<input id="date" type="date" required></label><label>Time<input id="time" type="time" required value="10:00"></label><label>Type<select id="type"><option value="session">Tattoo session</option><option value="consultation">Consultation</option><option value="other">Other</option></select></label><label>Phone / Instagram<input id="contact" maxlength="150"></label><label>Deposit received (CAD)<input id="deposit" type="number" min="0" step="0.01" value="0"></label><label>Notes<textarea id="notes" rows="3"></textarea></label><div class="actions"><button type="button" id="delete" style="margin-right:auto">Delete</button><button type="button" id="cancel">Cancel</button><button class="primary" type="submit">Save</button></div></form></dialog><script>
-const KEY='alex-kas-studio-bookings-v1';let bookings=[];try{bookings=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(bookings))bookings=[]}catch{bookings=[]}const $=id=>document.getElementById(id);let view=new Date();view.setDate(1);const pad=n=>String(n).padStart(2,'0');const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;const save=()=>{localStorage.setItem(KEY,JSON.stringify(bookings));render()};const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function edit(b,date){$('form').reset();$('id').value=b?.id||'';$('client').value=b?.client||'';$('date').value=b?.date||date||iso(new Date());$('time').value=b?.time||'10:00';$('type').value=b?.type||'session';$('contact').value=b?.contact||'';$('deposit').value=b?.deposit??0;$('notes').value=b?.notes||'';$('delete').hidden=!b;$('dialog').showModal()}function render(){$('month').textContent=view.toLocaleDateString('en-CA',{month:'long',year:'numeric'});const first=new Date(view.getFullYear(),view.getMonth(),1);const offset=(first.getDay()+6)%7;const start=new Date(first);start.setDate(1-offset);let html=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div class="weekday">${x}</div>`).join('');for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let day=iso(d),events=bookings.filter(b=>b.date===day).sort((a,b)=>a.time.localeCompare(b.time));html+=`<div class="day ${d.getMonth()!==view.getMonth()?'muted':''} ${day===iso(new Date())?'today':''}" data-date="${day}"><div class="date">${d.getDate()}</div>${events.map(b=>`<div class="event ${esc(b.type)}" data-id="${esc(b.id)}">${esc(b.time)} ${esc(b.client)}</div>`).join('')}</div>`}$('calendar').innerHTML=html;let upcoming=bookings.filter(b=>b.date>=iso(new Date())).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,15);$('upcoming').innerHTML=upcoming.length?upcoming.map(b=>`<div class="item"><div><strong>${esc(b.client)}</strong><br><small>${esc(b.date)} · ${esc(b.time)} · ${esc(b.type)} · Deposit $${Number(b.deposit||0).toFixed(2)}</small></div><button data-edit="${esc(b.id)}">Edit</button></div>`).join(''):'<p class="hint">No upcoming bookings yet.</p>'}document.addEventListener('click',e=>{const event=e.target.closest('[data-id]');if(event){e.stopPropagation();edit(bookings.find(b=>b.id===event.dataset.id));return}const day=e.target.closest('[data-date]');if(day){edit(null,day.dataset.date);return}const btn=e.target.closest('[data-edit]');if(btn)edit(bookings.find(b=>b.id===btn.dataset.edit))});$('prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};$('next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};$('add').onclick=()=>edit(null);$('cancel').onclick=()=>$('dialog').close();$('form').onsubmit=e=>{e.preventDefault();const id=$('id').value||('b'+Date.now()+Math.random().toString(36).slice(2));const b={id,client:$('client').value.trim(),date:$('date').value,time:$('time').value,type:$('type').value,contact:$('contact').value.trim(),deposit:Number($('deposit').value)||0,notes:$('notes').value};if(!b.client)return;bookings=bookings.filter(x=>x.id!==id);bookings.push(b);view=new Date(b.date+'T12:00:00');view.setDate(1);save();$('dialog').close()};$('delete').onclick=()=>{if(confirm('Delete this booking?')){bookings=bookings.filter(b=>b.id!==$('id').value);save();$('dialog').close()}};$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),bookings},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='alex-kas-studio-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.bookings)||!data.bookings.every(b=>typeof b.id==='string'&&typeof b.client==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(b.date)&&/^\d{2}:\d{2}$/.test(b.time)))throw Error('Invalid backup');if(confirm('Replace all local bookings with this backup?')){bookings=data.bookings;save()}}catch(err){alert('Could not import: '+err.message)}e.target.value=''};render();</script></body></html>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#171717">
+    <title>Alex Kas Studio — Studio Manager</title>
+    <style>*{box-sizing:border-box}body{font:15px system-ui,-apple-system,sans-serif;background:#f6f6f5;color:#222;margin:0}header{background:#171717;color:white;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:19px;margin:0}main{max-width:950px;margin:auto;padding:22px}button,input,select,textarea{font:inherit}button{border:1px solid #ccc;background:white;padding:10px 14px;border-radius:9px;cursor:pointer}button.primary{background:#171717;color:white;border-color:#171717}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:18px}.toolbar>div{display:flex;gap:7px;align-items:center}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.weekday{text-align:center;font-size:12px;color:#666;padding:10px 0}.day{min-height:100px;background:white;border:1px solid #e2e2e2;border-radius:8px;padding:8px;overflow:hidden;cursor:pointer}.day.muted{background:#eee;color:#999}.day.today{outline:2px solid #222}.date{font-weight:650;margin-bottom:6px}.event{background:#e8e8e8;border-radius:5px;padding:5px;margin:3px 0;font-size:11px;overflow-wrap:anywhere}.event.consultation{background:#e4edff}.event.session{background:#e5f1e8}.event.other{background:#f1e9dc}dialog{border:0;border-radius:14px;padding:24px;width:min(95vw,480px);box-shadow:0 20px 80px #0004}dialog::backdrop{background:#0007}form{display:grid;gap:12px}label{display:grid;gap:5px;font-size:13px}input,select,textarea{width:100%;border:1px solid #ccc;border-radius:8px;padding:10px;background:white}.actions{display:flex;justify-content:flex-end;gap:8px}.hint{color:#666;font-size:13px;line-height:1.5}.list{margin-top:20px} .item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;background:white;border:1px solid #ddd;border-radius:8px;margin:7px 0}.item small{color:#666}@media(max-width:600px){main{padding:12px}.day{min-height:72px;padding:4px}.event{font-size:9px;padding:3px}.date{font-size:12px}header{padding:14px}.weekday{font-size:10px}}button:disabled{opacity:.5;cursor:wait}details{margin-bottom:18px}#status{min-height:20px}</style>
+</head>
+
+<body>
+    <header>
+        <h1>Alex Kas Studio</h1><span style="font-size:12px">Studio Manager</span>
+    </header>
+    <main>
+        <section class="toolbar">
+            <form id="authForm" style="display:flex;gap:8px;flex-wrap:wrap"><input id="email" type="email" placeholder="Email" autocomplete="username" required style="width:220px"><input id="password" type="password" placeholder="Password" autocomplete="current-password" required minlength="6" style="width:180px"><button class="primary">Sign in</button><button type="button" id="signup">Create account</button></form>
+            <div><span id="account"></span><button id="logout" hidden>Sign out</button><button id="refresh" hidden>Refresh</button></div>
+        </section>
+        <p id="status" class="hint" role="status" aria-live="polite"></p><button id="migrate" hidden>Import old browser bookings</button>
+        <details>
+            <summary class="hint">Supabase setup (one time)</summary>
+            <p class="hint">Replace SUPABASE_PUBLISHABLE_KEY in this file with your publishable key. Run the SQL below once in the project's SQL Editor before signing in. Serve this file over HTTPS or localhost. Never use a secret or service_role key.</p>
+            <pre id="setupSQL" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px"></pre>
+        </details>
+        <div class="toolbar">
+            <div><button id="prev" aria-label="Previous month">‹</button><strong id="month"></strong><button id="next" aria-label="Next month">›</button></div>
+            <div><button id="export">Export backup</button><button id="importBtn">Import backup</button><input id="importFile" type="file" accept="application/json" hidden><button class="primary" id="add">+ Booking</button></div>
+        </div>
+        <div class="calendar" id="calendar"></div>
+        <p class="hint">Times are stored exactly as entered, with no automatic time-zone conversion. Bookings are saved to your signed-in Supabase account. Export backups regularly. Old browser bookings are only imported when you choose; the original local data is preserved.</p>
+        <section class="list">
+            <h2 style="font-size:17px">Upcoming bookings</h2>
+            <div id="upcoming"></div>
+        </section>
+    </main>
+    <dialog id="dialog">
+        <form id="form">
+            <h2 style="margin:0;font-size:20px">Booking</h2><input type="hidden" id="id"><label>Client name<input id="client" required maxlength="120"></label><label>Date<input id="date" type="date" required></label><label>Time<input id="time" type="time" required value="10:00"></label><label>Type<select id="type">
+                    <option value="session">Tattoo session</option>
+                    <option value="consultation">Consultation</option>
+                    <option value="other">Other</option>
+                </select></label><label>Phone / Instagram<input id="contact" maxlength="150"></label><label>Deposit received (CAD)<input id="deposit" type="number" min="0" step="0.01" value="0"></label><label>Notes<textarea id="notes" rows="3"></textarea></label>
+            <div class="actions"><button type="button" id="delete" style="margin-right:auto">Delete</button><button type="button" id="cancel">Cancel</button><button class="primary" type="submit">Save</button></div>
+        </form>
+    </dialog>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.js"></script>
+    <script>
+    'use strict';
+    const SUPABASE_URL = 'https://cvvaakuvdgayvtrdikfw.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
+    const KEY = 'alex-kas-studio-bookings-v1';
+    const $ = id => document.getElementById(id);
+    let db, user = null,
+        bookings = [],
+        loaded = false,
+        busy = false,
+        epoch = 0;
+    let view = new Date();
+    view.setDate(1);
+    const pad = n => String(n).padStart(2, '0');
+    const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const esc = s => String(s ? ? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } [c]));
+
+    function message(s) { $('status').textContent = s }
+
+    function controls() {
+        for (const id of ['add', 'importBtn', 'export', 'refresh']) $(id).disabled = !user || !loaded || busy;
+        $('migrate').disabled = !user || !loaded || busy;
+        for (const el of $('form').querySelectorAll('button,input,select,textarea')) el.disabled = busy;
+        $('logout').disabled = busy;
+        $('authForm').hidden = !!user;
+        $('authForm').style.display = user ? 'none' : 'flex';
+        $('logout').hidden = !user;
+        $('refresh').hidden = !user;
+        $('account').textContent = user ? .email || '';
+        try { $('migrate').hidden = !user || !localStorage.getItem(KEY) } catch { $('migrate').hidden = true }
+    }
+
+    function normalize(b) {
+        if (!b || typeof b !== 'object') throw Error('Invalid booking');
+        const text = (v, max, required = false) => { if (typeof v !== 'string' || v.length > max || (required && !v.trim())) throw Error('Invalid booking text'); return v };
+        const date = text(b.date, 10),
+            time = text(b.time, 8).slice(0, 5);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw Error('Invalid date');
+        const [y, m, d] = date.split('-').map(Number), dt = new Date(0);
+        dt.setFullYear(y, m - 1, d);
+        dt.setHours(12, 0, 0, 0);
+        if (y < 1000 || iso(dt) !== date || !/^([01]\d|2[0-3]):[0-5]\d(?::00)?$/.test(b.time)) throw Error('Invalid date or time');
+        if (!['session', 'consultation', 'other'].includes(b.type)) throw Error('Invalid booking type');
+        const deposit = Number(b.deposit ? ? 0);
+        if (!Number.isFinite(deposit) || deposit < 0 || deposit > 99999999.99) throw Error('Invalid deposit');
+        return { id: text(b.id, 200, true), client: text(b.client, 120, true), date, time, type: b.type, contact: text(b.contact ? ? '', 150), deposit, notes: text(b.notes ? ? '', 20000) };
+    }
+
+    function validateList(rows) { if (!Array.isArray(rows) || rows.length > 50000) throw Error('Invalid backup'); const result = rows.map(normalize); if (new Set(result.map(b => b.id)).size !== result.length) throw Error('Duplicate booking IDs'); return result }
+
+    function download(data, name) { const url = URL.createObjectURL(new Blob([typeof data === 'string' ? data : JSON.stringify(data, null, 2)], { type: 'application/json' })); const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000) }
+
+    function backup(rows = bookings, name = 'alex-kas-studio-backup.json') { download({ version: 2, exportedAt: new Date().toISOString(), owner: user ? .id || null, timeMode: 'wall-clock', bookings: rows }, name) }
+    async function fetchAll(uid) { let all = []; for (let offset = 0;; offset += 500) { const { data, error } = await db.from('bookings').select('*').eq('user_id', uid).order('id').range(offset, offset + 499); if (error) throw error;
+            all.push(...data); if (data.length < 500) break } return validateList(all) }
+    async function load() { if (!user || busy) return; const uid = user.id,
+            token = epoch;
+        loaded = false;
+        controls();
+        message('Loading bookings…'); try { const rows = await fetchAll(uid); if (token !== epoch) return;
+            bookings = rows;
+            loaded = true;
+            render();
+            message('Cloud bookings loaded.') } catch (e) { if (token === epoch) message('Could not load bookings: ' + e.message) } finally { controls() } }
+    async function action(fn) { if (!user || !loaded || busy) return; const uid = user.id,
+            token = epoch;
+        busy = true;
+        controls(); try { await fn(uid); if (token !== epoch) return;
+            message('Saved to Supabase.') } catch (e) { if (token === epoch) message('Operation failed: ' + e.message) } finally { busy = false;
+            controls() } }
+
+    function current(uid) { if (user ? .id !== uid) throw Error('Account changed. Sign in and retry.') }
+    async function merge(rows, uid) {
+        current(uid);
+        const existing = await fetchAll(uid),
+            map = new Map(existing.map(b => [b.id, b]));
+        for (const row of rows) { const same = map.get(row.id); if (same && JSON.stringify(same) !== JSON.stringify(row)) throw Error('A booking ID conflicts with cloud data. Nothing was imported.'); }
+        const fresh = rows.filter(b => !map.has(b.id));
+        if (fresh.length) { const { error } = await db.from('bookings').insert(fresh.map(b => ({ ...b, user_id: uid }))); if (error) throw error; }
+        current(uid);
+        const refreshed = await fetchAll(uid);
+        current(uid);
+        bookings = refreshed;
+        render();
+    }
+
+    function render() { $('month').textContent = view.toLocaleDateString('en-CA', { month: 'long', year: 'numeric' }); const first = new Date(view.getFullYear(), view.getMonth(), 1); const offset = (first.getDay() + 6) % 7; const start = new Date(first);
+        start.setDate(1 - offset); let html = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<div class="weekday">${x}</div>`).join(''); for (let i = 0; i < 42; i++) { let d = new Date(start);
+            d.setDate(start.getDate() + i); let day = iso(d),
+                events = bookings.filter(b => b.date === day).sort((a, b) => a.time.localeCompare(b.time));
+            html += `<div class="day ${d.getMonth()!==view.getMonth()?'muted':''} ${day===iso(new Date())?'today':''}" data-date="${day}"><div class="date">${d.getDate()}</div>${events.map(b=>`<div class="event ${esc(b.type)}" data-id="${esc(b.id)}">${esc(b.time)} ${esc(b.client)}</div>`).join('')}</div>` } $('calendar').innerHTML = html; let upcoming = bookings.filter(b => b.date >= iso(new Date())).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 15);
+        $('upcoming').innerHTML = upcoming.length ? upcoming.map(b => `<div class="item"><div><strong>${esc(b.client)}</strong><br><small>${esc(b.date)} · ${esc(b.time)} · ${esc(b.type)} · Deposit $${Number(b.deposit||0).toFixed(2)}</small></div><button data-edit="${esc(b.id)}">Edit</button></div>`).join('') : '<p class="hint">No upcoming bookings yet.</p>' }
+
+    function edit(b, date) { if (!user || !loaded || busy) return;
+        $('form').reset();
+        $('id').value = b ? .id || '';
+        $('client').value = b ? .client || '';
+        $('date').value = b ? .date || date || iso(new Date());
+        $('time').value = b ? .time || '10:00';
+        $('type').value = b ? .type || 'session';
+        $('contact').value = b ? .contact || '';
+        $('deposit').value = b ? .deposit ? ? 0;
+        $('notes').value = b ? .notes || '';
+        $('delete').hidden = !b;
+        $('dialog').showModal() } document.addEventListener('click', e => { const ev = e.target.closest('[data-id]'); if (ev) { edit(bookings.find(b => b.id === ev.dataset.id)); return } const day = e.target.closest('[data-date]'); if (day) { edit(null, day.dataset.date); return } const btn = e.target.closest('[data-edit]'); if (btn) edit(bookings.find(b => b.id === btn.dataset.edit)) });
+    $('prev').onclick = () => { view.setMonth(view.getMonth() - 1);
+        render() };
+    $('next').onclick = () => { view.setMonth(view.getMonth() + 1);
+        render() };
+    $('add').onclick = () => edit(null);
+    $('cancel').onclick = () => $('dialog').close();
+    $('dialog').addEventListener('cancel', e => { if (busy) e.preventDefault() });
+    $('form').onsubmit = e => {
+        e.preventDefault();
+        action(async uid => {
+            const oldId = $('id').value;
+            const b = normalize({ id: oldId || crypto.randomUUID(), client: $('client').value.trim(), date: $('date').value, time: $('time').value, type: $('type').value, contact: $('contact').value.trim(), deposit: $('deposit').value, notes: $('notes').value });
+            const query = oldId ? db.from('bookings').update(b).eq('user_id', uid).eq('id', oldId) : db.from('bookings').insert({ ...b, user_id: uid });
+            const { data, error } = await query.select('*').single();
+            if (error) throw error;
+            current(uid);
+            bookings = bookings.filter(x => x.id !== b.id);
+            bookings.push(normalize(data));
+            const [y, m] = b.date.split('-').map(Number);
+            view = new Date(y, m - 1, 1);
+            render();
+            $('dialog').close();
+        })
+    };
+    $('delete').onclick = () => { if (!confirm('Delete this booking from your account?')) return;
+        action(async uid => { const id = $('id').value; const { data, error } = await db.from('bookings').delete().eq('user_id', uid).eq('id', id).select('id'); if (error) throw error; if (data.length !== 1) throw Error('Booking no longer exists. Refresh first.');
+            current(uid);
+            bookings = bookings.filter(b => b.id !== id);
+            render();
+            $('dialog').close() }) };
+    $('export').onclick = () => { if (user && loaded && !busy) backup() };
+    $('refresh').onclick = load;
+    $('importBtn').onclick = () => $('importFile').click();
+    $('importFile').onchange = async e => { const file = e.target.files[0];
+        e.target.value = ''; if (!file) return;
+        await action(async uid => { if (file.size > 20000000) throw Error('Backup is too large'); const data = JSON.parse(await file.text()); const rows = validateList(Array.isArray(data) ? data : data.bookings);
+            current(uid); if (!confirm(`Merge ${rows.length} bookings into ${user.email}? Existing cloud bookings will be preserved. A backup will download first.`)) return;
+            backup();
+            await merge(rows, uid) }) };
+    $('migrate').onclick = () => action(async uid => {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) throw Error('No old browser data found');
+        const rows = validateList(JSON.parse(raw));
+        const ownerKey = KEY + '-migration-owner';
+        const owner = localStorage.getItem(ownerKey);
+        if (owner && owner !== uid) throw Error('These browser bookings were assigned to another account. Use an exported backup if you need to transfer them.');
+        if (!confirm(`Import ${rows.length} old browser bookings into ${user.email}? Confirm these are your bookings. Original data will remain untouched and a backup will download first.`)) return;
+        // Preserve the exact source before the first cloud write. Do not overwrite a previous backup.
+        const snapshotKey = KEY + '-original-backup';
+        if (localStorage.getItem(snapshotKey) === null) localStorage.setItem(snapshotKey, raw);
+        backup(rows, 'alex-kas-studio-before-migration.json');
+        // Bind legacy data before writing, so a retry cannot silently import into another account.
+        localStorage.setItem(ownerKey, uid);
+        await merge(rows, uid);
+        localStorage.setItem(KEY + '-migrated-' + uid, new Date().toISOString());
+    });
+    async function auth(signup = false) {
+        if (!db) return;
+        const email = $('email').value.trim(),
+            password = $('password').value;
+        if (!$('authForm').reportValidity()) return;
+        for (const b of $('authForm').querySelectorAll('button')) b.disabled = true;
+        try { const { error } = signup ? await db.auth.signUp({ email, password }) : await db.auth.signInWithPassword({ email, password }); if (error) throw error;
+            $('password').value = ''; if (signup) message('Account request accepted. Check your email for confirmation if required.') } catch (e) { message(e.message) } finally { for (const b of $('authForm').querySelectorAll('button')) b.disabled = false }
+    }
+    $('authForm').onsubmit = e => { e.preventDefault();
+        auth() };
+    $('signup').onclick = () => auth(true);
+    $('logout').onclick = async () => { if (!db || busy) return; const { error } = await db.auth.signOut(); if (error) message(error.message) };
+
+    function sessionChanged(session) { const next = session ? .user || null; if (next ? .id === user ? .id) return;
+        epoch++;
+        user = next;
+        loaded = false;
+        bookings = [];
+        $('dialog').close();
+        render();
+        controls(); if (user) setTimeout(load, 0);
+        else message('Sign in to view your bookings.') }
+    render();
+    controls();
+    if (SUPABASE_PUBLISHABLE_KEY === 'sb_publishable_i7YBAMK6L4OTqA3fU8xl3w_-rLVAGwz') message('Setup required: add your Supabase publishable key and run the SQL in Supabase setup.');
+    else if (!window.supabase) message('Supabase library could not load. Check your internet connection and reload.');
+    else { try { db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+            db.auth.onAuthStateChange((_event, session) => sessionChanged(session));
+            db.auth.getSession().then(({ data, error }) => { if (error) message(error.message);
+                else sessionChanged(data.session) }).catch(e => message(e.message)); } catch (e) { message(e.message) } }
+
+    $('setupSQL').textContent = "-- Run once in Supabase SQL Editor. This transaction preserves existing records.\n-- Bookings use separate DATE and TIME WITHOUT TIME ZONE columns.\n-- RLS reference: https://supabase.com/docs/guides/database/postgres/row-level-security\nbegin;\ncreate table if not exists public.bookings (\n user_id uuid not null references auth.users(id) on delete cascade,\n id text not null check(length(id) between 1 and 200),\n client text not null check(length(trim(client)) between 1 and 120),\n date date not null check(date between '1000-01-01' and '9999-12-31'),\n time time(0) without time zone not null check(extract(second from time)=0),\n type text not null check(type in ('session','consultation','other')),\n contact text not null default '' check(length(contact)<=150),\n deposit numeric(10,2) not null default 0 check(deposit>=0),\n notes text not null default '' check(length(notes)<=20000),\n primary key(user_id,id)\n);\nalter table public.bookings enable row level security;\nalter table public.bookings force row level security;\nrevoke all on public.bookings from anon;\nrevoke all on public.bookings from authenticated;\ngrant select,insert,update,delete on public.bookings to authenticated;\n-- Restrictive policy also limits any older permissive policies on this table.\ndrop policy if exists kas_owner_gate on public.bookings;\ncreate policy kas_owner_gate on public.bookings as restrictive for all to public\n using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);\ndrop policy if exists kas_owner_access on public.bookings;\ncreate policy kas_owner_access on public.bookings for all to authenticated\n using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);\ncreate index if not exists kas_bookings_user_date on public.bookings(user_id,date);\ncommit;\n";
+    </script>
+</body>
+
+</html>
