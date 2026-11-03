@@ -53,6 +53,7 @@ const bookingButton = form.querySelector('button[type=submit]');
 const bookingStatus = document.querySelector('#booking-status');
 let requestId = null;
 let sending = false;
+let submitted = false;
 form.addEventListener('input', () => { if (!sending) requestId = null; });
 function readReference(file) {
   return new Promise((resolve, reject) => {
@@ -64,7 +65,7 @@ function readReference(file) {
 }
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  if (sending) return;
+  if (sending || submitted) return;
   const fields = new FormData(form);
   if (fields.get('_honey')) return;
   const files = Array.from(form.querySelectorAll('input[type=file]')).flatMap(input => Array.from(input.files));
@@ -87,9 +88,14 @@ form.addEventListener('submit', async event => {
       body:JSON.stringify({p_id:requestId,p_request:details,p_images:await Promise.all(files.map(readReference))})
     });
     if (!response.ok || await response.json() !== requestId) throw new Error('Submission failed');
-    bookingStatus.textContent = 'Request received. Reference: '+requestId.slice(0,8)+'. Alex will follow up by email.';
+    submitted = true;
+    const receipt = document.querySelector('#booking-receipt');
+    document.querySelector('#booking-receipt-reference').textContent = 'Reference: '+requestId.slice(0,8);
     form.reset();
-    requestId = null;
+    form.hidden = true;
+    receipt.hidden = false;
+    receipt.focus();
+    receipt.scrollIntoView({block:'center'});
   } catch {
     bookingStatus.textContent = 'Could not confirm delivery. Retry, or email Alex directly.';
   } finally {
