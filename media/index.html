@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alex Kass Tattoo — Медиатека</title>
+<style>
+body{font:1rem system-ui,sans-serif;max-width:48rem;margin:2rem auto;padding:0 1rem}
+form,label{display:grid;gap:.5rem}input,select,button{font:inherit;padding:.45rem}
+li{margin:.7rem 0;overflow-wrap:anywhere}iframe{width:100%;aspect-ratio:16/9;border:0}
+</style>
+</head>
+<body>
+<h1>Alex Kass Tattoo — Медиатека</h1>
+<form id="add">
+<label>Ссылка<input name="link" type="url" required placeholder="https://…"></label>
+<label>Категория<select name="category">
+<option>Образование</option><option>Музыка</option><option>Искусство</option><option>Другое</option>
+</select></label>
+<button>Добавить</button>
+</form>
+<noscript>Для работы медиатеки включите JavaScript.</noscript>
+<p id="status" role="status"></p>
+<section id="player" aria-label="Плеер"></section>
+<button id="next" type="button" disabled>Следующий ролик</button>
+<h2>Все материалы</h2>
+<ul id="library"></ul>
+<script>
+(function () {
+  'use strict';
+  var key = 'alex-kass-media-v1';
+  var form = document.getElementById('add');
+  var status = document.getElementById('status');
+  var library = document.getElementById('library');
+  var player = document.getElementById('player');
+  var next = document.getElementById('next');
+  var entries = [];
+  var current = -1;
+
+  function webUrl(value) {
+    try {
+      var url = new URL(value);
+      if ((url.protocol === 'https:' || url.protocol === 'http:') &&
+          !url.username && !url.password) return url;
+    } catch (error) {}
+    return null;
+  }
+
+  function videoId(url) {
+    var host = url.hostname;
+    var parts = url.pathname.split('/');
+    var id = '';
+    if (host === 'youtu.be') id = parts[1];
+    if (host === 'youtube.com' || host === 'www.youtube.com' || host === 'm.youtube.com') {
+      if (parts[1] === 'watch') id = url.searchParams.get('v');
+      if (['shorts', 'embed', 'live'].indexOf(parts[1]) !== -1) id = parts[2];
+    }
+    return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? id : '';
+  }
+
+  function play(index) {
+    var frame = document.createElement('iframe');
+    frame.src = 'https://www.youtube.com/embed/' + entries[index].video;
+    frame.title = 'YouTube';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.allowFullscreen = true;
+    player.textContent = '';
+    player.appendChild(frame);
+    current = index;
+  }
+
+  function render() {
+    library.textContent = '';
+    next.disabled = true;
+    entries.forEach(function (entry, index) {
+      var row = document.createElement('li');
+      var link = document.createElement('a');
+      link.href = entry.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = entry.url;
+      row.appendChild(document.createTextNode(entry.category + ' — '));
+      row.appendChild(link);
+      if (entry.video) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'В плеер';
+        button.addEventListener('click', function () { play(index); });
+        row.appendChild(document.createTextNode(' '));
+        row.appendChild(button);
+        next.disabled = false;
+      }
+      library.appendChild(row);
+    });
+  }
+
+  next.addEventListener('click', function () {
+    for (var offset = 1; offset <= entries.length; offset += 1) {
+      var index = (current + offset) % entries.length;
+      if (entries[index].video) {
+        play(index);
+        return;
+      }
+    }
+  });
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!Array.isArray(saved)) throw new Error('Invalid library');
+    saved.forEach(function (entry) {
+      var url = entry && typeof entry.url === 'string' && webUrl(entry.url);
+      if (url && typeof entry.category === 'string') {
+        entries.push({url: url.href, category: entry.category, video: videoId(url)});
+      }
+    });
+  } catch (error) {
+    status.textContent = 'Не удалось прочитать сохранённую медиатеку.';
+  }
+  render();
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var url = webUrl(form.elements.link.value.trim());
+    if (!url) {
+      status.textContent = 'Введите ссылку, начинающуюся с https:// или http://.';
+      return;
+    }
+    entries.push({url: url.href, category: form.elements.category.value, video: videoId(url)});
+    try {
+      localStorage.setItem(key, JSON.stringify(entries));
+      status.textContent = 'Ссылка сохранена.';
+    } catch (error) {
+      status.textContent = 'Хранилище недоступно. Ссылка останется в списке до перезагрузки.';
+    }
+    form.elements.link.value = '';
+    render();
+  });
+}());
+</script>
+</body>
+</html>
