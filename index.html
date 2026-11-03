@@ -154,11 +154,7 @@
         </dl>
         <a class="text-link" href="https://www.instagram.com/alexkastattoo/" target="_blank" rel="noopener noreferrer">Prefer a DM? @alexkastattoo ↗</a>
       </div>
-      <form action="https://formsubmit.co/alexkastattoo@gmail.com" method="POST" enctype="multipart/form-data" id="booking-form">
-        <input type="hidden" name="_subject" value="New tattoo session request — Alex Kas">
-        <input type="hidden" name="_template" value="table">
-        <!-- script.js creates the absolute thanks.html URL, including a GitHub Pages repository path. -->
-        <input type="hidden" name="_next" id="next-url" disabled>
+      <form id="booking-form">
         <input class="honeypot" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="form-row">
           <label>Your name<input name="name" autocomplete="name" placeholder="Your full name" maxlength="100" required></label>
@@ -171,16 +167,16 @@
         </div>
         <fieldset class="uploads">
           <legend>Reference images <span>(optional)</span></legend>
-          <p id="file-help">Up to 3 JPG or PNG files. Maximum 9 MB combined.</p>
+          <p id="file-help">Up to 3 JPG or PNG files. Maximum 6 MB combined.</p>
           <label class="file-label">Reference 1<input type="file" name="attachment" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
           <label class="file-label">Reference 2<input type="file" name="attachment2" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
           <label class="file-label">Reference 3<input type="file" name="attachment3" accept="image/jpeg,image/png" aria-describedby="file-help file-status"></label>
           <p id="file-status" role="status" aria-live="polite"></p>
         </fieldset>
         <label class="checkbox"><input type="checkbox" name="available_spots_updates" value="Yes — I want to receive updates about available spots"><span>I want to receive updates about available spots</span></label>
-        <p class="form-note">Your details and references are sent through FormSubmit to Alex Kas to discuss your request. Updates are optional; you can opt out by email at any time.</p>
-        <noscript><p class="form-note">Without JavaScript, FormSubmit shows its own confirmation page. Please keep attachments under 9 MB combined.</p></noscript>
-        <button class="button" type="submit">Send booking request <span>↗</span></button>
+        <p class="form-note">Your details and references are saved in the private Alex Kas Studio Manager to discuss your request. Updates are optional; you can opt out by email at any time.</p>
+        <noscript><p class="form-note">Enable JavaScript to send a request, or email Alex Kas.</p></noscript>
+        <p id="booking-status" role="status" aria-live="polite"></p><button class="button" type="submit" disabled>Send booking request <span>↗</span></button>
         <p class="form-note">This is a request. Your session is confirmed after we agree on a date and deposit. If the form cannot send, email <a href="mailto:alexkastattoo@gmail.com">alexkastattoo@gmail.com</a>.</p>
       </form>
     </section>

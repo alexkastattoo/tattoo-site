@@ -49,21 +49,52 @@ dialog.addEventListener('touchend', event => {
   touchStart = undefined;
 }, {passive: true});
 const form = document.querySelector('#booking-form');
-const uploads = [...form.querySelectorAll('input[type=file]')];
-function validateFiles() {
-  uploads.forEach(input => input.setCustomValidity(''));
-  const files = uploads.flatMap(input => [...input.files]);
-  const bytes = files.reduce((sum, file) => sum + file.size, 0);
-  const invalid = uploads.find(input => [...input.files].some(file => !['image/jpeg', 'image/png'].includes(file.type)));
-  let message = '';
-  if (invalid) message = 'Please choose JPG or PNG images.';
-  else if (bytes > 9 * 1024 * 1024) message = 'Please reduce your reference images to 9 MB combined or less.';
-  if (message) (invalid || uploads.find(input => input.files.length) || uploads[0]).setCustomValidity(message);
-  document.querySelector('#file-status').textContent = message || (files.length ? `${files.length} of 3 selected · ${(bytes / 1024 / 1024).toFixed(1)} MB` : '');
-  return !message;
+const bookingButton = form.querySelector('button[type=submit]');
+const bookingStatus = document.querySelector('#booking-status');
+let requestId = null;
+let sending = false;
+form.addEventListener('input', () => { if (!sending) requestId = null; });
+function readReference(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => resolve({mime:file.type,content:reader.result.split(',')[1]});
+    reader.readAsDataURL(file);
+  });
 }
-uploads.forEach(input => input.addEventListener('change', validateFiles));
-form.addEventListener('submit', event => {
-  if (!validateFiles()) {event.preventDefault(); form.reportValidity();}
-  // Native POST: do not show success or redirect until FormSubmit accepts the request.
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (sending) return;
+  const fields = new FormData(form);
+  if (fields.get('_honey')) return;
+  const files = Array.from(form.querySelectorAll('input[type=file]')).flatMap(input => Array.from(input.files));
+  if (files.some(file => !['image/jpeg','image/png'].includes(file.type)) ||
+      files.reduce((total,file) => total + file.size,0) > 6 * 1024 * 1024) {
+    bookingStatus.textContent = 'Choose JPG or PNG references, up to 6 MB combined.';
+    return;
+  }
+  sending = true;
+  const inputs = Array.from(form.querySelectorAll('input,textarea,button'));
+  inputs.forEach(input => input.disabled = true);
+  bookingStatus.textContent = 'Sending your request…';
+  try {
+    requestId ||= crypto.randomUUID();
+    const details = Object.fromEntries(['name','email','idea','placement','size'].map(key => [key,fields.get(key)]));
+    details.updates = fields.has('available_spots_updates');
+    const response = await fetch('https://cvvaakuvdgayvtrdikfw.supabase.co/rest/v1/rpc/kas_submit_website_request',{
+      method:'POST',
+      headers:{apikey:'sb_publishable_i7YBAMK6L4OTqA3fU8xl3w_-rLVAGwz','Content-Type':'application/json'},
+      body:JSON.stringify({p_id:requestId,p_request:details,p_images:await Promise.all(files.map(readReference))})
+    });
+    if (!response.ok || await response.json() !== requestId) throw new Error('Submission failed');
+    bookingStatus.textContent = 'Request received. Reference: '+requestId.slice(0,8)+'. Alex will follow up by email.';
+    form.reset();
+    requestId = null;
+  } catch {
+    bookingStatus.textContent = 'Could not confirm delivery. Retry, or email Alex directly.';
+  } finally {
+    sending = false;
+    inputs.forEach(input => input.disabled = false);
+  }
 });
+bookingButton.disabled = false;
