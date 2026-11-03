@@ -8,7 +8,7 @@ let db,user=null,bookings=[],loaded=false,busy=false,epoch=0;
 let view=new Date();view.setDate(1);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function message(s){$('status').textContent=s}
 function controls(){
  for(const id of ['add','importBtn','export','refresh'])$(id).disabled=!user||!loaded||busy;
@@ -17,7 +17,7 @@ function controls(){
  $('logout').disabled=busy;
  $('authForm').hidden=!!user;$('authForm').style.display=user?'none':'flex';
  $('logout').hidden=!user;$('refresh').hidden=!user;
- $('account').textContent=user?.email||'';
+ $('account').textContent=(user?user.email:'');
  try{$('migrate').hidden=!user||!localStorage.getItem(KEY)}catch{$('migrate').hidden=true}
 }
 function normalize(b){
@@ -28,33 +28,54 @@ function normalize(b){
  const [y,m,d]=date.split('-').map(Number),dt=new Date(0);dt.setFullYear(y,m-1,d);dt.setHours(12,0,0,0);
  if(y<1000||iso(dt)!==date||!/^([01]\d|2[0-3]):[0-5]\d(?::00)?$/.test(b.time))throw Error('Invalid date or time');
  if(!['session','consultation','other'].includes(b.type))throw Error('Invalid booking type');
- const deposit=Number(b.deposit??0);if(!Number.isFinite(deposit)||deposit<0||deposit>99999999.99)throw Error('Invalid deposit');
- return {id:text(b.id,200,true),client:text(b.client,120,true),date,time,type:b.type,contact:text(b.contact??'',150),deposit,notes:text(b.notes??'',20000)};
+ const deposit=Number((b.deposit==null?0:b.deposit));if(!Number.isFinite(deposit)||deposit<0||deposit>99999999.99)throw Error('Invalid deposit');
+ const extra=b.extra===undefined?{}:b.extra;if(!extra||typeof extra!=='object'||Array.isArray(extra))throw Error('Invalid backup metadata');
+ const cleanExtra={};for(const k of ['end_time','status','client_source','appointment_type','created_at','start_time']){if(extra[k]!==undefined){if(extra[k]!==null&&(typeof extra[k]!=='string'||extra[k].length>1000))throw Error('Invalid metadata');cleanExtra[k]=extra[k]}}if(extra.total_price!==undefined){if(extra.total_price!==null&&!Number.isFinite(Number(extra.total_price)))throw Error('Invalid total price');cleanExtra.total_price=extra.total_price===null?null:Number(extra.total_price)}
+ return {extra:cleanExtra,id:text(b.id,200,true),client:text(b.client,120,true),date,time,type:b.type,contact:text((b.contact==null?'':b.contact),150),deposit,notes:text(b.notes==null?'':b.notes,20000)};
 }
 function validateList(rows){if(!Array.isArray(rows)||rows.length>50000)throw Error('Invalid backup');const result=rows.map(normalize);if(new Set(result.map(b=>b.id)).size!==result.length)throw Error('Duplicate booking IDs');return result}
 function download(data,name){const url=URL.createObjectURL(new Blob([typeof data==='string'?data:JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function backup(rows=bookings,name='alex-kas-studio-backup.json'){download({version:2,exportedAt:new Date().toISOString(),owner:user?.id||null,timeMode:'wall-clock',bookings:rows},name)}
-async function fetchAll(uid){let all=[];for(let offset=0;;offset+=500){const {data,error}=await db.from('bookings').select('*').eq('user_id',uid).order('id').range(offset,offset+499);if(error)throw error;all.push(...data);if(data.length<500)break}return validateList(all)}
+function backup(rows=bookings,name='alex-kas-studio-backup.json'){download({version:2,exportedAt:new Date().toISOString(),owner:(user?user.id:null),timeMode:'wall-clock',bookings:rows},name)}
+
+// Existing Supabase schema: UUID ids; appointment_date and start_time are wall-clock fields.
+function fromCloud(r){return normalize({id:r.id,client:r.client_name,date:r.appointment_date,time:String(r.start_time||'').slice(0,5),type:r.appointment_type==='tattoo'?'session':r.appointment_type==='consultation'?'consultation':'other',contact:r.client_phone||'',deposit:r.deposit,notes:r.notes||'',extra:{end_time:r.end_time,status:r.status,client_source:r.client_source,total_price:r.total_price,appointment_type:r.appointment_type,created_at:r.created_at,start_time:r.start_time}})}
+function toCloud(b,uid,includeExtra=false){
+ const extra=b.extra||{};
+ const row={id:b.id,user_id:uid,client_name:b.client,client_phone:b.contact,appointment_date:b.date,start_time:extra.start_time&&extra.start_time.slice(0,5)===b.time?extra.start_time:b.time,appointment_type:b.type==='session'?'tattoo':b.type==='other'&&extra.appointment_type&&!['tattoo','consultation'].includes(extra.appointment_type)?extra.appointment_type:b.type,deposit:b.deposit,notes:b.notes};
+ if(includeExtra)for(const k of ['end_time','status','client_source','total_price','created_at'])if(extra[k]!==undefined)row[k]=extra[k];
+ return row;
+}
+async function cloudID(id,uid){
+ if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))return id.toLowerCase();
+ // Stable per-account mapping keeps retries of legacy b... IDs idempotent.
+ const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('alex-kas-legacy:'+uid+':'+id)));
+ bytes[6]=(bytes[6]&15)|80;bytes[8]=(bytes[8]&63)|128;
+ const hex=Array.from(bytes.slice(0,16),n=>n.toString(16).padStart(2,'0')).join('');return hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
+}
+function sameBooking(a,b){for(const k of ['id','client','date','time','type','contact','deposit','notes'])if(a[k]!==b[k])return false;for(const k of Object.keys(b.extra||{}))if(JSON.stringify(a.extra[k])!==JSON.stringify(b.extra[k]))return false;return true}
+
+async function fetchAll(uid){let all=[];for(let offset=0;;offset+=500){const {data,error}=await db.from('bookings').select('*').eq('user_id',uid).order('id').range(offset,offset+499);if(error)throw error;all.push(...data);if(data.length<500)break}return validateList(all.map(fromCloud))}
 async function load(){if(!user||busy)return;const uid=user.id,token=epoch;loaded=false;controls();message('Loading bookings…');try{const rows=await fetchAll(uid);if(token!==epoch)return;bookings=rows;loaded=true;render();message('Cloud bookings loaded.')}catch(e){if(token===epoch)message('Could not load bookings: '+e.message)}finally{controls()}}
 async function action(fn){if(!user||!loaded||busy)return;const uid=user.id,token=epoch;busy=true;controls();try{await fn(uid);if(token!==epoch)return;message('Saved to Supabase.')}catch(e){if(token===epoch)message('Operation failed: '+e.message)}finally{busy=false;controls()}}
-function current(uid){if(user?.id!==uid)throw Error('Account changed. Sign in and retry.')}
+function current(uid){if((!user||user.id!==uid))throw Error('Account changed. Sign in and retry.')}
 async function merge(rows,uid){
- current(uid);const existing=await fetchAll(uid),map=new Map(existing.map(b=>[b.id,b]));
- for(const row of rows){const same=map.get(row.id);if(same&&JSON.stringify(same)!==JSON.stringify(row))throw Error('A booking ID conflicts with cloud data. Nothing was imported.');}
+ current(uid);rows=await Promise.all(rows.map(async b=>({...b,id:await cloudID(b.id,uid)})));current(uid);if(new Set(rows.map(b=>b.id)).size!==rows.length)throw Error('Duplicate mapped IDs');const existing=await fetchAll(uid);current(uid);const map=new Map(existing.map(b=>[b.id,b]));
+ for(const row of rows){const same=map.get(row.id);if(same&&!sameBooking(same,row))throw Error('A booking ID conflicts with cloud data. Nothing was imported.');}
  const fresh=rows.filter(b=>!map.has(b.id));
- if(fresh.length){const {error}=await db.from('bookings').insert(fresh.map(b=>({...b,user_id:uid})));if(error)throw error;}
+ if(fresh.length){const {error}=await db.from('bookings').insert(fresh.map(b=>toCloud(b,uid,true)));if(error)throw error;}
  current(uid);const refreshed=await fetchAll(uid);current(uid);bookings=refreshed;render();
 }
 function render(){$('month').textContent=view.toLocaleDateString('en-CA',{month:'long',year:'numeric'});const first=new Date(view.getFullYear(),view.getMonth(),1);const offset=(first.getDay()+6)%7;const start=new Date(first);start.setDate(1-offset);let html=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div class="weekday">${x}</div>`).join('');for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let day=iso(d),events=bookings.filter(b=>b.date===day).sort((a,b)=>a.time.localeCompare(b.time));html+=`<div class="day ${d.getMonth()!==view.getMonth()?'muted':''} ${day===iso(new Date())?'today':''}" data-date="${day}"><div class="date">${d.getDate()}</div>${events.map(b=>`<div class="event ${esc(b.type)}" data-id="${esc(b.id)}">${esc(b.time)} ${esc(b.client)}</div>`).join('')}</div>`}$('calendar').innerHTML=html;let upcoming=bookings.filter(b=>b.date>=iso(new Date())).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,15);$('upcoming').innerHTML=upcoming.length?upcoming.map(b=>`<div class="item"><div><strong>${esc(b.client)}</strong><br><small>${esc(b.date)} · ${esc(b.time)} · ${esc(b.type)} · Deposit $${Number(b.deposit||0).toFixed(2)}</small></div><button data-edit="${esc(b.id)}">Edit</button></div>`).join(''):'<p class="hint">No upcoming bookings yet.</p>'}
-function edit(b,date){if(!user||!loaded||busy)return;$('form').reset();$('id').value=b?.id||'';$('client').value=b?.client||'';$('date').value=b?.date||date||iso(new Date());$('time').value=b?.time||'10:00';$('type').value=b?.type||'session';$('contact').value=b?.contact||'';$('deposit').value=b?.deposit??0;$('notes').value=b?.notes||'';$('delete').hidden=!b;$('dialog').showModal()}document.addEventListener('click',e=>{const ev=e.target.closest('[data-id]');if(ev){edit(bookings.find(b=>b.id===ev.dataset.id));return}const day=e.target.closest('[data-date]');if(day){edit(null,day.dataset.date);return}const btn=e.target.closest('[data-edit]');if(btn)edit(bookings.find(b=>b.id===btn.dataset.edit))});
+function edit(b,date){if(!user||!loaded||busy)return;$('form').reset();$('id').value=(b?b.id:'');$('client').value=(b?b.client:'');$('date').value=(b?b.date:null)||date||iso(new Date());$('time').value=(b?b.time:'10:00');$('type').value=(b?b.type:'session');$('contact').value=(b?b.contact:'');$('deposit').value=(b&&b.deposit!=null?b.deposit:0);$('notes').value=(b?b.notes:'');$('delete').hidden=!b;$('dialog').showModal()}document.addEventListener('click',e=>{const ev=e.target.closest('[data-id]');if(ev){edit(bookings.find(b=>b.id===ev.dataset.id));return}const day=e.target.closest('[data-date]');if(day){edit(null,day.dataset.date);return}const btn=e.target.closest('[data-edit]');if(btn)edit(bookings.find(b=>b.id===btn.dataset.edit))});
 $('prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};$('next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};$('add').onclick=()=>edit(null);$('cancel').onclick=()=>$('dialog').close();
 $('dialog').addEventListener('cancel',e=>{if(busy)e.preventDefault()});
 $('form').onsubmit=e=>{e.preventDefault();action(async uid=>{
  const oldId=$('id').value;
- const b=normalize({id:oldId||crypto.randomUUID(),client:$('client').value.trim(),date:$('date').value,time:$('time').value,type:$('type').value,contact:$('contact').value.trim(),deposit:$('deposit').value,notes:$('notes').value});
- const query=oldId?db.from('bookings').update(b).eq('user_id',uid).eq('id',oldId):db.from('bookings').insert({...b,user_id:uid});
+ const previous=bookings.find(x=>x.id===oldId);
+ const b=normalize({extra:previous?previous.extra:{},id:oldId||crypto.randomUUID(),client:$('client').value.trim(),date:$('date').value,time:$('time').value,type:$('type').value,contact:$('contact').value.trim(),deposit:$('deposit').value,notes:$('notes').value});
+ const query=oldId?db.from('bookings').update(toCloud(b,uid)).eq('user_id',uid).eq('id',oldId):db.from('bookings').insert(toCloud(b,uid));
  const {data,error}=await query.select('*').single();if(error)throw error;current(uid);
- bookings=bookings.filter(x=>x.id!==b.id);bookings.push(normalize(data));const [y,m]=b.date.split('-').map(Number);view=new Date(y,m-1,1);render();$('dialog').close();
+ bookings=bookings.filter(x=>x.id!==b.id);bookings.push(fromCloud(data));const [y,m]=b.date.split('-').map(Number);view=new Date(y,m-1,1);render();$('dialog').close();
 })};
 $('delete').onclick=()=>{if(!confirm('Delete this booking from your account?'))return;action(async uid=>{const id=$('id').value;const {data,error}=await db.from('bookings').delete().eq('user_id',uid).eq('id',id).select('id');if(error)throw error;if(data.length!==1)throw Error('Booking no longer exists. Refresh first.');current(uid);bookings=bookings.filter(b=>b.id!==id);render();$('dialog').close()})};
 $('export').onclick=()=>{if(user&&loaded&&!busy)backup()};$('refresh').onclick=load;
@@ -77,12 +98,12 @@ async function auth(signup=false){if(!db)return;const email=$('email').value.tri
  try{const {error}=signup?await db.auth.signUp({email,password}):await db.auth.signInWithPassword({email,password});if(error)throw error;$('password').value='';if(signup)message('Account request accepted. Check your email for confirmation if required.')}catch(e){message(e.message)}finally{for(const b of $('authForm').querySelectorAll('button'))b.disabled=false}}
 $('authForm').onsubmit=e=>{e.preventDefault();auth()};$('signup').onclick=()=>auth(true);
 $('logout').onclick=async()=>{if(!db||busy)return;const {error}=await db.auth.signOut();if(error)message(error.message)};
-function sessionChanged(session){const next=session?.user||null;if(next?.id===user?.id)return;epoch++;user=next;loaded=false;bookings=[];$('dialog').close();render();controls();if(user)setTimeout(load,0);else message('Sign in to view your bookings.')}
+function sessionChanged(session){const next=(session?session.user:null);if((next?next.id:null)===(user?user.id:null))return;epoch++;user=next;loaded=false;bookings=[];$('dialog').close();render();controls();if(user)setTimeout(load,0);else message('Sign in to view your bookings.')}
 render();controls();
 if(SUPABASE_PUBLISHABLE_KEY==='YOUR_SUPABASE_PUBLISHABLE_KEY')message('Setup required: add your Supabase publishable key and run the SQL in Supabase setup.');
 else if(!window.supabase)message('Supabase library could not load. Check your internet connection and reload.');
 else {try{db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);db.auth.onAuthStateChange((_event,session)=>sessionChanged(session));db.auth.getSession().then(({data,error})=>{if(error)message(error.message);else sessionChanged(data.session)}).catch(e=>message(e.message));}catch(e){message(e.message)}}
 
-$('setupSQL').textContent="-- Run once in Supabase SQL Editor. This transaction preserves existing records.\n-- Bookings use separate DATE and TIME WITHOUT TIME ZONE columns.\n-- RLS reference: https://supabase.com/docs/guides/database/postgres/row-level-security\nbegin;\ncreate table if not exists public.bookings (\n user_id uuid not null references auth.users(id) on delete cascade,\n id text not null check(length(id) between 1 and 200),\n client text not null check(length(trim(client)) between 1 and 120),\n date date not null check(date between '1000-01-01' and '9999-12-31'),\n time time(0) without time zone not null check(extract(second from time)=0),\n type text not null check(type in ('session','consultation','other')),\n contact text not null default '' check(length(contact)<=150),\n deposit numeric(10,2) not null default 0 check(deposit>=0),\n notes text not null default '' check(length(notes)<=20000),\n primary key(user_id,id)\n);\nalter table public.bookings enable row level security;\nalter table public.bookings force row level security;\nrevoke all on public.bookings from anon;\nrevoke all on public.bookings from authenticated;\ngrant select,insert,update,delete on public.bookings to authenticated;\n-- Restrictive policy also limits any older permissive policies on this table.\ndrop policy if exists kas_owner_gate on public.bookings;\ncreate policy kas_owner_gate on public.bookings as restrictive for all to public\n using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);\ndrop policy if exists kas_owner_access on public.bookings;\ncreate policy kas_owner_access on public.bookings for all to authenticated\n using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);\ncreate index if not exists kas_bookings_user_date on public.bookings(user_id,date);\ncommit;\n";
+$('setupSQL').textContent="-- Alex Kas Studio: access rules for the existing public.bookings table.\n-- No table recreation, column changes, or record updates.\n-- Run the complete script, including BEGIN and COMMIT.\nbegin;\nalter table public.bookings enable row level security;\nalter table public.bookings force row level security;\nrevoke all on public.bookings from anon;\nrevoke all on public.bookings from authenticated;\ngrant select,insert,update,delete on public.bookings to authenticated;\n-- This restrictive gate limits older permissive policies too.\ndrop policy if exists kas_owner_gate on public.bookings;\ncreate policy kas_owner_gate on public.bookings as restrictive for all to public\n using ((select auth.uid())=user_id)\n with check ((select auth.uid())=user_id);\ndrop policy if exists kas_owner_access on public.bookings;\ncreate policy kas_owner_access on public.bookings for all to authenticated\n using ((select auth.uid())=user_id)\n with check ((select auth.uid())=user_id);\ncreate index if not exists kas_bookings_owner_appointment_date\n on public.bookings(user_id,appointment_date);\ncommit;\n";
 
 </script></body></html>
