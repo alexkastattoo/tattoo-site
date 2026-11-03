@@ -3,15 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alex Kass Tattoo — Медиатека</title>
+<title>Alex Kas Tattoo — Медиатека</title>
 <style>
-body{font:1rem system-ui,sans-serif;max-width:48rem;margin:2rem auto;padding:0 1rem}
-form,label{display:grid;gap:.5rem}input,select,button{font:inherit;padding:.45rem}
-li{margin:.7rem 0;overflow-wrap:anywhere}iframe{width:100%;aspect-ratio:16/9;border:0}
+:root { color-scheme: dark; background: #171614; color: #f5efe6; }
+* { box-sizing: border-box; }
+body { font: 1rem/1.55 system-ui, sans-serif; max-width: 54rem; margin: 0 auto; padding: clamp(1rem, 5vw, 3rem); }
+header { margin-bottom: 1.5rem; }
+.brand { color: #efb97e; font-size: .8rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+h1 { font-size: clamp(2.2rem, 8vw, 4rem); line-height: 1.1; margin: .3rem 0; }
+form { display: grid; gap: 1rem; padding: clamp(1rem, 4vw, 1.5rem); background: #24211e; border: 1px solid #51473d; border-radius: 1rem; }
+label { display: grid; gap: .35rem; }
+input, select, button { font: inherit; min-height: 44px; padding: .5rem .8rem; border: 1px solid #746656; border-radius: .5rem; }
+input, select { width: 100%; min-width: 0; background: #171614; color: inherit; }
+button { background: #302923; color: inherit; cursor: pointer; }
+form button { background: #efb97e; color: #231a11; border-color: #efb97e; font-weight: 700; }
+button:disabled { opacity: .55; cursor: default; }
+:focus-visible { outline: 2px solid #efb97e; outline-offset: 3px; }
+a { color: #efb97e; }
+ul { list-style: none; padding: 0; }
+li { padding: .8rem 0; border-top: 1px solid #51473d; overflow-wrap: anywhere; }
+iframe { display: block; width: 100%; aspect-ratio: 16/9; border: 0; border-radius: .75rem; margin-bottom: .75rem; }
 </style>
 </head>
 <body>
-<h1>Alex Kass Tattoo — Медиатека</h1>
+<header>
+<div class="brand">Alex Kas Tattoo</div>
+<h1>Медиатека</h1>
+</header>
 <form id="add">
 <label>Ссылка<input name="link" type="url" required placeholder="https://…"></label>
 <label>Категория<select name="category">
