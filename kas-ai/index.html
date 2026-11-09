@@ -1,21 +1,222 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alex Kas | Tattoo Design Studio</title><style>
 :root{color-scheme:dark;--bg:#0d0e11;--panel:#181a20;--panel2:#22252e;--line:#343741;--text:#f5f5f6;--muted:#a5a9b4;--accent:#d4a56a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}header{padding:22px 5vw;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}h1{font-size:20px;margin:0;letter-spacing:.05em}small,.muted{color:var(--muted)}main{max-width:1400px;margin:25px auto;padding:0 20px;display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:22px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}h2{margin:0 0 20px;font-size:18px}label{display:block;margin:16px 0 8px;font-weight:600;font-size:13px}select,textarea,input[type=text]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;font:inherit}textarea{min-height:110px;resize:vertical}.modes{display:flex;gap:6px}.modes button{flex:1;padding:10px 5px;font-size:12px}.modes button.active{border-color:var(--accent);color:var(--accent)}button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 14px;cursor:pointer}button.primary{background:var(--accent);color:#15100c;font-weight:800;width:100%;margin-top:20px;border:0}button:disabled{opacity:.5;cursor:wait}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.drop{border:1px dashed #777b86;border-radius:12px;padding:17px;text-align:center;cursor:pointer;color:var(--muted)}.drop input{max-width:100%}.thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.thumbs img{width:70px;height:75px;object-fit:cover;border-radius:7px}.canvas{min-height:470px;display:flex;align-items:center;justify-content:center;background:#101115;border:1px dashed var(--line);border-radius:14px;overflow:hidden}.canvas img{max-width:100%;max-height:70vh;object-fit:contain}.placeholder{text-align:center;color:var(--muted);padding:25px}.placeholder strong{display:block;font-size:50px;margin-bottom:12px;color:var(--accent)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.history{display:flex;gap:10px;overflow-x:auto;padding-top:15px}.history button{padding:4px;flex:0 0 95px}.history img{width:85px;height:95px;object-fit:cover;border-radius:6px}.status{min-height:25px;margin-top:12px;color:var(--muted);font-size:13px}.hint{font-size:12px;color:var(--muted);line-height:1.5}@media(max-width:800px){main{grid-template-columns:1fr}.canvas{min-height:330px}header{padding:18px 20px}}
-</style></head><body><header><div><h1>ALEX KAS <span style="color:var(--accent)">/ TATTOO DESIGN STUDIO</span></h1><small>Concept • Generate • Refine</small></div><small>v1.0</small></header><main><section class="panel"><h2>New design</h2><label>Creation mode</label><div class="modes"><button type="button" data-mode="text">Text</button><button type="button" data-mode="reference">References</button><button type="button" data-mode="hybrid">Hybrid</button></div><label for="studio-access">Studio access code</label><input id="studio-access" type="password" autocomplete="off" spellcheck="false"><form id="form"><input type="hidden" name="mode" id="mode" value="hybrid"><input type="hidden" name="operation" id="operation" value="generate"><div id="uploadArea"><label>Reference images (up to 5)</label><div class="drop"><input type="file" id="refs" name="references[]" accept="image/png,image/jpeg,image/webp" multiple><div class="hint">JPEG, PNG or WEBP · up to 10 MB each</div></div><div id="thumbs" class="thumbs"></div></div><label>Describe your idea or changes</label><textarea name="description" id="description" placeholder="Example: From image 1 take the pose, from image 2 the wings, and from image 3 the mood. Create an original composition..."></textarea><label>Style profile</label><select name="style"><option value="realism">Alex Kas — B&G Realism</option><option value="fusion">Alex Kas — Realism Fusion</option><option value="custom">Custom</option></select><div class="grid2"><div><label>Placement</label><select name="placement"><option value="forearm">Forearm</option><option value="upper arm">Upper arm</option><option value="full sleeve">Full sleeve</option><option value="leg">Leg</option><option value="back">Back</option><option value="chest">Chest</option><option value="other">Other</option></select></div><div><label>Canvas</label><select name="ratio"><option value="portrait">Portrait 2:3</option><option value="square">Square 1:1</option><option value="landscape">Landscape 3:2</option></select></div></div><button class="primary" id="generate" type="submit">✦ Generate design</button></form><p class="hint">Image generation is billed by OpenAI API. Keep your API key on the server. Your images and history are stored locally in this browser unless you download them.</p></section><section class="panel"><h2>Design preview</h2><div class="canvas" id="canvas"><div class="placeholder"><strong>✦</strong>Your generated artwork will appear here.<br><small>White background · no skin mockup</small></div></div><div class="status" id="status"></div><div class="actions"><button id="download" disabled>Download PNG</button><button id="revise" disabled>Revise this design</button><button id="new" type="button">New project</button></div><label>Project history (this browser)</label><div class="history" id="history"></div></section></main><script>
-const $=id=>document.getElementById(id);let mode='hybrid',current=null,history=[];try{history=JSON.parse(localStorage.getItem('ak_history')||'[]')}catch{};function setMode(v){mode=v;$('mode').value=v;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===v));$('uploadArea').style.display=v==='text'&&$('operation').value==='generate'?'none':'block'}document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));setMode('hybrid');$('refs').onchange=()=>{let files=[...$('refs').files];$('thumbs').innerHTML='';files.slice(0,5).forEach(f=>{let img=document.createElement('img');img.src=URL.createObjectURL(f);$('thumbs').append(img)})};function show(img){current=img;$('canvas').innerHTML='';let el=document.createElement('img');el.src=img;el.alt='Generated tattoo artwork';$('canvas').append(el);$('download').disabled=false;$('revise').disabled=false}function renderHistory(){$('history').innerHTML='';history.forEach((h,i)=>{let b=document.createElement('button'),img=document.createElement('img');img.src=h;b.append(img);b.onclick=()=>show(h);$('history').append(b)})}renderHistory();$('form').onsubmit=async e=>{e.preventDefault();const btn=$('generate');btn.disabled=true;$('status').textContent='Generating… this can take a minute or more.';try{let form=new FormData($('form'));let refs=[...$('refs').files];form.delete('references[]');if($('operation').value==='revise'){if(!current)throw Error('Select a design first');let blob=await(await fetch(current)).blob();form.append('references[]',blob,'current-design.png')}else if(mode!=='text'){if(mode==='reference'&&!refs.length)throw Error('Please upload a reference image');refs.slice(0,5).forEach(f=>form.append('references[]',f))}const accessCode = $('studio-access').value.trim();
-if (!accessCode) throw Error('Enter the studio access code.');
-let res = await fetch('https://zthujannhkdkjkwedyir.supabase.co/functions/v1/kas-ai', {
-  method: 'POST',
-  headers: {'X-Studio-Access': accessCode},
-  body: form
-});
-if (res.status === 413) throw Error('The upload exceeds the hosting limit.');
-if (!res.headers.get('content-type')?.includes('application/json')) {
-  throw Error('The studio API is unavailable. Check the deployment of the kas-ai function in Supabase.');
+#studio-access{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text)}#language{width:auto}.canvas img{cursor:zoom-in}dialog{width:min(94vw,1100px);max-width:none;padding:12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px}dialog::backdrop{background:#000b}.viewer-tools{display:flex;align-items:center;gap:12px;margin-bottom:10px}#viewer-scroll{height:75vh;overflow:auto;background:#111}#viewer-image{display:block;max-width:none;margin:0 auto} .file-picker{position:relative;display:inline-block;cursor:pointer}.file-picker:focus-within{outline:2px solid var(--accent)}.file-picker input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}</style></head><body><header><div><h1>ALEX KAS <span style="color:var(--accent)" data-ru="/ СТУДИЯ ТАТУ-ЭСКИЗОВ">/ TATTOO DESIGN STUDIO</span></h1><small data-ru="Идея • Генерация • Правки">Concept • Generate • Refine</small></div><select id="language" aria-label="Language"><option value="en">EN</option><option value="ru">RU</option></select></header><main><section class="panel"><h2 data-ru="Новый эскиз">New design</h2><label data-ru="Режим создания">Creation mode</label><div class="modes"><button type="button" data-mode="text" data-ru="Текст">Text</button><button type="button" data-mode="reference" data-ru="Референсы">References</button><button type="button" data-mode="hybrid" data-ru="Текст + референсы">Hybrid</button></div><label for="studio-access" data-ru="Код доступа">Studio access code</label><input id="studio-access" type="password" autocomplete="off" spellcheck="false"><form id="form"><input type="hidden" name="mode" id="mode" value="hybrid"><input type="hidden" name="operation" id="operation" value="generate"><div id="uploadArea"><label data-ru="Референсы (до 5)">Reference images (up to 5)</label><div class="drop"><label class="file-picker"><span data-ru="Выбрать файлы">Choose files</span><input type="file" id="refs" name="references[]" accept="image/png,image/jpeg,image/webp" multiple></label><div id="file-count" aria-live="polite"></div><div class="hint" data-ru="JPEG, PNG или WEBP · до 10 МБ каждый">JPEG, PNG or WEBP · up to 10 MB each</div></div><div id="thumbs" class="thumbs"></div></div><label data-ru="Опиши идею или правки">Describe your idea or changes</label><textarea name="description" id="description" placeholder="Example: From image 1 take the pose, from image 2 the wings, and from image 3 the mood. Create an original composition..."></textarea><label data-ru="Стиль">Style profile</label><select name="style"><option value="realism" data-ru="Alex Kas — чёрно-серый реализм">Alex Kas — B&G Realism</option><option value="fusion" data-ru="Alex Kas — смешанный реализм">Alex Kas — Realism Fusion</option><option value="custom" data-ru="Свой стиль">Custom</option></select><div class="grid2"><div><label data-ru="Место на теле">Placement</label><select name="placement"><option value="forearm" data-ru="Предплечье">Forearm</option><option value="upper arm" data-ru="Плечо">Upper arm</option><option value="full sleeve" data-ru="Рукав">Full sleeve</option><option value="leg" data-ru="Нога">Leg</option><option value="back" data-ru="Спина">Back</option><option value="chest" data-ru="Грудь">Chest</option><option value="other" data-ru="Другое">Other</option></select></div><div><label data-ru="Формат">Canvas</label><select name="ratio"><option value="portrait" data-ru="Вертикальный 2:3">Portrait 2:3</option><option value="square" data-ru="Квадрат 1:1">Square 1:1</option><option value="landscape" data-ru="Горизонтальный 3:2">Landscape 3:2</option></select></div></div><button class="primary" id="generate" type="submit">✦ Generate design</button></form><p class="hint" data-ru="Запросы оплачиваются через OpenAI API. Ключ хранится на сервере. Эскизы и история сохраняются в этом браузере.">Image generation is billed by OpenAI API. Keep your API key on the server. Your images and history are stored locally in this browser unless you download them.</p></section><section class="panel"><h2 data-ru="Предпросмотр">Design preview</h2><div class="canvas" id="canvas"><div class="placeholder"><strong>✦</strong><span data-ru="Здесь появится готовый эскиз.">Your generated artwork will appear here.</span><br><small data-ru="Белый фон · без примерки на коже">White background · no skin mockup</small></div></div><div class="status" id="status"></div><div class="actions"><button id="zoom" disabled data-ru="Увеличить">Zoom</button><button id="stencil" disabled data-ru="Создать стенсил">Create stencil</button><button id="download" disabled data-ru="Скачать PNG">Download PNG</button><button id="revise" disabled data-ru="Внести правки">Revise this design</button><button id="new" type="button" data-ru="Новый проект">New project</button></div><label data-ru="История в этом браузере">Project history (this browser)</label><div class="history" id="history"></div></section></main><dialog id="viewer" aria-label="Design preview"><div class="viewer-tools"><button id="zoom-out" aria-label="−">−</button><output id="zoom-level">100%</output><button id="zoom-in" aria-label="+">+</button><button id="zoom-close" data-ru="Закрыть">Close</button></div><div id="viewer-scroll"><img id="viewer-image" alt=""></div></dialog><script>
+const $ = id => document.getElementById(id);
+const endpoint = 'https://zthujannhkdkjkwedyir.supabase.co/functions/v1/kas-ai';
+const canvas = $('canvas');
+const placeholder = canvas.firstElementChild;
+const translations = [...document.querySelectorAll('[data-ru]')].map(el => [el, el.textContent]);
+const actions = ['zoom', 'stencil', 'download', 'revise'];
+let lang = 'en', current = null, history = [], busy = false, zoom = 1;
+let status = ['', ''];
+let thumbs = [];
+try {
+  lang = localStorage.getItem('ak_language') === 'ru' ? 'ru' : 'en';
+  const saved = JSON.parse(localStorage.getItem('ak_history') || '[]');
+  if (Array.isArray(saved)) history = saved.map(item => typeof item === 'string' ? { image: item } : item)
+    .filter(item => item && typeof item.image === 'string' && item.image.startsWith('data:image/png;base64,'));
+} catch {}
+const tr = (en, ru) => lang === 'ru' ? ru : en;
+const say = (en, ru) => {
+  status = [en, ru];
+  $('status').textContent = tr(...status);
+};
+function renderForm() {
+  const revise = $('operation').value === 'revise';
+  $('generate').textContent = revise ? tr('✦ Apply revision', '✦ Применить правки') : tr('✦ Generate design', '✦ Создать эскиз');
+  $('description').placeholder = revise
+    ? tr('Describe what to change and what to keep.', 'Опиши, что изменить и что сохранить.')
+    : tr('Example: Use the pose from image 1 and the wings from image 2.', 'Например: возьми позу из первого референса, а крылья из второго.');
+  $('uploadArea').hidden = revise || $('mode').value === 'text';
 }
-let data = await res.json();
-if (!res.ok || data.error) throw Error(data.error || 'Request failed');
-if (typeof data.image !== 'string' || !data.image.startsWith('data:image/png;base64,')) {
-  throw Error('The studio API returned no image.');
+function applyLanguage() {
+  document.documentElement.lang = lang;
+  $('language').value = lang;
+  for (const [el, en] of translations) el.textContent = tr(en, el.dataset.ru);
+  $('viewer').setAttribute('aria-label', tr('Design preview', 'Предпросмотр'));
+  $('file-count').textContent = $('refs').files.length ? tr('Files selected: ', 'Выбрано файлов: ') + $('refs').files.length : '';
+  renderForm();
+  say(...status);
 }
-show(data.image);history.unshift(data.image);history=history.slice(0,4);try{localStorage.setItem('ak_history',JSON.stringify(history))}catch{history=history.slice(0,2)}renderHistory();$('status').textContent='Design ready.';$('operation').value='generate';$('generate').textContent='✦ Generate design';setMode(mode)}catch(err){$('status').textContent='Error: '+err.message}finally{btn.disabled=false}};$('download').onclick=()=>{if(!current)return;let a=document.createElement('a');a.href=current;a.download='alex-kas-tattoo-design.png';a.click()};$('revise').onclick=()=>{if(!current)return;$('operation').value='revise';$('generate').textContent='✦ Apply revision';$('description').placeholder='Describe exactly what to change and what must stay the same';setMode(mode);$('description').focus();window.scrollTo({top:0,behavior:'smooth'})};$('new').onclick=()=>{current=null;$('canvas').innerHTML='<div class="placeholder"><strong>✦</strong>Start a new design</div>';$('form').reset();$('thumbs').innerHTML='';$('operation').value='generate';$('generate').textContent='✦ Generate design';$('download').disabled=$('revise').disabled=true;setMode('hybrid');$('status').textContent=''};
+$('language').onchange = () => {
+  lang = $('language').value;
+  try { localStorage.setItem('ak_language', lang); } catch {}
+  applyLanguage();
+};
+function setMode(mode) {
+  $('mode').value = mode;
+  document.querySelectorAll('[data-mode]').forEach(button => button.classList.toggle('active', button.dataset.mode === mode));
+  renderForm();
+}
+document.querySelectorAll('[data-mode]').forEach(button => button.onclick = () => setMode(button.dataset.mode));
+function renderThumbs() {
+  thumbs.forEach(url => URL.revokeObjectURL(url));
+  thumbs = [...$('refs').files].slice(0, 5).map(file => URL.createObjectURL(file));
+  $('thumbs').replaceChildren(...thumbs.map(url => {
+    const img = new Image();
+    img.src = url;
+    return img;
+  }));
+  $('file-count').textContent = $('refs').files.length ? tr('Files selected: ', 'Выбрано файлов: ') + $('refs').files.length : '';
+}
+$('refs').onchange = renderThumbs;
+
+function setBusy(value) {
+  busy = value;
+  $('generate').disabled = $('new').disabled = value;
+  for (const id of actions) $(id).disabled = value || !current;
+  for (const button of $('history').children) button.disabled = value;
+}
+function show(item) {
+  current = item;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.setAttribute('aria-label', tr('Zoom', 'Увеличить'));
+  button.style.cssText = 'padding:0;border:0;background:none;display:block;max-width:100%';
+  const img = new Image();
+  img.alt = '';
+  img.src = item.image;
+  button.append(img);
+  button.onclick = openViewer;
+  canvas.replaceChildren(button);
+  setBusy(busy);
+}
+function renderHistory() {
+  $('history').replaceChildren(...history.map(item => {
+    const button = document.createElement('button');
+    const img = new Image();
+    img.src = item.image;
+    img.alt = item.stencil ? 'Stencil' : 'Design';
+    button.append(img);
+    button.onclick = () => {
+      $('operation').value = 'generate';
+      renderForm();
+      show(item);
+    };
+    return button;
+  }));
+}
+function remember(item) {
+  history = [item, ...history].slice(0, 4);
+  for (let count = history.length; count > 0; count--) {
+    try {
+      localStorage.setItem('ak_history', JSON.stringify(history.slice(0, count)));
+      break;
+    } catch {}
+  }
+  renderHistory();
+}
+function resizeViewer() {
+  const img = $('viewer-image');
+  if (!img.naturalWidth || !$('viewer').open) return;
+  const area = $('viewer-scroll');
+  const fit = Math.min(area.clientWidth / img.naturalWidth, area.clientHeight / img.naturalHeight);
+  img.style.width = Math.floor(img.naturalWidth * fit * zoom) + 'px';
+  $('zoom-level').textContent = Math.round(zoom * 100) + '%';
+  $('zoom-out').disabled = zoom <= 1;
+  $('zoom-in').disabled = zoom >= 4;
+}
+function openViewer() {
+  if (!current || $('viewer').open) return;
+  zoom = 1;
+  $('viewer-image').src = current.image;
+  $('viewer').showModal();
+  $('viewer-scroll').scrollTo(0, 0);
+  resizeViewer();
+}
+$('viewer-image').onload = resizeViewer;
+window.addEventListener('resize', resizeViewer);
+$('zoom').onclick = openViewer;
+$('zoom-in').onclick = () => { zoom = Math.min(4, zoom + .5); resizeViewer(); };
+$('zoom-out').onclick = () => { zoom = Math.max(1, zoom - .5); resizeViewer(); };
+$('zoom-close').onclick = () => $('viewer').close();
+
+const apiErrors = {
+  'Invalid studio access code.': 'Неверный код студии.',
+  'Studio access is not configured.': 'Код студии не настроен в Supabase.',
+  'OpenAI API key is not configured.': 'Ключ OpenAI не настроен в Supabase.',
+  'Invalid design options.': 'Неверные настройки эскиза. Проверь, что функция Supabase обновлена.',
+  'Invalid form data or upload too large.': 'Не удалось прочитать форму или файл слишком большой.',
+  'An image is required for this mode.': 'Для этого режима нужно изображение.',
+  'Upload up to five JPEG, PNG or WEBP images, each up to 10 MiB.': 'Можно загрузить до пяти JPEG, PNG или WEBP размером до 10 МиБ каждый.',
+  'OpenAI rejected the request.': 'OpenAI отклонил запрос.',
+  'OpenAI returned no image.': 'OpenAI не вернул изображение.',
+  'The image service did not return a valid response in time.': 'Сервис изображений не ответил вовремя.',
+};
+async function submit(operation) {
+  if (busy) return;
+  const code = $('studio-access').value.trim();
+  if (!code) return say('Enter the studio access code.', 'Введи код доступа к студии.');
+  const form = new FormData($('form'));
+  form.set('operation', operation);
+  form.delete('references[]');
+  const source = current;
+  const files = [...$('refs').files];
+  if (operation !== 'generate' && !source) return say('Select a design first.', 'Сначала выбери эскиз.');
+  if (operation === 'revise' && !$('description').value.trim()) return say('Describe the changes first.', 'Сначала опиши правки.');
+  if (operation === 'generate' && $('mode').value !== 'text') {
+    if ($('mode').value === 'reference' && !files.length) return say('Upload a reference image.', 'Загрузи референс.');
+    if (files.length > 5) return say('Choose up to five images.', 'Выбери не больше пяти изображений.');
+    files.forEach(file => form.append('references[]', file));
+  }
+  setBusy(true);
+  say('Working… this can take a minute or more.', 'Обработка может занять минуту или дольше…');
+  try {
+    if (operation !== 'generate') {
+      const blob = await (await fetch(source.image)).blob();
+      form.append('references[]', blob, 'current-design.png');
+      const img = canvas.querySelector('img');
+      if (img?.naturalWidth && img.naturalHeight) {
+        form.set('ratio', img.naturalWidth === img.naturalHeight ? 'square' :
+          img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait');
+      }
+    }
+    const response = await fetch(endpoint, { method: 'POST', headers: { 'X-Studio-Access': code }, body: form });
+    if (response.status === 413) return say('The upload is too large.', 'Файлы превышают лимит загрузки.');
+    const data = await response.json().catch(() => null);
+    if (!response.ok || typeof data?.image !== 'string' || !data.image.startsWith('data:image/png;base64,')) {
+      const message = data?.error || 'The studio API returned an unexpected response.';
+      const detail = Number.isInteger(data?.status) ? ' (' + data.status + ')' : '';
+      return say(message + detail, (apiErrors[message] || 'Ошибка API студии. Код HTTP: ' + response.status) + detail);
+    }
+    const item = { image: data.image, stencil: operation === 'stencil' || (operation === 'revise' && !!source?.stencil) };
+    show(item);
+    remember(item);
+    $('operation').value = 'generate';
+    renderForm();
+    say(item.stencil ? 'Stencil ready.' : 'Design ready.', item.stencil ? 'Стенсил готов.' : 'Эскиз готов.');
+  } catch {
+    say('Could not reach the studio API. Check the Supabase function.', 'Не удалось связаться с API. Проверь функцию в Supabase.');
+  } finally {
+    setBusy(false);
+  }
+}
+$('form').onsubmit = event => { event.preventDefault(); submit($('operation').value); };
+$('stencil').onclick = () => submit('stencil');
+$('revise').onclick = () => {
+  $('operation').value = 'revise';
+  $('description').value = '';
+  renderForm();
+  $('description').focus();
+  say('Describe what to change in the selected design.', 'Опиши, что изменить в выбранном эскизе.');
+};
+$('download').onclick = () => {
+  if (!current) return;
+  const link = document.createElement('a');
+  link.href = current.image;
+  link.download = current.stencil ? 'alex-kas-stencil.png' : 'alex-kas-tattoo-design.png';
+  link.click();
+};
+$('new').onclick = () => {
+  current = null;
+  canvas.replaceChildren(placeholder);
+  $('form').reset();
+  renderThumbs();
+  setMode('hybrid');
+  setBusy(false);
+  say('', '');
+};
+applyLanguage();
+renderHistory();
+
 </script></body></html>
