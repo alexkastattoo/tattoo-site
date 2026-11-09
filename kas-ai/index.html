@@ -261,7 +261,7 @@ $('design-file').onchange = async () => {
   }
   setBusy(true);
   try {
-    const image = await new Promise((resolve, reject) => {
+    let image = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.onerror = reader.onabort = reject;
@@ -270,16 +270,36 @@ $('design-file').onchange = async () => {
     const preview = new Image();
     preview.src = image;
     await preview.decode();
-    if (preview.naturalWidth * preview.naturalHeight > 12_000_000) {
-      return say('Choose an image up to 12 megapixels.', 'Выбери изображение до 12 мегапикселей.');
+    const pixels = preview.naturalWidth * preview.naturalHeight;
+    const resized = pixels > 12_000_000;
+    if (resized) {
+      const scale = Math.sqrt(12_000_000 / pixels);
+      const scaled = document.createElement('canvas');
+      scaled.width = Math.max(1, Math.floor(preview.naturalWidth * scale));
+      scaled.height = Math.max(1, Math.floor(preview.naturalHeight * scale));
+      const context = scaled.getContext('2d');
+      context.fillStyle = '#fff';
+      context.fillRect(0, 0, scaled.width, scaled.height);
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(preview, 0, 0, scaled.width, scaled.height);
+      image = scaled.toDataURL(file.type, .93);
+      if (image.length > Math.floor(10 * 1024 * 1024 / 3) * 4) {
+        image = scaled.toDataURL('image/jpeg', .9);
+      }
+      if (!supportedImage.test(image)) throw new Error('Image resize failed');
     }
     $('operation').value = 'generate';
     renderForm();
     const item = { image, imported: true };
     show(item);
     remember(item);
-    say('Design loaded. Choose Trace stencil or AI stencil.',
-        'Дизайн загружен. Выбери точную трассировку или AI-стенсил.');
+    if (resized) {
+      say('A smaller copy is ready. Choose Trace stencil or AI stencil.',
+          'Уменьшенная копия готова. Выбери точную трассировку или AI-стенсил.');
+    } else {
+      say('Design loaded. Choose Trace stencil or AI stencil.',
+          'Дизайн загружен. Выбери точную трассировку или AI-стенсил.');
+    }
   } catch {
     say('Could not open this image.', 'Не удалось открыть изображение.');
   } finally {
