@@ -1,8 +1,11 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alex Kas | Tattoo Design Studio</title><style>
 :root{color-scheme:dark;--bg:#0d0e11;--panel:#181a20;--panel2:#22252e;--line:#343741;--text:#f5f5f6;--muted:#a5a9b4;--accent:#d4a56a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}header{padding:22px 5vw;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}h1{font-size:20px;margin:0;letter-spacing:.05em}small,.muted{color:var(--muted)}main{max-width:1400px;margin:25px auto;padding:0 20px;display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:22px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}h2{margin:0 0 20px;font-size:18px}label{display:block;margin:16px 0 8px;font-weight:600;font-size:13px}select,textarea,input[type=text]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;font:inherit}textarea{min-height:110px;resize:vertical}.modes{display:flex;gap:6px}.modes button{flex:1;padding:10px 5px;font-size:12px}.modes button.active{border-color:var(--accent);color:var(--accent)}button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 14px;cursor:pointer}button.primary{background:var(--accent);color:#15100c;font-weight:800;width:100%;margin-top:20px;border:0}button:disabled{opacity:.5;cursor:wait}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.drop{border:1px dashed #777b86;border-radius:12px;padding:17px;text-align:center;cursor:pointer;color:var(--muted)}.drop input{max-width:100%}.thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.thumbs img{width:70px;height:75px;object-fit:cover;border-radius:7px}.canvas{min-height:470px;display:flex;align-items:center;justify-content:center;background:#101115;border:1px dashed var(--line);border-radius:14px;overflow:hidden}.canvas img{max-width:100%;max-height:70vh;object-fit:contain}.placeholder{text-align:center;color:var(--muted);padding:25px}.placeholder strong{display:block;font-size:50px;margin-bottom:12px;color:var(--accent)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.history{display:flex;gap:10px;overflow-x:auto;padding-top:15px}.history button{padding:4px;flex:0 0 95px}.history img{width:85px;height:95px;object-fit:cover;border-radius:6px}.status{min-height:25px;margin-top:12px;color:var(--muted);font-size:13px}.hint{font-size:12px;color:var(--muted);line-height:1.5}@media(max-width:800px){main{grid-template-columns:1fr}.canvas{min-height:330px}header{padding:18px 20px}}
-#studio-access{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text)}#language{width:auto}.canvas img{cursor:zoom-in}dialog{width:min(94vw,1100px);max-width:none;padding:12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px}dialog::backdrop{background:#000b}.viewer-tools{display:flex;align-items:center;gap:12px;margin-bottom:10px}#viewer-scroll{height:75vh;overflow:auto;background:#111}#viewer-image{display:block;max-width:none;margin:0 auto} .file-picker{position:relative;display:inline-block;cursor:pointer}.file-picker:focus-within{outline:2px solid var(--accent)}.file-picker input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}.trace-tools{display:flex;flex-wrap:wrap;gap:8px 20px}.trace-tools label{display:flex;align-items:center;gap:6px}.trace-preview{height:58vh;display:grid;place-items:center;background:#111}.trace-preview canvas{display:block;max-width:100%;max-height:58vh;object-fit:contain}</style></head><body><header><div><h1>ALEX KAS <span style="color:var(--accent)" data-ru="/ СТУДИЯ ТАТУ-ЭСКИЗОВ">/ TATTOO DESIGN STUDIO</span></h1><small data-ru="Идея • Генерация • Правки">Concept • Generate • Refine</small></div><select id="language" aria-label="Language"><option value="en">EN</option><option value="ru">RU</option></select></header><main><section class="panel"><h2 data-ru="Новый эскиз">New design</h2><label data-ru="Режим создания">Creation mode</label><div class="modes"><button type="button" data-mode="text" data-ru="Текст">Text</button><button type="button" data-mode="reference" data-ru="Референсы">References</button><button type="button" data-mode="hybrid" data-ru="Текст + референсы">Hybrid</button></div><label for="studio-access" data-ru="Код доступа">Studio access code</label><input id="studio-access" type="password" autocomplete="off" spellcheck="false"><form id="form"><input type="hidden" name="mode" id="mode" value="hybrid"><input type="hidden" name="operation" id="operation" value="generate"><div id="uploadArea"><label data-ru="Референсы (до 5)">Reference images (up to 5)</label><div class="drop"><label class="file-picker"><span data-ru="Выбрать файлы">Choose files</span><input type="file" id="refs" name="references[]" accept="image/png,image/jpeg,image/webp" multiple></label><div id="file-count" aria-live="polite"></div><div class="hint" data-ru="JPEG, PNG или WEBP · до 10 МБ каждый">JPEG, PNG or WEBP · up to 10 MB each</div></div><div id="thumbs" class="thumbs"></div></div><label data-ru="Опиши идею или правки">Describe your idea or changes</label><textarea name="description" id="description" placeholder="Example: From image 1 take the pose, from image 2 the wings, and from image 3 the mood. Create an original composition..."></textarea><label data-ru="Стиль">Style profile</label><select name="style"><option value="realism" data-ru="Alex Kas — чёрно-серый реализм">Alex Kas — B&G Realism</option><option value="fusion" data-ru="Alex Kas — смешанный реализм">Alex Kas — Realism Fusion</option><option value="custom" data-ru="Свой стиль">Custom</option></select><div class="grid2"><div><label data-ru="Место на теле">Placement</label><select name="placement"><option value="forearm" data-ru="Предплечье">Forearm</option><option value="upper arm" data-ru="Плечо">Upper arm</option><option value="full sleeve" data-ru="Рукав">Full sleeve</option><option value="leg" data-ru="Нога">Leg</option><option value="back" data-ru="Спина">Back</option><option value="chest" data-ru="Грудь">Chest</option><option value="other" data-ru="Другое">Other</option></select></div><div><label data-ru="Формат">Canvas</label><select name="ratio"><option value="portrait" data-ru="Вертикальный 2:3">Portrait 2:3</option><option value="square" data-ru="Квадрат 1:1">Square 1:1</option><option value="landscape" data-ru="Горизонтальный 3:2">Landscape 3:2</option></select></div></div><button class="primary" id="generate" type="submit">✦ Generate design</button></form><p class="hint" data-ru="Запросы оплачиваются через OpenAI API. Ключ хранится на сервере. Эскизы и история сохраняются в этом браузере.">Image generation is billed by OpenAI API. Keep your API key on the server. Your images and history are stored locally in this browser unless you download them.</p></section><section class="panel"><h2 data-ru="Предпросмотр">Design preview</h2><div class="canvas" id="canvas"><div class="placeholder"><strong>✦</strong><span data-ru="Здесь появится готовый эскиз.">Your generated artwork will appear here.</span><br><small data-ru="Белый фон · без примерки на коже">White background · no skin mockup</small></div></div><div class="status" id="status"></div><div class="actions"><button id="zoom" disabled data-ru="Увеличить">Zoom</button><button id="trace" disabled data-ru="Точная трассировка">Trace stencil</button><button id="stencil" disabled data-ru="AI-стенсил">AI stencil</button><button id="download" disabled data-ru="Скачать PNG">Download PNG</button><button id="revise" disabled data-ru="Внести правки">Revise this design</button><button id="new" type="button" data-ru="Новый проект">New project</button></div><label data-ru="История в этом браузере">Project history (this browser)</label><div class="history" id="history"></div></section></main><dialog id="viewer" aria-label="Design preview"><div class="viewer-tools"><button id="zoom-out" aria-label="−">−</button><output id="zoom-level">100%</output><button id="zoom-in" aria-label="+">+</button><button id="zoom-close" data-ru="Закрыть">Close</button></div><div id="viewer-scroll"><img id="viewer-image" alt=""></div></dialog><dialog id="trace-view" aria-labelledby="trace-title">
+#studio-access{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text)}#language{width:auto}.canvas img{cursor:zoom-in}dialog{width:min(94vw,1100px);max-width:none;padding:12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px}dialog::backdrop{background:#000b}.viewer-tools{display:flex;align-items:center;gap:12px;margin-bottom:10px}#viewer-scroll{height:75vh;overflow:auto;background:#111}#viewer-image{display:block;max-width:none;margin:0 auto} .file-picker{position:relative;display:inline-block;cursor:pointer}.file-picker:focus-within{outline:2px solid var(--accent)}.file-picker input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}.trace-tools{display:flex;flex-wrap:wrap;gap:8px 20px}.trace-tools label{display:flex;align-items:center;gap:6px}.trace-preview{height:58vh;display:grid;place-items:center;background:#111}.trace-preview canvas{display:block;max-width:100%;max-height:58vh;object-fit:contain}</style></head><body><header><div><h1>ALEX KAS <span style="color:var(--accent)" data-ru="/ СТУДИЯ ТАТУ-ЭСКИЗОВ">/ TATTOO DESIGN STUDIO</span></h1><small data-ru="Идея • Генерация • Правки">Concept • Generate • Refine</small></div><select id="language" aria-label="Language"><option value="en">EN</option><option value="ru">RU</option></select></header><main><section class="panel"><h2 data-ru="Новый эскиз">New design</h2><label data-ru="Режим создания">Creation mode</label><div class="modes"><button type="button" data-mode="text" data-ru="Текст">Text</button><button type="button" data-mode="reference" data-ru="Референсы">References</button><button type="button" data-mode="hybrid" data-ru="Текст + референсы">Hybrid</button></div><label for="studio-access" data-ru="Код доступа">Studio access code</label><input id="studio-access" type="password" autocomplete="off" spellcheck="false"><form id="form"><input type="hidden" name="mode" id="mode" value="hybrid"><input type="hidden" name="operation" id="operation" value="generate"><div id="uploadArea"><label data-ru="Референсы (до 5)">Reference images (up to 5)</label><div class="drop"><label class="file-picker"><span data-ru="Выбрать файлы">Choose files</span><input type="file" id="refs" name="references[]" accept="image/png,image/jpeg,image/webp" multiple></label><div id="file-count" aria-live="polite"></div><div class="hint" data-ru="JPEG, PNG или WEBP · до 10 МБ каждый">JPEG, PNG or WEBP · up to 10 MB each</div></div><div id="thumbs" class="thumbs"></div></div><label data-ru="Опиши идею или правки">Describe your idea or changes</label><textarea name="description" id="description" placeholder="Example: From image 1 take the pose, from image 2 the wings, and from image 3 the mood. Create an original composition..."></textarea><label data-ru="Стиль">Style profile</label><select name="style"><option value="realism" data-ru="Alex Kas — чёрно-серый реализм">Alex Kas — B&G Realism</option><option value="fusion" data-ru="Alex Kas — смешанный реализм">Alex Kas — Realism Fusion</option><option value="custom" data-ru="Свой стиль">Custom</option></select><div class="grid2"><div><label data-ru="Место на теле">Placement</label><select name="placement"><option value="forearm" data-ru="Предплечье">Forearm</option><option value="upper arm" data-ru="Плечо">Upper arm</option><option value="full sleeve" data-ru="Рукав">Full sleeve</option><option value="leg" data-ru="Нога">Leg</option><option value="back" data-ru="Спина">Back</option><option value="chest" data-ru="Грудь">Chest</option><option value="other" data-ru="Другое">Other</option></select></div><div><label data-ru="Формат">Canvas</label><select name="ratio"><option value="portrait" data-ru="Вертикальный 2:3">Portrait 2:3</option><option value="square" data-ru="Квадрат 1:1">Square 1:1</option><option value="landscape" data-ru="Горизонтальный 3:2">Landscape 3:2</option></select></div></div><button class="primary" id="generate" type="submit">✦ Generate design</button></form><p class="hint" data-ru="Запросы оплачиваются через OpenAI API. Ключ хранится на сервере. Эскизы и история сохраняются в этом браузере.">Image generation is billed by OpenAI API. Keep your API key on the server. Your images and history are stored locally in this browser unless you download them.</p></section><section class="panel"><h2 data-ru="Предпросмотр">Design preview</h2><div class="canvas" id="canvas"><div class="placeholder"><strong>✦</strong><span data-ru="Здесь появится готовый эскиз.">Your generated artwork will appear here.</span><br><small data-ru="Белый фон · без примерки на коже">White background · no skin mockup</small></div></div><div class="status" id="status"></div><div class="actions"><button id="zoom" disabled data-ru="Увеличить">Zoom</button><button id="trace" disabled data-ru="Точная трассировка">Trace stencil</button><button id="stencil" disabled data-ru="AI-стенсил">AI stencil</button><button id="download" disabled data-ru="Скачать PNG">Download PNG</button><button id="revise" disabled data-ru="Внести правки">Revise this design</button><button id="new" type="button" data-ru="Новый проект">New project</button></div><label><input type="checkbox" id="stencil-marks"> <span data-ru="AI-стенсил: редкие отметки теней">AI stencil: sparse shadow marks</span></label>
+<label data-ru="История в этом браузере">Project history (this browser)</label><div class="history" id="history"></div></section></main><dialog id="viewer" aria-label="Design preview"><div class="viewer-tools"><button id="zoom-out" aria-label="−">−</button><output id="zoom-level">100%</output><button id="zoom-in" aria-label="+">+</button><button id="zoom-close" data-ru="Закрыть">Close</button></div><div id="viewer-scroll"><img id="viewer-image" alt=""></div></dialog><dialog id="trace-view" aria-labelledby="trace-title">
 <h2 id="trace-title" data-ru="Точная трассировка">Trace stencil</h2>
+<p id="trace-source" class="hint"></p>
 <div class="trace-tools">
+<label><input id="trace-single" type="checkbox" checked> <span data-ru="Объединить близкие двойные линии">Merge close double lines</span></label>
 <label><span data-ru="Чувствительность">Sensitivity</span> <input id="trace-sensitivity" type="range" min="10" max="100" value="72"></label>
 <label><span data-ru="Толщина линий">Line thickness</span> <input id="trace-width" type="range" min="1" max="4" value="1"></label>
 <label><input id="trace-clean" type="checkbox" checked> <span data-ru="Убрать одиночные точки">Remove isolated dots</span></label>
@@ -52,6 +55,8 @@ $('language').onchange = () => {
   lang = $('language').value;
   try { localStorage.setItem('ak_language', lang); } catch {}
   applyLanguage();
+  renderHistory();
+  setBusy(busy);
 };
 function setMode(mode) {
   $('mode').value = mode;
@@ -96,7 +101,8 @@ function renderHistory() {
     const button = document.createElement('button');
     const img = new Image();
     img.src = item.image;
-    img.alt = item.stencil ? 'Stencil' : 'Design';
+    img.alt = item.stencil ? tr('AI stencil', 'AI-стенсил') : tr('Design', 'Эскиз');
+    button.title = img.alt;
     button.append(img);
     button.onclick = () => {
       $('operation').value = 'generate';
@@ -159,6 +165,7 @@ async function submit(operation) {
   if (!code) return say('Enter the studio access code.', 'Введи код доступа к студии.');
   const form = new FormData($('form'));
   form.set('operation', operation);
+  if (operation === 'stencil') form.set('stencil_marks', $('stencil-marks').checked ? 'sparse' : 'none');
   form.delete('references[]');
   const source = current;
   const files = [...$('refs').files];
@@ -252,19 +259,46 @@ function findEdges(pixels, width, height) {
       const gy = gray[i+width-1] + 2*gray[i+width] + gray[i+width+1] -
         gray[i-width-1] - 2*gray[i-width] - gray[i-width+1];
       magnitude[i] = Math.hypot(gx, gy);
-      direction[i] = (Math.round(Math.atan2(gy, gx) / (Math.PI / 4)) + 4) % 4;
+      direction[i] = (Math.round(Math.atan2(gy, gx) / (Math.PI / 4)) + 8) % 8;
     }
   }
   const offsets = [1, width + 1, width, width - 1];
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const i = y * width + x;
-      const offset = offsets[direction[i]];
+      const offset = offsets[direction[i] % 4];
       const value = magnitude[i];
       if (value >= magnitude[i-offset] && value > magnitude[i+offset]) edges[i] = Math.min(255, value / 4);
     }
   }
-  return edges;
+  return { edges, direction };
+}
+
+function mergeStrokeEdges(edges, direction, width, height, threshold) {
+  const merged = edges.slice();
+  const steps = [[1, 0], [1, 1], [0, 1], [-1, 1]];
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      const angle = direction[i];
+      // A narrow dark stroke falls in brightness on entry and rises on exit.
+      if (angle < 4 || edges[i] < threshold || merged[i] < threshold) continue;
+      const [dx, dy] = steps[angle - 4];
+      for (let distance = 1; distance <= 5; distance++) {
+        const nx = x + dx * distance, ny = y + dy * distance;
+        if (nx < 1 || nx >= width - 1 || ny < 1 || ny >= height - 1) break;
+        const j = ny * width + nx;
+        if (edges[j] < threshold) continue;
+        if (distance >= 2 && direction[j] === angle - 4 && merged[j] >= threshold) {
+          const center = i + Math.floor(distance / 2) * (dy * width + dx);
+          merged[i] = merged[j] = 0;
+          merged[center] = Math.max(edges[i], edges[j]);
+        }
+        break;
+      }
+    }
+  }
+  return merged;
 }
 
 function paintTrace(overlay) {
@@ -272,13 +306,15 @@ function paintTrace(overlay) {
   const threshold = 105 - Number($('trace-sensitivity').value);
   const radius = Number($('trace-width').value) - 1;
   const clean = $('trace-clean').checked;
-  const mask = new Uint8Array(traceEdges.length);
+  const { edges, direction } = traceEdges;
+  const lines = $('trace-single').checked ? mergeStrokeEdges(edges, direction, width, height, threshold) : edges;
+  const mask = new Uint8Array(lines.length);
+  const neighbors = [-width-1, -width, -width+1, -1, 1, width-1, width, width+1];
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const i = y * width + x;
-      if (traceEdges[i] < threshold) continue;
-      if (clean && ![-width-1, -width, -width+1, -1, 1, width-1, width, width+1]
-        .some(offset => traceEdges[i+offset] >= threshold)) continue;
+      if (lines[i] < threshold) continue;
+      if (clean && !neighbors.some(offset => lines[i+offset] >= threshold)) continue;
       for (let dy = -radius; dy <= radius; dy++) {
         for (let dx = -radius; dx <= radius; dx++) {
           if (dx*dx + dy*dy <= radius*radius && x+dx >= 0 && x+dx < width && y+dy >= 0 && y+dy < height) {
@@ -320,6 +356,11 @@ $('trace').onclick = async () => {
     sourceContext.drawImage(image, 0, 0);
     traceSource = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
     traceEdges = findEdges(traceSource, sourceCanvas.width, sourceCanvas.height);
+    $('trace-source').textContent = current.stencil
+      ? tr('Source: AI stencil. To trace the original geometry, close this window and select the design in History.',
+           'Источник: AI-стенсил. Чтобы обвести исходную геометрию, закрой окно и выбери эскиз в истории.')
+      : tr('Source: selected design. Enable overlay to compare the lines with this image.',
+           'Источник: выбранный эскиз. Включи наложение, чтобы сверить с ним линии.');
     traceView.showModal();
     scheduleTrace();
   } catch {
@@ -329,7 +370,7 @@ $('trace').onclick = async () => {
   }
 };
 
-for (const id of ['trace-sensitivity', 'trace-width', 'trace-clean', 'trace-overlay']) $(id).oninput = scheduleTrace;
+for (const id of ['trace-sensitivity', 'trace-width', 'trace-clean', 'trace-overlay', 'trace-single']) $(id).oninput = scheduleTrace;
 $('trace-close').onclick = () => traceView.close();
 $('trace-download').onclick = () => {
   paintTrace(false);
